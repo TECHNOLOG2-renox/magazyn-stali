@@ -558,20 +558,279 @@
     </div>
 
 
-    <!-- WYMIAR -->
+   <!-- WYMIARY MATERIAŁU -->
 
-    <div class="form-group">
+<div id="dimensionFields">
 
-      <label>Wymiar</label>
+  <!-- BLACHA -->
 
-      <input
-        type="text"
-        id="materialDimension"
-        placeholder="np. 2000x1000"
-      >
+  <div
+    class="form-group dimension-blacha"
+  >
 
-    </div>
+    <label>Długość (mm)</label>
 
+    <input
+      type="number"
+      id="materialLength"
+      min="0"
+      step="0.1"
+      placeholder="np. 2000"
+    >
+
+  </div>
+
+
+  <div
+    class="form-group dimension-blacha"
+  >
+
+    <label>Szerokość (mm)</label>
+
+    <input
+      type="number"
+      id="materialWidth"
+      min="0"
+      step="0.1"
+      placeholder="np. 1000"
+    >
+
+  </div>
+
+
+  <!-- PŁASKOWNIK -->
+
+  <div
+    class="form-group dimension-plaskownik hidden"
+  >
+
+    <label>Szerokość płaskownika (mm)</label>
+
+    <input
+      type="number"
+      id="flatWidth"
+      min="0"
+      step="0.1"
+      placeholder="np. 50"
+    >
+
+  </div>
+
+
+  <div
+    class="form-group dimension-plaskownik hidden"
+  >
+
+    <label>Grubość płaskownika (mm)</label>
+
+    <input
+      type="number"
+      id="flatThickness"
+      min="0"
+      step="0.1"
+      placeholder="np. 5"
+    >
+
+  </div>
+
+
+  <!-- CEOWNIK -->
+
+  <div
+    class="form-group dimension-ceownik hidden"
+  >
+
+    <label>Wysokość ceownika (mm)</label>
+
+    <input
+      type="number"
+      id="channelHeight"
+      min="0"
+      step="0.1"
+      placeholder="np. 100"
+    >
+
+  </div>
+
+
+  <div
+    class="form-group dimension-ceownik hidden"
+  >
+
+    <label>Szerokość ceownika (mm)</label>
+
+    <input
+      type="number"
+      id="channelWidth"
+      min="0"
+      step="0.1"
+      placeholder="np. 50"
+    >
+
+  </div>
+
+
+  <div
+    class="form-group dimension-ceownik hidden"
+  >
+
+    <label>Grubość ścianki (mm)</label>
+
+    <input
+      type="number"
+      id="channelThickness"
+      min="0"
+      step="0.1"
+      placeholder="np. 5"
+    >
+
+  </div>
+
+
+  <!-- PRĘT / WAŁEK -->
+
+  <div
+    class="form-group dimension-round hidden"
+  >
+
+    <label>Średnica (mm)</label>
+
+    <input
+      type="number"
+      id="materialDiameter"
+      min="0"
+      step="0.1"
+      placeholder="np. 20"
+    >
+
+  </div>
+
+
+  <!-- DŁUGOŚĆ -->
+
+  <div
+    class="form-group dimension-length"
+  >
+
+    <label>Długość (mm)</label>
+
+    <input
+      type="number"
+      id="materialLength2"
+      min="0"
+      step="0.1"
+      placeholder="np. 6000"
+    >
+
+  </div>
+
+
+  <!-- RURA -->
+
+  <div
+    class="form-group dimension-rura hidden"
+  >
+
+    <label>Średnica zewnętrzna (mm)</label>
+
+    <input
+      type="number"
+      id="pipeDiameter"
+      min="0"
+      step="0.1"
+      placeholder="np. 60"
+    >
+
+  </div>
+
+
+  <div
+    class="form-group dimension-rura hidden"
+  >
+
+    <label>Grubość ścianki (mm)</label>
+
+    <input
+      type="number"
+      id="pipeThickness"
+      min="0"
+      step="0.1"
+      placeholder="np. 3"
+    >
+
+  </div>
+
+
+  <!-- DWUTEOWNIK -->
+
+  <div
+    class="form-group dimension-dwuteownik hidden"
+  >
+
+    <label>Wysokość dwuteownika (mm)</label>
+
+    <input
+      type="number"
+      id="ibeamHeight"
+      min="0"
+      step="0.1"
+      placeholder="np. 200"
+    >
+
+  </div>
+
+
+  <div
+    class="form-group dimension-dwuteownik hidden"
+  >
+
+    <label>Szerokość stopki (mm)</label>
+
+    <input
+      type="number"
+      id="ibeamWidth"
+      min="0"
+      step="0.1"
+      placeholder="np. 100"
+    >
+
+  </div>
+
+
+  <div
+    class="form-group dimension-dwuteownik hidden"
+  >
+
+    <label>Grubość środnika (mm)</label>
+
+    <input
+      type="number"
+      id="ibeamWeb"
+      min="0"
+      step="0.1"
+      placeholder="np. 6"
+    >
+
+  </div>
+
+
+  <div
+    class="form-group dimension-dwuteownik hidden"
+  >
+
+    <label>Grubość stopki (mm)</label>
+
+    <input
+      type="number"
+      id="ibeamFlange"
+      min="0"
+      step="0.1"
+      placeholder="np. 8"
+    >
+
+  </div>
+
+</div>
 
     <!-- GRUBOŚĆ -->
 
