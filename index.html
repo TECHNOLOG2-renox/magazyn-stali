@@ -894,6 +894,39 @@
   // =========================================================
   // DODAWANIE
   // =========================================================
+function updateThicknessField() {
+
+  const type =
+    document.getElementById("materialType").value;
+
+  const group =
+    document.getElementById("thicknessGroup");
+
+  const label =
+    document.getElementById("thicknessLabel");
+
+  const input =
+    document.getElementById("materialThickness");
+
+  if (type === "Blacha") {
+
+    group.classList.remove("hidden");
+    label.innerText = "Grubość";
+    input.placeholder = "np. 3.0";
+
+  } else if (type === "Profil" || type === "Rura") {
+
+    group.classList.remove("hidden");
+    label.innerText = "Grubość ścianki";
+    input.placeholder = "np. 3.0";
+
+  } else {
+
+    group.classList.add("hidden");
+    input.value = "";
+
+  }
+}
 
  function openAddModal() {
 
