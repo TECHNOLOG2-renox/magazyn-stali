@@ -520,6 +520,22 @@
 
     </div>
 
+    <!-- RODZAJ MATERIAŁU -->
+
+<div class="form-group">
+
+  <label>Rodzaj materiału</label>
+
+  <select id="materialMaterialType">
+
+    <option value="Stal czarna">Stal czarna</option>
+    <option value="Stal nierdzewna">Stal nierdzewna</option>
+    <option value="Aluminium">Aluminium</option>
+
+  </select>
+
+</div>
+
 
     <!-- GATUNEK -->
 
@@ -668,6 +684,40 @@
   let departments = [];
 
   let currentUser = null;
+  // =========================================================
+// GĘSTOŚĆ MATERIAŁU
+// =========================================================
+
+function getDensity(materialSteel) {
+
+  const steel = String(materialSteel || "")
+    .trim()
+    .toLowerCase();
+
+  // Aluminium
+  if (
+    steel.includes("aluminium") ||
+    steel.includes("aluminum") ||
+    steel.includes("en aw")
+  ) {
+    return 2.70;
+  }
+
+  // Stal nierdzewna
+  if (
+    steel.includes("nierdzewna") ||
+    steel.includes("inox") ||
+    steel.includes("1.4301") ||
+    steel.includes("1.4307") ||
+    steel.includes("1.4404") ||
+    steel.includes("1.4571")
+  ) {
+    return 8.00;
+  }
+
+  // Stal czarna
+  return 7.85;
+}
 
 
   // =========================================================
