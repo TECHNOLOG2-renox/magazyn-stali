@@ -644,6 +644,40 @@
 
 <div class="form-group">
 
+  <label>Materiał</label>
+
+  <select
+    id="materialGroup"
+    onchange="updateDensityInfo()"
+  >
+
+    <option value="stal_czarna">
+      Stal czarna
+    </option>
+
+    <option value="stal_nierdzewna">
+      Stal nierdzewna
+    </option>
+
+    <option value="aluminium">
+      Aluminium
+    </option>
+
+  </select>
+
+</div>
+
+
+<div
+  id="densityInfo"
+  class="info-box"
+>
+  Gęstość: <strong>7,85 kg/dm³</strong>
+</div>
+
+
+<div class="form-group">
+
   <label>Gatunek materiału</label>
 
   <input
@@ -653,6 +687,7 @@
   >
 
 </div>
+
 
 
     <!-- =====================================================
