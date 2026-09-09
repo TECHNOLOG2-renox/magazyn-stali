@@ -6,7 +6,6 @@
   <title>Magazyn Stali RENOX</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 
   <style>
     * {
@@ -79,11 +78,6 @@
       font-weight: bold;
     }
 
-    button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-
     .btn-primary {
       background: #2563eb;
       color: white;
@@ -91,15 +85,6 @@
 
     .btn-primary:hover {
       background: #1d4ed8;
-    }
-
-    .btn-excel {
-      background: #15803d;
-      color: white;
-    }
-
-    .btn-excel:hover {
-      background: #166534;
     }
 
     .btn-danger {
@@ -150,17 +135,10 @@
       align-items: center;
       margin-bottom: 20px;
       gap: 15px;
-      flex-wrap: wrap;
     }
 
     .top-bar h2 {
       margin: 0;
-    }
-
-    .top-buttons {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
     }
 
     .filters {
@@ -187,7 +165,7 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 900px;
+      min-width: 800px;
     }
 
     th {
@@ -266,50 +244,6 @@
       color: #6b7280;
     }
 
-    .info-box {
-      background: #eff6ff;
-      border: 1px solid #bfdbfe;
-      color: #1e40af;
-      padding: 12px;
-      border-radius: 8px;
-      margin-bottom: 15px;
-      font-size: 14px;
-    }
-
-    .price-row {
-      display: grid;
-      grid-template-columns: 1fr 150px;
-      gap: 12px;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-
-    .price-row label {
-      margin: 0;
-    }
-
-    .price-input {
-      text-align: right;
-    }
-
-    .report-preview {
-      background: #f9fafb;
-      padding: 12px;
-      border-radius: 8px;
-      margin-top: 15px;
-      font-size: 14px;
-    }
-
-    .report-total {
-      font-size: 18px;
-      font-weight: bold;
-      color: #15803d;
-    }
-
-    .thickness-group {
-      display: none;
-    }
-
     @media (max-width: 800px) {
       .filter-grid {
         grid-template-columns: 1fr;
@@ -325,21 +259,8 @@
         align-items: flex-start;
       }
 
-      .top-buttons {
-        width: 100%;
-      }
-
-      .top-buttons button {
-        flex: 1;
-      }
-
       .app {
         padding: 15px;
-      }
-
-      .price-row {
-        grid-template-columns: 1fr;
-        gap: 5px;
       }
     }
   </style>
@@ -355,11 +276,12 @@
 
   <div class="login-box">
 
-    <h1>🏭 Magazyn Stali RENOX</h1>
+    <h1>🏭 Magazyn Stali</h1>
 
     <p>Zaloguj się do systemu</p>
 
     <div class="form-group">
+
       <label>Adres e-mail</label>
 
       <input
@@ -367,9 +289,11 @@
         id="loginEmail"
         placeholder="email@firma.pl"
       >
+
     </div>
 
     <div class="form-group">
+
       <label>Hasło</label>
 
       <input
@@ -377,6 +301,7 @@
         id="loginPassword"
         placeholder="Hasło"
       >
+
     </div>
 
     <button
@@ -426,23 +351,12 @@
 
       <h2>Materiały</h2>
 
-      <div class="top-buttons">
-
-        <button
-          class="btn-excel"
-          onclick="openExcelModal()"
-        >
-          📊 GENERUJ RAPORT EXCEL
-        </button>
-
-        <button
-          class="btn-primary"
-          onclick="openAddModal()"
-        >
-          + DODAJ MATERIAŁ
-        </button>
-
-      </div>
+      <button
+        class="btn-primary"
+        onclick="openAddModal()"
+      >
+        + DODAJ MATERIAŁ
+      </button>
 
     </div>
 
@@ -478,14 +392,13 @@
             onchange="renderMaterials()"
           >
 
-<option value="Blacha">Blacha</option>
-<option value="Płaskownik">Płaskownik</option>
-<option value="Ceownik">Ceownik</option>
-<option value="Pręt">Pręt</option>
-<option value="Wałek">Wałek</option>
-<option value="Rura">Rura</option>
-<option value="Dwuteownik">Dwuteownik</option>
-<option value="Inne">Inne</option>
+            <option value="">Wszystkie</option>
+            <option value="Blacha">Blacha</option>
+            <option value="Profil">Profil</option>
+            <option value="Pręt">Pręt</option>
+            <option value="Wałek">Wałek</option>
+            <option value="Rura">Rura</option>
+            <option value="Inne">Inne</option>
 
           </select>
 
@@ -541,22 +454,18 @@
           <tr>
 
             <th>Typ</th>
-
             <th>Gatunek stali</th>
-
             <th>Wymiar</th>
-
             <th>Ilość</th>
-
             <th>Lokalizacja</th>
-
             <th>Akcje</th>
 
           </tr>
 
         </thead>
 
-        <tbody id="materialsTable"></tbody>
+        <tbody id="materialsTable">
+        </tbody>
 
       </table>
 
@@ -578,7 +487,10 @@
 
   <div class="modal-content">
 
-    <h2 id="modalTitle">Dodaj materiał</h2>
+    <h2 id="modalTitle">
+      Dodaj materiał
+    </h2>
+
 
     <input
       type="hidden"
@@ -586,117 +498,64 @@
     >
 
 
-    <div class="form-group">
-
-  <label>Typ materiału</label>
-
-  <select
-    id="materialType"
-    onchange="updateMaterialFields()"
-  >
-
-    <option value="Blacha">Blacha</option>
-    <option value="Płaskownik">Płaskownik</option>
-    <option value="Ceownik">Ceownik</option>
-    <option value="Pręt">Pręt</option>
-    <option value="Wałek">Wałek</option>
-    <option value="Rura">Rura</option>
-    <option value="Dwuteownik">Dwuteownik</option>
-    <option value="Inne">Inne</option>
-
-  </select>
-
-</div>
+    <!-- TYP -->
 
     <div class="form-group">
 
-  <label>Materiał</label>
+      <label>Typ</label>
 
-  <select
-    id="materialGroup"
-    onchange="updateDensityInfo()"
-  >
+      <select
+        id="materialType"
+        onchange="updateThicknessField()"
+      >
 
-    <option value="stal_czarna">
-      Stal czarna
-    </option>
+        <option value="Blacha">Blacha</option>
+        <option value="Profil">Profil</option>
+        <option value="Pręt">Pręt</option>
+        <option value="Wałek">Wałek</option>
+        <option value="Rura">Rura</option>
+        <option value="Inne">Inne</option>
 
-    <option value="stal_nierdzewna">
-      Stal nierdzewna
-    </option>
+      </select>
 
-    <option value="aluminium">
-      Aluminium
-    </option>
-
-  </select>
-
-</div>
+    </div>
 
 
-<div
-  id="densityInfo"
-  class="info-box"
->
-  Gęstość: <strong>7,85 kg/dm³</strong>
-</div>
+    <!-- GATUNEK -->
+
+    <div class="form-group">
+
+      <label>Gatunek stali</label>
+
+      <input
+        type="text"
+        id="materialSteel"
+        placeholder="np. S355J2, S235JR, C45"
+      >
+
+    </div>
 
 
-<div class="form-group">
+    <!-- WYMIAR -->
 
-  <label>Materiał</label>
+    <div class="form-group">
 
-  <select
-    id="materialGroup"
-    onchange="updateDensityInfo()"
-  >
+      <label>Wymiar</label>
 
-    <option value="stal_czarna">
-      Stal czarna
-    </option>
+      <input
+        type="text"
+        id="materialDimension"
+        placeholder="np. 2000x1000"
+      >
 
-    <option value="stal_nierdzewna">
-      Stal nierdzewna
-    </option>
-
-    <option value="aluminium">
-      Aluminium
-    </option>
-
-  </select>
-
-</div>
+    </div>
 
 
-<div
-  id="densityInfo"
-  class="info-box"
->
-  Gęstość: <strong>7,85 kg/dm³</strong>
-</div>
-
-
-<div class="form-group">
-
-  <label>Gatunek materiału</label>
-
-  <input
-    type="text"
-    id="materialSteel"
-    placeholder="np. S355J2, 1.4301, EN AW-6060"
-  >
-
-</div>
-
-
-
-    <!-- =====================================================
-         GRUBOŚĆ
-    ====================================================== -->
+    <!-- GRUBOŚĆ -->
 
     <div
+      class="form-group"
       id="thicknessGroup"
-      class="form-group thickness-group"
     >
 
       <label id="thicknessLabel">
@@ -714,18 +573,7 @@
     </div>
 
 
-    <div class="form-group">
-
-      <label>Wymiar</label>
-
-      <input
-        type="text"
-        id="materialDimension"
-        placeholder="np. 2000 x 1000"
-      >
-
-    </div>
-
+    <!-- ILOŚĆ -->
 
     <div class="form-group">
 
@@ -742,6 +590,8 @@
     </div>
 
 
+    <!-- LOKALIZACJA -->
+
     <div class="form-group">
 
       <label>Lokalizacja</label>
@@ -755,11 +605,14 @@
     </div>
 
 
+    <!-- DZIAŁ -->
+
     <div class="form-group">
 
       <label>Dział</label>
 
-      <select id="materialDepartment"></select>
+      <select id="materialDepartment">
+      </select>
 
     </div>
 
@@ -790,72 +643,6 @@
 </div>
 
 
-<!-- =========================================================
-     MODAL RAPORTU EXCEL
-========================================================= -->
-
-<div
-  id="excelModal"
-  class="modal hidden"
->
-
-  <div class="modal-content">
-
-    <h2>📊 Raport Excel</h2>
-
-    <div class="info-box">
-
-      Podaj cenę za kilogram dla każdego gatunku stali.
-      Ceny będą użyte tylko w tym raporcie i
-      <strong>nie zostaną zapisane w bazie.</strong>
-
-    </div>
-
-
-    <div id="priceInputs"></div>
-
-
-    <div class="report-preview">
-
-      <div>
-        Liczba pozycji:
-        <strong id="reportItemCount">0</strong>
-      </div>
-
-      <div>
-        Liczba gatunków:
-        <strong id="reportSteelCount">0</strong>
-      </div>
-
-    </div>
-
-
-    <div id="excelMessage"></div>
-
-
-    <div class="modal-buttons">
-
-      <button
-        class="btn-secondary"
-        onclick="closeExcelModal()"
-      >
-        Anuluj
-      </button>
-
-      <button
-        class="btn-excel"
-        onclick="generateExcel()"
-      >
-        📥 POBIERZ EXCEL
-      </button>
-
-    </div>
-
-  </div>
-
-</div>
-
-
 <script>
 
   // =========================================================
@@ -876,55 +663,15 @@
     );
 
 
-  // =========================================================
-  // ZMIENNE
-  // =========================================================
-
   let materials = [];
 
   let departments = [];
 
   let currentUser = null;
-  
-  // =========================================================
-// GĘSTOŚCI MATERIAŁÓW
-// =========================================================
-
-const DENSITIES = {
-  "Stal czarna": 7.85,
-  "Stal nierdzewna": 8.00,
-  "Aluminium": 2.70
-};
-
-function getDensity(materialType) {
-
-  if (!materialType) {
-    return 7.85;
-  }
-
-  const type = String(materialType)
-    .trim()
-    .toLowerCase();
-
-  if (type === "aluminium") {
-    return 2.70;
-  }
-
-  if (
-    type === "stal nierdzewna" ||
-    type === "nierdzewna"
-  ) {
-    return 8.00;
-  }
-
-  // domyślnie stal czarna
-  return 7.85;
-}
-
 
 
   // =========================================================
-  // START
+  // START APLIKACJI
   // =========================================================
 
   async function startApp() {
@@ -1030,12 +777,14 @@ function getDensity(materialType) {
 
     document
       .getElementById("loginScreen")
-      .classList.remove("hidden");
+      .classList
+      .remove("hidden");
 
 
     document
       .getElementById("appScreen")
-      .classList.add("hidden");
+      .classList
+      .add("hidden");
 
   }
 
@@ -1048,17 +797,17 @@ function getDensity(materialType) {
 
     document
       .getElementById("loginScreen")
-      .classList.add("hidden");
+      .classList
+      .add("hidden");
 
 
     document
       .getElementById("appScreen")
-      .classList.remove("hidden");
+      .classList
+      .remove("hidden");
 
 
-    document
-      .getElementById("userName")
-      .innerText =
+    document.getElementById("userName").innerText =
       currentUser.email;
 
 
@@ -1107,23 +856,29 @@ function getDensity(materialType) {
     select.innerHTML = "";
 
 
-    departments.forEach(department => {
+    departments.forEach(
+      department => {
 
-      const option =
-        document.createElement("option");
-
-
-      option.value =
-        department.id;
-
-
-      option.textContent =
-        department.nazwa;
+        const option =
+          document.createElement(
+            "option"
+          );
 
 
-      select.appendChild(option);
+        option.value =
+          department.id;
 
-    });
+
+        option.textContent =
+          department.nazwa;
+
+
+        select.appendChild(
+          option
+        );
+
+      }
+    );
 
   }
 
@@ -1143,9 +898,12 @@ function getDensity(materialType) {
             nazwa
           )
         `)
-        .order("id", {
-          ascending: false
-        });
+        .order(
+          "id",
+          {
+            ascending: false
+          }
+        );
 
 
     if (error) {
@@ -1193,7 +951,9 @@ function getDensity(materialType) {
       [
         ...new Set(
           materials
-            .map(m => m.gatunek)
+            .map(
+              m => m.gatunek
+            )
             .filter(Boolean)
         )
       ].sort();
@@ -1203,7 +963,9 @@ function getDensity(materialType) {
       [
         ...new Set(
           materials
-            .map(m => m.lokalizacja)
+            .map(
+              m => m.lokalizacja
+            )
             .filter(Boolean)
         )
       ].sort();
@@ -1221,46 +983,58 @@ function getDensity(materialType) {
       '<option value="">Wszystkie</option>';
 
 
-    steels.forEach(steel => {
+    steels.forEach(
+      steel => {
 
-      const option =
-        document.createElement("option");
-
-
-      option.value =
-        steel;
-
-
-      option.textContent =
-        steel;
+        const option =
+          document.createElement(
+            "option"
+          );
 
 
-      steelSelect.appendChild(option);
+        option.value =
+          steel;
 
-    });
+
+        option.textContent =
+          steel;
+
+
+        steelSelect.appendChild(
+          option
+        );
+
+      }
+    );
 
 
     locationSelect.innerHTML =
       '<option value="">Wszystkie</option>';
 
 
-    locations.forEach(location => {
+    locations.forEach(
+      location => {
 
-      const option =
-        document.createElement("option");
-
-
-      option.value =
-        location;
-
-
-      option.textContent =
-        location;
+        const option =
+          document.createElement(
+            "option"
+          );
 
 
-      locationSelect.appendChild(option);
+        option.value =
+          location;
 
-    });
+
+        option.textContent =
+          location;
+
+
+        locationSelect.appendChild(
+          option
+        );
+
+      }
+    );
 
 
     steelSelect.value =
@@ -1288,65 +1062,59 @@ function getDensity(materialType) {
 
 
     const type =
-      document
-        .getElementById("typeFilter")
-        .value;
+      document.getElementById(
+        "typeFilter"
+      ).value;
 
 
     const steel =
-      document
-        .getElementById("steelFilter")
-        .value;
+      document.getElementById(
+        "steelFilter"
+      ).value;
 
 
     const location =
-      document
-        .getElementById("locationFilter")
-        .value;
+      document.getElementById(
+        "locationFilter"
+      ).value;
 
 
     const filtered =
-      materials.filter(material => {
+      materials.filter(
+        material => {
 
-        const searchable =
-          (
-            material.typ || ""
-          ) + " " +
-          (
-            material.gatunek || ""
-          ) + " " +
-          (
-            material.wymiar || ""
-          ) + " " +
-          (
-            material.lokalizacja || ""
+          const searchable =
+            (
+              (material.typ || "") +
+              " " +
+              (material.gatunek || "") +
+              " " +
+              (material.wymiar || "") +
+              " " +
+              (material.lokalizacja || "")
+            )
+            .toLowerCase();
+
+
+          return (
+
+            searchable.includes(
+              search
+            ) &&
+
+            (!type ||
+              material.typ === type) &&
+
+            (!steel ||
+              material.gatunek === steel) &&
+
+            (!location ||
+              material.lokalizacja === location)
+
           );
 
-
-        return (
-
-          searchable
-            .toLowerCase()
-            .includes(search)
-
-          &&
-
-          (!type ||
-            material.typ === type)
-
-          &&
-
-          (!steel ||
-            material.gatunek === steel)
-
-          &&
-
-          (!location ||
-            material.lokalizacja === location)
-
-        );
-
-      });
+        }
+      );
 
 
     const table =
@@ -1361,18 +1129,11 @@ function getDensity(materialType) {
     if (filtered.length === 0) {
 
       table.innerHTML = `
-
         <tr>
-
-          <td
-            colspan="6"
-            class="empty"
-          >
+          <td colspan="6" class="empty">
             Brak materiałów spełniających kryteria.
           </td>
-
         </tr>
-
       `;
 
       return;
@@ -1380,76 +1141,82 @@ function getDensity(materialType) {
     }
 
 
-    filtered.forEach(material => {
+    filtered.forEach(
+      material => {
 
-      const row =
-        document.createElement("tr");
-
-
-      row.innerHTML = `
-
-        <td>
-          ${escapeHtml(material.typ)}
-        </td>
-
-        <td>
-          ${escapeHtml(material.gatunek)}
-        </td>
-
-        <td>
-          ${escapeHtml(material.wymiar)}
-        </td>
-
-        <td>
-          ${escapeHtml(material.ilosc)}
-        </td>
-
-        <td>
-          ${escapeHtml(material.lokalizacja)}
-        </td>
-
-        <td>
-
-          <div class="actions">
-
-            <button
-              class="btn-edit"
-              onclick="editMaterial(${material.id})"
-            >
-              Edytuj
-            </button>
-
-            <button
-              class="btn-danger"
-              onclick="deleteMaterial(${material.id})"
-            >
-              Usuń
-            </button>
-
-          </div>
-
-        </td>
-
-      `;
+        const row =
+          document.createElement(
+            "tr"
+          );
 
 
-      table.appendChild(row);
+        row.innerHTML = `
 
-    });
+          <td>
+            ${escapeHtml(material.typ)}
+          </td>
+
+          <td>
+            ${escapeHtml(material.gatunek)}
+          </td>
+
+          <td>
+            ${escapeHtml(material.wymiar)}
+          </td>
+
+          <td>
+            ${escapeHtml(material.ilosc)}
+          </td>
+
+          <td>
+            ${escapeHtml(material.lokalizacja)}
+          </td>
+
+          <td>
+
+            <div class="actions">
+
+              <button
+                class="btn-edit"
+                onclick="editMaterial(${material.id})"
+              >
+                Edytuj
+              </button>
+
+              <button
+                class="btn-danger"
+                onclick="deleteMaterial(${material.id})"
+              >
+                Usuń
+              </button>
+
+            </div>
+
+          </td>
+
+        `;
+
+
+        table.appendChild(
+          row
+        );
+
+      }
+    );
 
   }
 
 
   // =========================================================
-  // POLE GRUBOŚCI
+  // OBSŁUGA POLA GRUBOŚCI
   // =========================================================
 
   function updateThicknessField() {
 
     const type =
-      document
-        .getElementById("materialType")
-        .value;
+      document.getElementById(
+        "materialType"
+      ).value;
 
 
     const group =
@@ -1470,152 +1237,44 @@ function getDensity(materialType) {
       );
 
 
-    if (
-      type === "Blacha" ||
+    if (type === "Blacha") {
+
+      group.classList.remove(
+        "hidden"
+      );
+
+      label.innerText =
+        "Grubość";
+
+      input.placeholder =
+        "np. 3.0";
+
+
+    } else if (
       type === "Profil" ||
       type === "Rura"
     ) {
 
-      group.style.display =
-        "block";
+      group.classList.remove(
+        "hidden"
+      );
 
+      label.innerText =
+        "Grubość ścianki";
 
-      if (type === "Blacha") {
+      input.placeholder =
+        "np. 3.0";
 
-        label.innerText =
-          "Grubość blachy (mm)";
-
-        input.placeholder =
-          "np. 3.0";
-
-      }
-
-
-      if (type === "Profil") {
-
-        label.innerText =
-          "Grubość ścianki (mm)";
-
-        input.placeholder =
-          "np. 3.0";
-
-      }
-
-
-      if (type === "Rura") {
-
-        label.innerText =
-          "Grubość ścianki (mm)";
-
-        input.placeholder =
-          "np. 3.0";
-
-      }
 
     } else {
 
-      group.style.display =
-        "none";
+      group.classList.add(
+        "hidden"
+      );
 
       input.value = "";
 
     }
-
-  }
-
-
-  // =========================================================
-  // TWORZENIE WYMIARU
-  // =========================================================
-
-  function buildDimension() {
-
-    const type =
-      document
-        .getElementById("materialType")
-        .value;
-
-
-    const dimension =
-      document
-        .getElementById("materialDimension")
-        .value
-        .trim();
-
-
-    const thickness =
-      document
-        .getElementById("materialThickness")
-        .value
-        .trim();
-
-
-    if (
-      type === "Blacha" ||
-      type === "Profil" ||
-      type === "Rura"
-    ) {
-
-      if (thickness) {
-
-        return (
-          "#" +
-          thickness +
-          " " +
-          dimension
-        );
-
-      }
-
-    }
-
-
-    return dimension;
-
-  }
-
-
-  // =========================================================
-  // ODCZYT GRUBOŚCI Z WYMIARU
-  // =========================================================
-
-  function extractThickness(dimension) {
-
-    if (!dimension) {
-
-      return {
-        thickness: "",
-        dimension: ""
-      };
-
-    }
-
-
-    const match =
-      String(dimension).match(
-        /^#([0-9]+(?:[.,][0-9]+)?)\s+(.+)$/
-      );
-
-
-    if (!match) {
-
-      return {
-        thickness: "",
-        dimension: dimension
-      };
-
-    }
-
-
-    return {
-
-      thickness:
-        match[1].replace(",", "."),
-
-      dimension:
-        match[2]
-
-    };
 
   }
 
@@ -1626,59 +1285,62 @@ function getDensity(materialType) {
 
   function openAddModal() {
 
-    document
-      .getElementById("modalTitle")
-      .innerText =
+    document.getElementById(
+      "modalTitle"
+    ).innerText =
       "Dodaj materiał";
 
 
-    document
-      .getElementById("materialId")
-      .value = "";
+    document.getElementById(
+      "materialId"
+    ).value = "";
 
 
-    document
-      .getElementById("materialType")
-      .value =
+    document.getElementById(
+      "materialType"
+    ).value =
       "Blacha";
 
 
-    document
-      .getElementById("materialSteel")
-      .value = "";
+    document.getElementById(
+      "materialSteel"
+    ).value = "";
 
 
-    document
-      .getElementById("materialThickness")
-      .value = "";
+    document.getElementById(
+      "materialDimension"
+    ).value = "";
 
 
-    document
-      .getElementById("materialDimension")
-      .value = "";
+    document.getElementById(
+      "materialThickness"
+    ).value = "";
 
 
-    document
-      .getElementById("materialQuantity")
-      .value = "";
+    document.getElementById(
+      "materialQuantity"
+    ).value = "";
 
 
-    document
-      .getElementById("materialLocation")
-      .value = "";
+    document.getElementById(
+      "materialLocation"
+    ).value = "";
 
 
-    document
-      .getElementById("modalMessage")
-      .innerText = "";
+    document.getElementById(
+      "modalMessage"
+    ).innerText = "";
 
 
     updateThicknessField();
 
 
     document
-      .getElementById("materialModal")
-      .classList.remove("hidden");
+      .getElementById(
+        "materialModal"
+      )
+      .classList
+      .remove("hidden");
 
   }
 
@@ -1698,77 +1360,112 @@ function getDensity(materialType) {
     if (!material) return;
 
 
-    document
-      .getElementById("modalTitle")
-      .innerText =
+    document.getElementById(
+      "modalTitle"
+    ).innerText =
       "Edytuj materiał";
 
 
-    document
-      .getElementById("materialId")
-      .value =
+    document.getElementById(
+      "materialId"
+    ).value =
       material.id;
 
 
-    document
-      .getElementById("materialType")
-      .value =
+    document.getElementById(
+      "materialType"
+    ).value =
       material.typ;
 
 
-    document
-      .getElementById("materialSteel")
-      .value =
+    // -------------------------------------------------------
+    // ODCZYT GRUBOŚCI Z WYMIARU
+    // -------------------------------------------------------
+
+    let savedDimension =
+      material.wymiar || "";
+
+
+    let savedThickness =
+      "";
+
+
+    if (
+      material.typ === "Blacha" ||
+      material.typ === "Profil" ||
+      material.typ === "Rura"
+    ) {
+
+      const match =
+        savedDimension.match(
+          /^#([0-9.,]+)\s+(.*)$/
+        );
+
+
+      if (match) {
+
+        savedThickness =
+          match[1];
+
+
+        savedDimension =
+          match[2];
+
+      }
+
+    }
+
+
+    document.getElementById(
+      "materialSteel"
+    ).value =
       material.gatunek || "";
 
 
-    const thicknessData =
-      extractThickness(
-        material.wymiar
-      );
+    document.getElementById(
+      "materialDimension"
+    ).value =
+      savedDimension;
 
 
-    document
-      .getElementById("materialThickness")
-      .value =
-      thicknessData.thickness;
+    document.getElementById(
+      "materialThickness"
+    ).value =
+      savedThickness;
 
 
-    document
-      .getElementById("materialDimension")
-      .value =
-      thicknessData.dimension;
-
-
-    document
-      .getElementById("materialQuantity")
-      .value =
+    document.getElementById(
+      "materialQuantity"
+    ).value =
       material.ilosc;
 
 
-    document
-      .getElementById("materialLocation")
-      .value =
-      material.lokalizacja || "";
+    document.getElementById(
+      "materialLocation"
+    ).value =
+      material.lokalizacja;
 
 
-    document
-      .getElementById("materialDepartment")
-      .value =
+    document.getElementById(
+      "materialDepartment"
+    ).value =
       material.dzial_id || "";
 
 
-    document
-      .getElementById("modalMessage")
-      .innerText = "";
+    document.getElementById(
+      "modalMessage"
+    ).innerText = "";
 
 
     updateThicknessField();
 
 
     document
-      .getElementById("materialModal")
-      .classList.remove("hidden");
+      .getElementById(
+        "materialModal"
+      )
+      .classList
+      .remove("hidden");
 
   }
 
@@ -1780,53 +1477,108 @@ function getDensity(materialType) {
   async function saveMaterial() {
 
     const id =
-      document
-        .getElementById("materialId")
-        .value;
+      document.getElementById(
+        "materialId"
+      ).value;
+
+
+    const type =
+      document.getElementById(
+        "materialType"
+      ).value;
 
 
     const dimension =
-      buildDimension();
+      document.getElementById(
+        "materialDimension"
+      ).value.trim();
+
+
+    const thickness =
+      document.getElementById(
+        "materialThickness"
+      ).value.trim();
+
+
+    // -------------------------------------------------------
+    // TWORZENIE KOŃCOWEGO WYMIARU
+    // -------------------------------------------------------
+
+    let finalDimension =
+      dimension;
+
+
+    if (
+      (
+        type === "Blacha" ||
+        type === "Profil" ||
+        type === "Rura"
+      ) &&
+      thickness
+    ) {
+
+      finalDimension =
+        "#" +
+        thickness +
+        " " +
+        dimension;
+
+    }
 
 
     const material = {
 
       typ:
-        document
-          .getElementById("materialType")
-          .value,
+        type,
+
 
       gatunek:
         document
-          .getElementById("materialSteel")
+          .getElementById(
+            "materialSteel"
+          )
           .value
           .trim(),
 
+
       wymiar:
-        dimension,
+        finalDimension,
+
 
       ilosc:
         Number(
           document
-            .getElementById("materialQuantity")
+            .getElementById(
+              "materialQuantity"
+            )
             .value
         ),
 
+
       lokalizacja:
         document
-          .getElementById("materialLocation")
+          .getElementById(
+            "materialLocation"
+          )
           .value
           .trim(),
+
 
       dzial_id:
         Number(
           document
-            .getElementById("materialDepartment")
+            .getElementById(
+              "materialDepartment"
+            )
             .value
         )
 
     };
 
+
+    // -------------------------------------------------------
+    // WALIDACJA
+    // -------------------------------------------------------
 
     if (
       !material.gatunek ||
@@ -1835,50 +1587,16 @@ function getDensity(materialType) {
       isNaN(material.ilosc)
     ) {
 
-      document
-        .getElementById("modalMessage")
-        .className =
+      document.getElementById(
+        "modalMessage"
+      ).className =
         "error";
 
 
-      document
-        .getElementById("modalMessage")
-        .innerText =
+      document.getElementById(
+        "modalMessage"
+      ).innerText =
         "Uzupełnij wszystkie pola.";
-
-
-      return;
-
-    }
-
-
-    const type =
-      material.typ;
-
-
-    if (
-      (
-        type === "Blacha" ||
-        type === "Profil" ||
-        type === "Rura"
-      )
-      &&
-      !document
-        .getElementById("materialThickness")
-        .value
-        .trim()
-    ) {
-
-      document
-        .getElementById("modalMessage")
-        .className =
-        "error";
-
-
-      document
-        .getElementById("modalMessage")
-        .innerText =
-        "Podaj grubość."
 
 
       return;
@@ -1889,6 +1607,10 @@ function getDensity(materialType) {
     let result;
 
 
+    // -------------------------------------------------------
+    // EDYCJA
+    // -------------------------------------------------------
+
     if (id) {
 
       result =
@@ -1896,6 +1618,11 @@ function getDensity(materialType) {
           .from("materialy")
           .update(material)
           .eq("id", id);
+
+
+    // -------------------------------------------------------
+    // DODAWANIE
+    // -------------------------------------------------------
 
     } else {
 
@@ -1907,17 +1634,21 @@ function getDensity(materialType) {
     }
 
 
+    // -------------------------------------------------------
+    // BŁĄD
+    // -------------------------------------------------------
+
     if (result.error) {
 
-      document
-        .getElementById("modalMessage")
-        .className =
+      document.getElementById(
+        "modalMessage"
+      ).className =
         "error";
 
 
-      document
-        .getElementById("modalMessage")
-        .innerText =
+      document.getElementById(
+        "modalMessage"
+      ).innerText =
         "Błąd: " +
         result.error.message;
 
@@ -1975,434 +1706,23 @@ function getDensity(materialType) {
 
 
   // =========================================================
-  // MODAL MATERIAŁU
+  // ZAMKNIĘCIE MODALA
   // =========================================================
 
   function closeModal() {
 
     document
-      .getElementById("materialModal")
-      .classList.add("hidden");
-
-  }
-
-
-  // =========================================================
-  // OTWARCIE RAPORTU EXCEL
-  // =========================================================
-
-  function openExcelModal() {
-
-    if (!materials.length) {
-
-      alert(
-        "Brak materiałów w magazynie."
-      );
-
-      return;
-
-    }
-
-
-    const steelGroups =
-      getSteelGroups();
-
-
-    const priceInputs =
-      document.getElementById(
-        "priceInputs"
-      );
-
-
-    priceInputs.innerHTML = "";
-
-
-    steelGroups.forEach((steel, index) => {
-
-      const row =
-        document.createElement("div");
-
-
-      row.className =
-        "price-row";
-
-
-      row.innerHTML = `
-
-        <label for="price_${index}">
-          ${escapeHtml(steel)}
-        </label>
-
-        <input
-          class="price-input"
-          type="number"
-          id="price_${index}"
-          data-steel="${escapeHtml(steel)}"
-          min="0"
-          step="0.01"
-          placeholder="zł/kg"
-        >
-
-      `;
-
-
-      priceInputs.appendChild(row);
-
-    });
-
-
-    document
-      .getElementById("reportItemCount")
-      .innerText =
-      materials.length;
-
-
-    document
-      .getElementById("reportSteelCount")
-      .innerText =
-      steelGroups.length;
-
-
-    document
-      .getElementById("excelMessage")
-      .innerText = "";
-
-
-    document
-      .getElementById("excelModal")
-      .classList.remove("hidden");
-
-  }
-
-
-  // =========================================================
-  // GRUPY GATUNKÓW
-  // =========================================================
-
-  function getSteelGroups() {
-
-    return [
-      ...new Set(
-        materials
-          .map(m =>
-            String(m.gatunek || "")
-              .trim()
-          )
-          .filter(Boolean)
+      .getElementById(
+        "materialModal"
       )
-    ].sort();
+      .classList
+      .add("hidden");
 
   }
 
 
   // =========================================================
-  // GENEROWANIE EXCELA
-  // =========================================================
-
-  function generateExcel() {
-
-    const steelGroups =
-      getSteelGroups();
-
-
-    const prices = {};
-
-
-    let hasError = false;
-
-
-    steelGroups.forEach((steel, index) => {
-
-      const input =
-        document.getElementById(
-          `price_${index}`
-        );
-
-
-      const value =
-        input.value.trim();
-
-
-      if (
-        value === "" ||
-        isNaN(Number(value)) ||
-        Number(value) < 0
-      ) {
-
-        input.style.border =
-          "2px solid #dc2626";
-
-        hasError = true;
-
-      } else {
-
-        input.style.border =
-          "1px solid #d1d5db";
-
-
-        prices[steel] =
-          Number(value);
-
-      }
-
-    });
-
-
-    if (hasError) {
-
-      document
-        .getElementById("excelMessage")
-        .className =
-        "error";
-
-
-      document
-        .getElementById("excelMessage")
-        .innerText =
-        "Podaj poprawną cenę dla każdego gatunku.";
-
-
-      return;
-
-    }
-
-
-    const reportData = [];
-
-
-    let totalValue = 0;
-
-
-    materials.forEach(material => {
-
-      const steel =
-        String(
-          material.gatunek || ""
-        ).trim();
-
-
-      const price =
-        prices[steel] || 0;
-
-
-      const quantity =
-        Number(material.ilosc) || 0;
-
-
-      const value =
-        quantity * price;
-
-
-      totalValue += value;
-
-
-      const departmentName =
-        material.dzialy &&
-        material.dzialy.nazwa
-          ? material.dzialy.nazwa
-          : getDepartmentName(
-              material.dzial_id
-            );
-
-
-      reportData.push({
-
-        "Typ":
-          material.typ || "",
-
-        "Gatunek stali":
-          steel,
-
-        "Wymiar":
-          material.wymiar || "",
-
-        "Ilość":
-          quantity,
-
-        "Lokalizacja":
-          material.lokalizacja || "",
-
-        "Dział":
-          departmentName,
-
-        "Cena [zł/kg]":
-          price,
-
-        "Wartość [zł]":
-          value
-
-      });
-
-    });
-
-
-    reportData.push({});
-
-
-    reportData.push({
-
-      "Typ":
-        "PODSUMOWANIE",
-
-      "Wartość [zł]":
-        totalValue
-
-    });
-
-
-    const worksheet =
-      XLSX.utils.json_to_sheet(
-        reportData
-      );
-
-
-    // Szerokości kolumn
-
-    worksheet["!cols"] = [
-
-      { wch: 15 },
-      { wch: 18 },
-      { wch: 28 },
-      { wch: 12 },
-      { wch: 25 },
-      { wch: 18 },
-      { wch: 15 },
-      { wch: 18 }
-
-    ];
-
-
-    // Formatowanie liczb
-
-    const range =
-      XLSX.utils.decode_range(
-        worksheet["!ref"]
-      );
-
-
-    for (
-      let row = range.s.r;
-      row <= range.e.r;
-      row++
-    ) {
-
-      for (
-        let col = range.s.c;
-        col <= range.e.c;
-        col++
-      ) {
-
-        const cellAddress =
-          XLSX.utils.encode_cell({
-            r: row,
-            c: col
-          });
-
-
-        const cell =
-          worksheet[cellAddress];
-
-
-        if (!cell) continue;
-
-
-        if (
-          col === 6 ||
-          col === 7
-        ) {
-
-          if (
-            typeof cell.v === "number"
-          ) {
-
-            cell.z =
-              '#,##0.00';
-
-          }
-
-        }
-
-      }
-
-    }
-
-
-    const workbook =
-      XLSX.utils.book_new();
-
-
-    XLSX.utils.book_append_sheet(
-      workbook,
-      worksheet,
-      "Stan magazynowy"
-    );
-
-
-    const now =
-      new Date();
-
-
-    const date =
-      now
-        .toLocaleDateString("pl-PL")
-        .replace(/\./g, "-");
-
-
-    const time =
-      now
-        .toLocaleTimeString("pl-PL")
-        .replace(/:/g, "-");
-
-
-    const fileName =
-      `Raport_stanu_magazynowego_${date}_${time}.xlsx`;
-
-
-    XLSX.writeFile(
-      workbook,
-      fileName
-    );
-
-
-    closeExcelModal();
-
-  }
-
-
-  // =========================================================
-  // NAZWA DZIAŁU
-  // =========================================================
-
-  function getDepartmentName(id) {
-
-    const department =
-      departments.find(
-        d => d.id === id
-      );
-
-
-    return department
-      ? department.nazwa
-      : "";
-
-  }
-
-
-  // =========================================================
-  // MODAL EXCEL
-  // =========================================================
-
-  function closeExcelModal() {
-
-    document
-      .getElementById("excelModal")
-      .classList.add("hidden");
-
-  }
-
-
-  // =========================================================
-  // BEZPIECZNE WYŚWIETLANIE
+  // BEZPIECZNE WYŚWIETLANIE TEKSTU
   // =========================================================
 
   function escapeHtml(value) {
