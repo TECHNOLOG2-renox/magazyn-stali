@@ -967,56 +967,89 @@ function updateThicknessField() {
   // EDYCJA
   // =========================================================
 
-  function editMaterial(id) {
+ function editMaterial(id) {
 
-    const material =
-      materials.find(m => m.id === id);
-
-
-    if (!material) return;
+  const material =
+    materials.find(m => m.id === id);
 
 
-    document.getElementById("modalTitle").innerText =
-      "Edytuj materiał";
+  if (!material) return;
 
 
-    document.getElementById("materialId").value =
-      material.id;
+  document.getElementById("modalTitle").innerText =
+    "Edytuj materiał";
 
 
-    document.getElementById("materialType").value =
-      material.typ;
+  document.getElementById("materialId").value =
+    material.id;
 
 
-    document.getElementById("materialSteel").value =
-      material.gatunek;
+  document.getElementById("materialType").value =
+    material.typ;
 
 
-    document.getElementById("materialDimension").value =
-      material.wymiar;
+  // Odczyt grubości zapisanej w wymiarze
+  let savedDimension = material.wymiar || "";
+  let savedThickness = "";
 
 
-    document.getElementById("materialQuantity").value =
-      material.ilosc;
+  if (
+    material.typ === "Blacha" ||
+    material.typ === "Profil" ||
+    material.typ === "Rura"
+  ) {
+
+    const match =
+      savedDimension.match(/^#([0-9.,]+)\s+(.*)$/);
 
 
-    document.getElementById("materialLocation").value =
-      material.lokalizacja;
+    if (match) {
 
+      savedThickness = match[1];
+      savedDimension = match[2];
 
-    document.getElementById("materialDepartment").value =
-      material.dzial_id || "";
-
-
-    document.getElementById("modalMessage").innerText =
-      "";
-
-
-    document
-      .getElementById("materialModal")
-      .classList.remove("hidden");
+    }
 
   }
+
+
+  document.getElementById("materialSteel").value =
+    material.gatunek || "";
+
+
+  document.getElementById("materialDimension").value =
+    savedDimension;
+
+
+  document.getElementById("materialThickness").value =
+    savedThickness;
+
+
+  document.getElementById("materialQuantity").value =
+    material.ilosc;
+
+
+  document.getElementById("materialLocation").value =
+    material.lokalizacja;
+
+
+  document.getElementById("materialDepartment").value =
+    material.dzial_id || "";
+
+
+  document.getElementById("modalMessage").innerText =
+    "";
+
+
+  updateThicknessField();
+
+
+  document
+    .getElementById("materialModal")
+    .classList.remove("hidden");
+
+}
+
 
 
   // =========================================================
