@@ -1025,35 +1025,54 @@ function updateThicknessField() {
 
   async function saveMaterial() {
 
-    const id =
-      document.getElementById("materialId").value;
+    const type =
+  document.getElementById("materialType").value;
+
+const dimension =
+  document.getElementById("materialDimension").value.trim();
+
+const thickness =
+  document.getElementById("materialThickness").value.trim();
+
+let finalDimension = dimension;
+
+if (
+  (type === "Blacha" ||
+   type === "Profil" ||
+   type === "Rura") &&
+  thickness
+) {
+
+  finalDimension =
+    "#" + thickness + " " + dimension;
+
+}
 
 
-    const material = {
+const material = {
 
-      typ:
-        document.getElementById("materialType").value,
+  typ: type,
 
-      gatunek:
-        document.getElementById("materialSteel").value.trim(),
+  gatunek:
+    document.getElementById("materialSteel").value.trim(),
 
-      wymiar:
-        document.getElementById("materialDimension").value.trim(),
+  wymiar:
+    finalDimension,
 
-      ilosc:
-        Number(
-          document.getElementById("materialQuantity").value
-        ),
+  ilosc:
+    Number(
+      document.getElementById("materialQuantity").value
+    ),
 
-      lokalizacja:
-        document.getElementById("materialLocation").value.trim(),
+  lokalizacja:
+    document.getElementById("materialLocation").value.trim(),
 
-      dzial_id:
-        Number(
-          document.getElementById("materialDepartment").value
-        )
+  dzial_id:
+    Number(
+      document.getElementById("materialDepartment").value
+    )
 
-    };
+};
 
 
     if (
