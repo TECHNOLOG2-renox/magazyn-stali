@@ -885,6 +885,42 @@
   let departments = [];
 
   let currentUser = null;
+  
+  // =========================================================
+// GĘSTOŚCI MATERIAŁÓW
+// =========================================================
+
+const DENSITIES = {
+  "Stal czarna": 7.85,
+  "Stal nierdzewna": 8.00,
+  "Aluminium": 2.70
+};
+
+function getDensity(materialType) {
+
+  if (!materialType) {
+    return 7.85;
+  }
+
+  const type = String(materialType)
+    .trim()
+    .toLowerCase();
+
+  if (type === "aluminium") {
+    return 2.70;
+  }
+
+  if (
+    type === "stal nierdzewna" ||
+    type === "nierdzewna"
+  ) {
+    return 8.00;
+  }
+
+  // domyślnie stal czarna
+  return 7.85;
+}
+
 
 
   // =========================================================
