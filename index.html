@@ -268,75 +268,130 @@
 
 <body>
 
-<!-- LOGOWANIE -->
+<!-- =========================================================
+     LOGOWANIE
+========================================================= -->
+
 <div id="loginScreen" class="login-container">
+
   <div class="login-box">
+
     <h1>🏭 Magazyn Stali</h1>
+
     <p>Zaloguj się do systemu</p>
 
     <div class="form-group">
+
       <label>Adres e-mail</label>
-      <input type="email" id="loginEmail" placeholder="email@firma.pl">
+
+      <input
+        type="email"
+        id="loginEmail"
+        placeholder="email@firma.pl"
+      >
+
     </div>
 
     <div class="form-group">
+
       <label>Hasło</label>
-      <input type="password" id="loginPassword" placeholder="Hasło">
+
+      <input
+        type="password"
+        id="loginPassword"
+        placeholder="Hasło"
+      >
+
     </div>
 
-    <button class="btn-primary" style="width:100%;" onclick="login()">
+    <button
+      class="btn-primary"
+      style="width:100%;"
+      onclick="login()"
+    >
       ZALOGUJ
     </button>
 
     <div id="loginMessage"></div>
+
   </div>
+
 </div>
 
 
-<!-- APLIKACJA -->
+<!-- =========================================================
+     APLIKACJA
+========================================================= -->
+
 <div id="appScreen" class="hidden">
 
- <header>
-  <h1>🏭 Magazyn Stali RENOX</h1>
+  <header>
 
-  <div class="user-info">
-    <span id="userName"></span>
-    <button class="btn-secondary" onclick="logout()">Wyloguj</button>
-  </div>
-</header>
+    <h1>🏭 Magazyn Stali RENOX</h1>
 
+    <div class="user-info">
 
+      <span id="userName"></span>
+
+      <button
+        class="btn-secondary"
+        onclick="logout()"
+      >
+        Wyloguj
+      </button>
+
+    </div>
+
+  </header>
 
 
   <main class="app">
 
     <div class="top-bar">
+
       <h2>Materiały</h2>
 
-      <button class="btn-primary" onclick="openAddModal()">
+      <button
+        class="btn-primary"
+        onclick="openAddModal()"
+      >
         + DODAJ MATERIAŁ
       </button>
+
     </div>
 
 
-    <!-- FILTRY -->
+    <!-- =====================================================
+         FILTRY
+    ====================================================== -->
+
     <div class="filters">
 
       <div class="filter-grid">
 
         <div>
+
           <label>🔎 Szukaj</label>
+
           <input
             type="text"
             id="searchInput"
             placeholder="Typ, gatunek, wymiar, lokalizacja..."
             oninput="renderMaterials()"
           >
+
         </div>
 
+
         <div>
+
           <label>Typ</label>
-          <select id="typeFilter" onchange="renderMaterials()">
+
+          <select
+            id="typeFilter"
+            onchange="renderMaterials()"
+          >
+
             <option value="">Wszystkie</option>
             <option value="Blacha">Blacha</option>
             <option value="Profil">Profil</option>
@@ -344,41 +399,69 @@
             <option value="Wałek">Wałek</option>
             <option value="Rura">Rura</option>
             <option value="Inne">Inne</option>
+
           </select>
+
         </div>
 
+
         <div>
+
           <label>Gatunek stali</label>
-          <select id="steelFilter" onchange="renderMaterials()">
+
+          <select
+            id="steelFilter"
+            onchange="renderMaterials()"
+          >
+
             <option value="">Wszystkie</option>
+
           </select>
+
         </div>
 
+
         <div>
+
           <label>Lokalizacja</label>
-          <select id="locationFilter" onchange="renderMaterials()">
+
+          <select
+            id="locationFilter"
+            onchange="renderMaterials()"
+          >
+
             <option value="">Wszystkie</option>
+
           </select>
+
         </div>
 
       </div>
+
     </div>
 
 
-    <!-- TABELA -->
+    <!-- =====================================================
+         TABELA
+    ====================================================== -->
+
     <div class="table-container">
 
       <table>
 
         <thead>
+
           <tr>
+
             <th>Typ</th>
             <th>Gatunek stali</th>
             <th>Wymiar</th>
             <th>Ilość</th>
             <th>Lokalizacja</th>
             <th>Akcje</th>
+
           </tr>
+
         </thead>
 
         <tbody id="materialsTable">
@@ -389,51 +472,96 @@
     </div>
 
   </main>
+
 </div>
 
 
-<!-- MODAL DODAWANIA / EDYCJI -->
-<div id="materialModal" class="modal hidden">
+<!-- =========================================================
+     MODAL DODAWANIA / EDYCJI
+========================================================= -->
+
+<div
+  id="materialModal"
+  class="modal hidden"
+>
 
   <div class="modal-content">
 
-    <h2 id="modalTitle">Dodaj materiał</h2>
+    <h2 id="modalTitle">
+      Dodaj materiał
+    </h2>
 
-    <input type="hidden" id="materialId">
+
+    <input
+      type="hidden"
+      id="materialId"
+    >
+
+
+    <!-- TYP -->
 
     <div class="form-group">
+
       <label>Typ</label>
 
-      <select id="materialType" onchange="updateThicknessField()">
+      <select
+        id="materialType"
+        onchange="updateThicknessField()"
+      >
+
         <option value="Blacha">Blacha</option>
         <option value="Profil">Profil</option>
         <option value="Pręt">Pręt</option>
         <option value="Wałek">Wałek</option>
         <option value="Rura">Rura</option>
         <option value="Inne">Inne</option>
+
       </select>
+
     </div>
 
+
+    <!-- GATUNEK -->
+
     <div class="form-group">
+
       <label>Gatunek stali</label>
+
       <input
         type="text"
         id="materialSteel"
         placeholder="np. S355J2, S235JR, C45"
       >
+
     </div>
 
-        <div class="form-group">
+
+    <!-- WYMIAR -->
+
+    <div class="form-group">
+
       <label>Wymiar</label>
+
       <input
         type="text"
         id="materialDimension"
         placeholder="np. 2000x1000"
       >
+
     </div>
 
-    <div class="form-group" id="thicknessGroup">
-      <label id="thicknessLabel">Grubość</label>
+
+    <!-- GRUBOŚĆ -->
+
+    <div
+      class="form-group"
+      id="thicknessGroup"
+    >
+
+      <label id="thicknessLabel">
+        Grubość
+      </label>
+
       <input
         type="number"
         id="materialThickness"
@@ -441,11 +569,16 @@
         step="0.1"
         placeholder="np. 3.0"
       >
+
     </div>
 
 
+    <!-- ILOŚĆ -->
+
     <div class="form-group">
+
       <label>Ilość</label>
+
       <input
         type="number"
         id="materialQuantity"
@@ -453,38 +586,60 @@
         step="0.01"
         placeholder="np. 12"
       >
+
     </div>
 
+
+    <!-- LOKALIZACJA -->
+
     <div class="form-group">
+
       <label>Lokalizacja</label>
+
       <input
         type="text"
         id="materialLocation"
         placeholder="np. Hala A / Regał 3"
       >
+
     </div>
 
+
+    <!-- DZIAŁ -->
+
     <div class="form-group">
+
       <label>Dział</label>
+
       <select id="materialDepartment">
       </select>
+
     </div>
+
 
     <div id="modalMessage"></div>
 
+
     <div class="modal-buttons">
 
-      <button class="btn-secondary" onclick="closeModal()">
+      <button
+        class="btn-secondary"
+        onclick="closeModal()"
+      >
         Anuluj
       </button>
 
-      <button class="btn-primary" onclick="saveMaterial()">
+      <button
+        class="btn-primary"
+        onclick="saveMaterial()"
+      >
         Zapisz
       </button>
 
     </div>
 
   </div>
+
 </div>
 
 
@@ -494,19 +649,24 @@
   // KONFIGURACJA SUPABASE
   // =========================================================
 
-  const SUPABASE_URL = "https://ynmcfagoxshigqbcgvkb.supabase.co";
+  const SUPABASE_URL =
+    "https://ynmcfagoxshigqbcgvkb.supabase.co";
 
-  const SUPABASE_KEY = "sb_publishable_PCfv8KZPMsfqNwuZkBXj0A_zPxIcPZi";
+  const SUPABASE_KEY =
+    "sb_publishable_PCfv8KZPMsfqNwuZkBXj0A_zPxIcPZi";
 
 
-  const supabaseClient = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-  );
+  const supabaseClient =
+    window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
 
 
   let materials = [];
+
   let departments = [];
+
   let currentUser = null;
 
 
@@ -516,13 +676,21 @@
 
   async function startApp() {
 
-    const { data } = await supabaseClient.auth.getSession();
+    const { data } =
+      await supabaseClient.auth.getSession();
+
 
     if (data.session) {
-      currentUser = data.session.user;
+
+      currentUser =
+        data.session.user;
+
       await showApplication();
+
     } else {
+
       showLogin();
+
     }
 
   }
@@ -535,10 +703,16 @@
   async function login() {
 
     const email =
-      document.getElementById("loginEmail").value.trim();
+      document
+        .getElementById("loginEmail")
+        .value
+        .trim();
+
 
     const password =
-      document.getElementById("loginPassword").value;
+      document
+        .getElementById("loginPassword")
+        .value;
 
 
     const message =
@@ -546,27 +720,38 @@
 
 
     message.className = "";
-    message.innerText = "Logowanie...";
+
+    message.innerText =
+      "Logowanie...";
 
 
     const { data, error } =
       await supabaseClient.auth.signInWithPassword({
+
         email: email,
+
         password: password
+
       });
 
 
     if (error) {
 
-      message.className = "error";
+      message.className =
+        "error";
+
       message.innerText =
-        "Błąd logowania: " + error.message;
+        "Błąd logowania: " +
+        error.message;
 
       return;
+
     }
 
 
-    currentUser = data.user;
+    currentUser =
+      data.user;
+
 
     await showApplication();
 
@@ -592,11 +777,14 @@
 
     document
       .getElementById("loginScreen")
-      .classList.remove("hidden");
+      .classList
+      .remove("hidden");
+
 
     document
       .getElementById("appScreen")
-      .classList.add("hidden");
+      .classList
+      .add("hidden");
 
   }
 
@@ -609,11 +797,14 @@
 
     document
       .getElementById("loginScreen")
-      .classList.add("hidden");
+      .classList
+      .add("hidden");
+
 
     document
       .getElementById("appScreen")
-      .classList.remove("hidden");
+      .classList
+      .remove("hidden");
 
 
     document.getElementById("userName").innerText =
@@ -621,6 +812,7 @@
 
 
     await loadDepartments();
+
     await loadMaterials();
 
   }
@@ -641,33 +833,52 @@
 
     if (error) {
 
-      alert("Błąd pobierania działów: " + error.message);
+      alert(
+        "Błąd pobierania działów: " +
+        error.message
+      );
 
       return;
+
     }
 
 
-    departments = data || [];
+    departments =
+      data || [];
 
 
     const select =
-      document.getElementById("materialDepartment");
+      document.getElementById(
+        "materialDepartment"
+      );
 
 
     select.innerHTML = "";
 
 
-    departments.forEach(department => {
+    departments.forEach(
+      department => {
 
-      const option =
-        document.createElement("option");
+        const option =
+          document.createElement(
+            "option"
+          );
 
-      option.value = department.id;
-      option.textContent = department.nazwa;
 
-      select.appendChild(option);
+        option.value =
+          department.id;
 
-    });
+
+        option.textContent =
+          department.nazwa;
+
+
+        select.appendChild(
+          option
+        );
+
+      }
+    );
 
   }
 
@@ -687,18 +898,28 @@
             nazwa
           )
         `)
-        .order("id", { ascending: false });
+        .order(
+          "id",
+          {
+            ascending: false
+          }
+        );
 
 
     if (error) {
 
-      alert("Błąd pobierania materiałów: " + error.message);
+      alert(
+        "Błąd pobierania materiałów: " +
+        error.message
+      );
 
       return;
+
     }
 
 
-    materials = data || [];
+    materials =
+      data || [];
 
 
     updateFilters();
@@ -715,26 +936,44 @@
   function updateFilters() {
 
     const steelSelect =
-      document.getElementById("steelFilter");
+      document.getElementById(
+        "steelFilter"
+      );
+
 
     const locationSelect =
-      document.getElementById("locationFilter");
+      document.getElementById(
+        "locationFilter"
+      );
 
 
     const steels =
-      [...new Set(
-        materials.map(m => m.gatunek)
-      )].sort();
+      [
+        ...new Set(
+          materials
+            .map(
+              m => m.gatunek
+            )
+            .filter(Boolean)
+        )
+      ].sort();
 
 
     const locations =
-      [...new Set(
-        materials.map(m => m.lokalizacja)
-      )].sort();
+      [
+        ...new Set(
+          materials
+            .map(
+              m => m.lokalizacja
+            )
+            .filter(Boolean)
+        )
+      ].sort();
 
 
     const currentSteel =
       steelSelect.value;
+
 
     const currentLocation =
       locationSelect.value;
@@ -744,38 +983,66 @@
       '<option value="">Wszystkie</option>';
 
 
-    steels.forEach(steel => {
+    steels.forEach(
+      steel => {
 
-      const option =
-        document.createElement("option");
+        const option =
+          document.createElement(
+            "option"
+          );
 
-      option.value = steel;
-      option.textContent = steel;
 
-      steelSelect.appendChild(option);
+        option.value =
+          steel;
 
-    });
+
+        option.textContent =
+          steel;
+
+
+        steelSelect.appendChild(
+          option
+        );
+
+      }
+    );
 
 
     locationSelect.innerHTML =
       '<option value="">Wszystkie</option>';
 
 
-    locations.forEach(location => {
+    locations.forEach(
+      location => {
 
-      const option =
-        document.createElement("option");
-
-      option.value = location;
-      option.textContent = location;
-
-      locationSelect.appendChild(option);
-
-    });
+        const option =
+          document.createElement(
+            "option"
+          );
 
 
-    steelSelect.value = currentSteel;
-    locationSelect.value = currentLocation;
+        option.value =
+          location;
+
+
+        option.textContent =
+          location;
+
+
+        locationSelect.appendChild(
+          option
+        );
+
+      }
+    );
+
+
+    steelSelect.value =
+      currentSteel;
+
+
+    locationSelect.value =
+      currentLocation;
 
   }
 
@@ -795,39 +1062,65 @@
 
 
     const type =
-      document.getElementById("typeFilter").value;
+      document.getElementById(
+        "typeFilter"
+      ).value;
+
 
     const steel =
-      document.getElementById("steelFilter").value;
+      document.getElementById(
+        "steelFilter"
+      ).value;
+
 
     const location =
-      document.getElementById("locationFilter").value;
+      document.getElementById(
+        "locationFilter"
+      ).value;
 
 
     const filtered =
-      materials.filter(material => {
+      materials.filter(
+        material => {
 
-        const searchable =
-          (
-            material.typ + " " +
-            material.gatunek + " " +
-            material.wymiar + " " +
-            material.lokalizacja
-          ).toLowerCase();
+          const searchable =
+            (
+              (material.typ || "") +
+              " " +
+              (material.gatunek || "") +
+              " " +
+              (material.wymiar || "") +
+              " " +
+              (material.lokalizacja || "")
+            )
+            .toLowerCase();
 
 
-        return (
-          searchable.includes(search) &&
-          (!type || material.typ === type) &&
-          (!steel || material.gatunek === steel) &&
-          (!location || material.lokalizacja === location)
-        );
+          return (
 
-      });
+            searchable.includes(
+              search
+            ) &&
+
+            (!type ||
+              material.typ === type) &&
+
+            (!steel ||
+              material.gatunek === steel) &&
+
+            (!location ||
+              material.lokalizacja === location)
+
+          );
+
+        }
+      );
 
 
     const table =
-      document.getElementById("materialsTable");
+      document.getElementById(
+        "materialsTable"
+      );
 
 
     table.innerHTML = "";
@@ -844,49 +1137,144 @@
       `;
 
       return;
+
     }
 
 
-    filtered.forEach(material => {
+    filtered.forEach(
+      material => {
 
-      const row =
-        document.createElement("tr");
-
-
-      row.innerHTML = `
-        <td>${escapeHtml(material.typ)}</td>
-
-        <td>${escapeHtml(material.gatunek)}</td>
-
-        <td>${escapeHtml(material.wymiar)}</td>
-
-        <td>${escapeHtml(material.ilosc)}</td>
-
-        <td>${escapeHtml(material.lokalizacja)}</td>
-
-        <td>
-          <div class="actions">
-
-            <button
-              class="btn-edit"
-              onclick="editMaterial(${material.id})">
-              Edytuj
-            </button>
-
-            <button
-              class="btn-danger"
-              onclick="deleteMaterial(${material.id})">
-              Usuń
-            </button>
-
-          </div>
-        </td>
-      `;
+        const row =
+          document.createElement(
+            "tr"
+          );
 
 
-      table.appendChild(row);
+        row.innerHTML = `
 
-    });
+          <td>
+            ${escapeHtml(material.typ)}
+          </td>
+
+          <td>
+            ${escapeHtml(material.gatunek)}
+          </td>
+
+          <td>
+            ${escapeHtml(material.wymiar)}
+          </td>
+
+          <td>
+            ${escapeHtml(material.ilosc)}
+          </td>
+
+          <td>
+            ${escapeHtml(material.lokalizacja)}
+          </td>
+
+          <td>
+
+            <div class="actions">
+
+              <button
+                class="btn-edit"
+                onclick="editMaterial(${material.id})"
+              >
+                Edytuj
+              </button>
+
+              <button
+                class="btn-danger"
+                onclick="deleteMaterial(${material.id})"
+              >
+                Usuń
+              </button>
+
+            </div>
+
+          </td>
+
+        `;
+
+
+        table.appendChild(
+          row
+        );
+
+      }
+    );
+
+  }
+
+
+  // =========================================================
+  // OBSŁUGA POLA GRUBOŚCI
+  // =========================================================
+
+  function updateThicknessField() {
+
+    const type =
+      document.getElementById(
+        "materialType"
+      ).value;
+
+
+    const group =
+      document.getElementById(
+        "thicknessGroup"
+      );
+
+
+    const label =
+      document.getElementById(
+        "thicknessLabel"
+      );
+
+
+    const input =
+      document.getElementById(
+        "materialThickness"
+      );
+
+
+    if (type === "Blacha") {
+
+      group.classList.remove(
+        "hidden"
+      );
+
+      label.innerText =
+        "Grubość";
+
+      input.placeholder =
+        "np. 3.0";
+
+
+    } else if (
+      type === "Profil" ||
+      type === "Rura"
+    ) {
+
+      group.classList.remove(
+        "hidden"
+      );
+
+      label.innerText =
+        "Grubość ścianki";
+
+      input.placeholder =
+        "np. 3.0";
+
+
+    } else {
+
+      group.classList.add(
+        "hidden"
+      );
+
+      input.value = "";
+
+    }
 
   }
 
@@ -894,162 +1282,192 @@
   // =========================================================
   // DODAWANIE
   // =========================================================
-function updateThicknessField() {
 
-  const type =
-    document.getElementById("materialType").value;
+  function openAddModal() {
 
-  const group =
-    document.getElementById("thicknessGroup");
+    document.getElementById(
+      "modalTitle"
+    ).innerText =
+      "Dodaj materiał";
 
-  const label =
-    document.getElementById("thicknessLabel");
 
-  const input =
-    document.getElementById("materialThickness");
+    document.getElementById(
+      "materialId"
+    ).value = "";
 
-  if (type === "Blacha") {
 
-    group.classList.remove("hidden");
-    label.innerText = "Grubość";
-    input.placeholder = "np. 3.0";
+    document.getElementById(
+      "materialType"
+    ).value =
+      "Blacha";
 
-  } else if (type === "Profil" || type === "Rura") {
 
-    group.classList.remove("hidden");
-    label.innerText = "Grubość ścianki";
-    input.placeholder = "np. 3.0";
+    document.getElementById(
+      "materialSteel"
+    ).value = "";
 
-  } else {
 
-    group.classList.add("hidden");
-    input.value = "";
+    document.getElementById(
+      "materialDimension"
+    ).value = "";
+
+
+    document.getElementById(
+      "materialThickness"
+    ).value = "";
+
+
+    document.getElementById(
+      "materialQuantity"
+    ).value = "";
+
+
+    document.getElementById(
+      "materialLocation"
+    ).value = "";
+
+
+    document.getElementById(
+      "modalMessage"
+    ).innerText = "";
+
+
+    updateThicknessField();
+
+
+    document
+      .getElementById(
+        "materialModal"
+      )
+      .classList
+      .remove("hidden");
 
   }
-}
-
- function openAddModal() {
-
-  document.getElementById("modalTitle").innerText =
-    "Dodaj materiał";
-
-  document.getElementById("materialId").value = "";
-
-  document.getElementById("materialType").value =
-    "Blacha";
-
-  document.getElementById("materialSteel").value =
-    "";
-
-  document.getElementById("materialDimension").value =
-    "";
-
-  document.getElementById("materialThickness").value =
-    "";
-
-  document.getElementById("materialQuantity").value =
-    "";
-
-  document.getElementById("materialLocation").value =
-    "";
-
-  document.getElementById("modalMessage").innerText = "";
-
-  updateThicknessField();
-
-  document
-    .getElementById("materialModal")
-    .classList.remove("hidden");
-}
 
 
   // =========================================================
   // EDYCJA
   // =========================================================
 
- function editMaterial(id) {
+  function editMaterial(id) {
 
-  const material =
-    materials.find(m => m.id === id);
-
-
-  if (!material) return;
-
-
-  document.getElementById("modalTitle").innerText =
-    "Edytuj materiał";
+    const material =
+      materials.find(
+        m => m.id === id
+      );
 
 
-  document.getElementById("materialId").value =
-    material.id;
+    if (!material) return;
 
 
-  document.getElementById("materialType").value =
-    material.typ;
+    document.getElementById(
+      "modalTitle"
+    ).innerText =
+      "Edytuj materiał";
 
 
-  // Odczyt grubości zapisanej w wymiarze
-  let savedDimension = material.wymiar || "";
-  let savedThickness = "";
+    document.getElementById(
+      "materialId"
+    ).value =
+      material.id;
 
 
-  if (
-    material.typ === "Blacha" ||
-    material.typ === "Profil" ||
-    material.typ === "Rura"
-  ) {
-
-    const match =
-      savedDimension.match(/^#([0-9.,]+)\s+(.*)$/);
+    document.getElementById(
+      "materialType"
+    ).value =
+      material.typ;
 
 
-    if (match) {
+    // -------------------------------------------------------
+    // ODCZYT GRUBOŚCI Z WYMIARU
+    // -------------------------------------------------------
 
-      savedThickness = match[1];
-      savedDimension = match[2];
+    let savedDimension =
+      material.wymiar || "";
+
+
+    let savedThickness =
+      "";
+
+
+    if (
+      material.typ === "Blacha" ||
+      material.typ === "Profil" ||
+      material.typ === "Rura"
+    ) {
+
+      const match =
+        savedDimension.match(
+          /^#([0-9.,]+)\s+(.*)$/
+        );
+
+
+      if (match) {
+
+        savedThickness =
+          match[1];
+
+
+        savedDimension =
+          match[2];
+
+      }
 
     }
 
+
+    document.getElementById(
+      "materialSteel"
+    ).value =
+      material.gatunek || "";
+
+
+    document.getElementById(
+      "materialDimension"
+    ).value =
+      savedDimension;
+
+
+    document.getElementById(
+      "materialThickness"
+    ).value =
+      savedThickness;
+
+
+    document.getElementById(
+      "materialQuantity"
+    ).value =
+      material.ilosc;
+
+
+    document.getElementById(
+      "materialLocation"
+    ).value =
+      material.lokalizacja;
+
+
+    document.getElementById(
+      "materialDepartment"
+    ).value =
+      material.dzial_id || "";
+
+
+    document.getElementById(
+      "modalMessage"
+    ).innerText = "";
+
+
+    updateThicknessField();
+
+
+    document
+      .getElementById(
+        "materialModal"
+      )
+      .classList
+      .remove("hidden");
+
   }
-
-
-  document.getElementById("materialSteel").value =
-    material.gatunek || "";
-
-
-  document.getElementById("materialDimension").value =
-    savedDimension;
-
-
-  document.getElementById("materialThickness").value =
-    savedThickness;
-
-
-  document.getElementById("materialQuantity").value =
-    material.ilosc;
-
-
-  document.getElementById("materialLocation").value =
-    material.lokalizacja;
-
-
-  document.getElementById("materialDepartment").value =
-    material.dzial_id || "";
-
-
-  document.getElementById("modalMessage").innerText =
-    "";
-
-
-  updateThicknessField();
-
-
-  document
-    .getElementById("materialModal")
-    .classList.remove("hidden");
-
-}
-
 
 
   // =========================================================
@@ -1058,55 +1476,109 @@ function updateThicknessField() {
 
   async function saveMaterial() {
 
+    const id =
+      document.getElementById(
+        "materialId"
+      ).value;
+
+
     const type =
-  document.getElementById("materialType").value;
-
-const dimension =
-  document.getElementById("materialDimension").value.trim();
-
-const thickness =
-  document.getElementById("materialThickness").value.trim();
-
-let finalDimension = dimension;
-
-if (
-  (type === "Blacha" ||
-   type === "Profil" ||
-   type === "Rura") &&
-  thickness
-) {
-
-  finalDimension =
-    "#" + thickness + " " + dimension;
-
-}
+      document.getElementById(
+        "materialType"
+      ).value;
 
 
-const material = {
+    const dimension =
+      document.getElementById(
+        "materialDimension"
+      ).value.trim();
 
-  typ: type,
 
-  gatunek:
-    document.getElementById("materialSteel").value.trim(),
+    const thickness =
+      document.getElementById(
+        "materialThickness"
+      ).value.trim();
 
-  wymiar:
-    finalDimension,
 
-  ilosc:
-    Number(
-      document.getElementById("materialQuantity").value
-    ),
+    // -------------------------------------------------------
+    // TWORZENIE KOŃCOWEGO WYMIARU
+    // -------------------------------------------------------
 
-  lokalizacja:
-    document.getElementById("materialLocation").value.trim(),
+    let finalDimension =
+      dimension;
 
-  dzial_id:
-    Number(
-      document.getElementById("materialDepartment").value
-    )
 
-};
+    if (
+      (
+        type === "Blacha" ||
+        type === "Profil" ||
+        type === "Rura"
+      ) &&
+      thickness
+    ) {
 
+      finalDimension =
+        "#" +
+        thickness +
+        " " +
+        dimension;
+
+    }
+
+
+    const material = {
+
+      typ:
+        type,
+
+
+      gatunek:
+        document
+          .getElementById(
+            "materialSteel"
+          )
+          .value
+          .trim(),
+
+
+      wymiar:
+        finalDimension,
+
+
+      ilosc:
+        Number(
+          document
+            .getElementById(
+              "materialQuantity"
+            )
+            .value
+        ),
+
+
+      lokalizacja:
+        document
+          .getElementById(
+            "materialLocation"
+          )
+          .value
+          .trim(),
+
+
+      dzial_id:
+        Number(
+          document
+            .getElementById(
+              "materialDepartment"
+            )
+            .value
+        )
+
+    };
+
+
+    // -------------------------------------------------------
+    // WALIDACJA
+    // -------------------------------------------------------
 
     if (
       !material.gatunek ||
@@ -1115,18 +1587,29 @@ const material = {
       isNaN(material.ilosc)
     ) {
 
-      document.getElementById("modalMessage").className =
+      document.getElementById(
+        "modalMessage"
+      ).className =
         "error";
 
-      document.getElementById("modalMessage").innerText =
+
+      document.getElementById(
+        "modalMessage"
+      ).innerText =
         "Uzupełnij wszystkie pola.";
 
+
       return;
+
     }
 
 
     let result;
 
+
+    // -------------------------------------------------------
+    // EDYCJA
+    // -------------------------------------------------------
 
     if (id) {
 
@@ -1135,6 +1618,11 @@ const material = {
           .from("materialy")
           .update(material)
           .eq("id", id);
+
+
+    // -------------------------------------------------------
+    // DODAWANIE
+    // -------------------------------------------------------
 
     } else {
 
@@ -1146,15 +1634,27 @@ const material = {
     }
 
 
+    // -------------------------------------------------------
+    // BŁĄD
+    // -------------------------------------------------------
+
     if (result.error) {
 
-      document.getElementById("modalMessage").className =
+      document.getElementById(
+        "modalMessage"
+      ).className =
         "error";
 
-      document.getElementById("modalMessage").innerText =
-        "Błąd: " + result.error.message;
+
+      document.getElementById(
+        "modalMessage"
+      ).innerText =
+        "Błąd: " +
+        result.error.message;
+
 
       return;
+
     }
 
 
@@ -1194,7 +1694,9 @@ const material = {
         error.message
       );
 
+
       return;
+
     }
 
 
@@ -1204,14 +1706,17 @@ const material = {
 
 
   // =========================================================
-  // MODAL
+  // ZAMKNIĘCIE MODALA
   // =========================================================
 
   function closeModal() {
 
     document
-      .getElementById("materialModal")
-      .classList.add("hidden");
+      .getElementById(
+        "materialModal"
+      )
+      .classList
+      .add("hidden");
 
   }
 
@@ -1222,17 +1727,42 @@ const material = {
 
   function escapeHtml(value) {
 
-    if (value === null || value === undefined) {
+    if (
+      value === null ||
+      value === undefined
+    ) {
+
       return "";
+
     }
 
 
     return String(value)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
+
+      .replace(
+        /&/g,
+        "&amp;"
+      )
+
+      .replace(
+        /</g,
+        "&lt;"
+      )
+
+      .replace(
+        />/g,
+        "&gt;"
+      )
+
+      .replace(
+        /"/g,
+        "&quot;"
+      )
+
+      .replace(
+        /'/g,
+        "&#039;"
+      );
 
   }
 
