@@ -1894,236 +1894,716 @@ function showFields(classNames) {
   }
 
 
-  // =========================================================
-  // EDYCJA
-  // =========================================================
+ // =========================================================
+// EDYCJA MATERIAŁU
+// =========================================================
 
-  function editMaterial(id) {
+function editMaterial(id) {
 
-    const material =
-      materials.find(
-        m => m.id === id
+  const material =
+    materials.find(
+      m => m.id === id
+    );
+
+
+  if (!material) return;
+
+
+  // ---------------------------------------------------------
+  // PODSTAWOWE DANE
+  // ---------------------------------------------------------
+
+  document.getElementById("modalTitle").innerText =
+    "Edytuj materiał";
+
+
+  document.getElementById("materialId").value =
+    material.id;
+
+
+  document.getElementById("materialType").value =
+    material.typ;
+
+
+  document.getElementById("materialSteel").value =
+    material.gatunek || "";
+
+
+  document.getElementById("materialQuantity").value =
+    material.ilosc || "";
+
+
+  document.getElementById("materialLocation").value =
+    material.lokalizacja || "";
+
+
+  document.getElementById("materialDepartment").value =
+    material.dzial_id || "";
+
+
+  document.getElementById("modalMessage").innerText =
+    "";
+
+
+  // ---------------------------------------------------------
+  // POKAŻ ODPOWIEDNIE POLA
+  // ---------------------------------------------------------
+
+  updateThicknessField();
+
+
+  // ---------------------------------------------------------
+  // WYCIĄGNIJ LICZBY Z WYMIARU
+  // ---------------------------------------------------------
+
+  const dimension =
+    String(material.wymiar || "")
+      .replace(/,/g, ".")
+      .trim();
+
+
+  const numbers =
+    dimension.match(
+      /\d+(?:\.\d+)?/g
+    ) || [];
+
+
+  // ---------------------------------------------------------
+  // BLACHA
+  // zapis: 2000x1000 #3
+  // ---------------------------------------------------------
+
+  if (material.typ === "Blacha") {
+
+    document.getElementById("materialLength").value =
+      numbers[0] || "";
+
+
+    document.getElementById("materialWidth").value =
+      numbers[1] || "";
+
+
+    const thicknessMatch =
+      dimension.match(
+        /#(\d+(?:\.\d+)?)/
       );
 
 
-    if (!material) return;
-
-
-    document.getElementById(
-      "modalTitle"
-    ).innerText =
-      "Edytuj materiał";
-
-
-    document.getElementById(
-      "materialId"
-    ).value =
-      material.id;
-
-
-    document.getElementById(
-      "materialType"
-    ).value =
-      material.typ;
-
-
-    // -------------------------------------------------------
-    // ODCZYT GRUBOŚCI Z WYMIARU
-    // -------------------------------------------------------
-
-    let savedDimension =
-      material.wymiar || "";
-
-
-    let savedThickness =
-      "";
-
-
-    if (
-      material.typ === "Blacha" ||
-      material.typ === "Profil" ||
-      material.typ === "Rura"
-    ) {
-
-      const match =
-        savedDimension.match(
-          /^#([0-9.,]+)\s+(.*)$/
-        );
-
-
-      if (match) {
-
-        savedThickness =
-          match[1];
-
-
-        savedDimension =
-          match[2];
-
-      }
-
-    }
-
-
-    document.getElementById(
-      "materialSteel"
-    ).value =
-      material.gatunek || "";
-
-
-    document.getElementById(
-      "materialDimension"
-    ).value =
-      savedDimension;
-
-
-    document.getElementById(
-      "materialThickness"
-    ).value =
-      savedThickness;
-
-
-    document.getElementById(
-      "materialQuantity"
-    ).value =
-      material.ilosc;
-
-
-    document.getElementById(
-      "materialLocation"
-    ).value =
-      material.lokalizacja;
-
-
-    document.getElementById(
-      "materialDepartment"
-    ).value =
-      material.dzial_id || "";
-
-
-    document.getElementById(
-      "modalMessage"
-    ).innerText = "";
-
-
-    updateThicknessField();
-
-
-    document
-      .getElementById(
-        "materialModal"
-      )
-      .classList
-      .remove("hidden");
+    document.getElementById("materialThickness").value =
+      thicknessMatch
+        ? thicknessMatch[1]
+        : "";
 
   }
 
 
+  // ---------------------------------------------------------
+  // PŁASKOWNIK
+  // zapis: 50x5x6000
+  // ---------------------------------------------------------
+
+  else if (material.typ === "Płaskownik") {
+
+    document.getElementById("flatWidth").value =
+      numbers[0] || "";
+
+
+    document.getElementById("flatThickness").value =
+      numbers[1] || "";
+
+
+    document.getElementById("materialLength2").value =
+      numbers[2] || "";
+
+  }
+
+
+  // ---------------------------------------------------------
+  // CEOWNIK
+  // zapis: 100x50x5x6000
+  // ---------------------------------------------------------
+
+  else if (material.typ === "Ceownik") {
+
+    document.getElementById("channelHeight").value =
+      numbers[0] || "";
+
+
+    document.getElementById("channelWidth").value =
+      numbers[1] || "";
+
+
+    document.getElementById("channelThickness").value =
+      numbers[2] || "";
+
+
+    document.getElementById("materialLength2").value =
+      numbers[3] || "";
+
+  }
+
+
+  // ---------------------------------------------------------
+  // PRĘT
+  // zapis: 20x6000
+  // ---------------------------------------------------------
+
+  else if (material.typ === "Pręt") {
+
+    document.getElementById("materialDiameter").value =
+      numbers[0] || "";
+
+
+    document.getElementById("materialLength2").value =
+      numbers[1] || "";
+
+  }
+
+
+  // ---------------------------------------------------------
+  // WAŁEK
+  // zapis: 50x3000
+  // ---------------------------------------------------------
+
+  else if (material.typ === "Wałek") {
+
+    document.getElementById("materialDiameter").value =
+      numbers[0] || "";
+
+
+    document.getElementById("materialLength2").value =
+      numbers[1] || "";
+
+  }
+
+
+  // ---------------------------------------------------------
+  // RURA
+  // zapis: 60 #3x6000
+  // ---------------------------------------------------------
+
+  else if (material.typ === "Rura") {
+
+    document.getElementById("pipeDiameter").value =
+      numbers[0] || "";
+
+
+    const thicknessMatch =
+      dimension.match(
+        /#(\d+(?:\.\d+)?)/
+      );
+
+
+    document.getElementById("pipeThickness").value =
+      thicknessMatch
+        ? thicknessMatch[1]
+        : "";
+
+
+    document.getElementById("materialLength2").value =
+      numbers[numbers.length - 1] || "";
+
+  }
+
+
+  // ---------------------------------------------------------
+  // DWUTEOWNIK
+  // zapis: 200x100x6x8x6000
+  // ---------------------------------------------------------
+
+  else if (material.typ === "Dwuteownik") {
+
+    document.getElementById("ibeamHeight").value =
+      numbers[0] || "";
+
+
+    document.getElementById("ibeamWidth").value =
+      numbers[1] || "";
+
+
+    document.getElementById("ibeamWeb").value =
+      numbers[2] || "";
+
+
+    document.getElementById("ibeamFlange").value =
+      numbers[3] || "";
+
+
+    document.getElementById("materialLength2").value =
+      numbers[4] || "";
+
+  }
+
+
+  // ---------------------------------------------------------
+  // OTWÓRZ MODAL
+  // ---------------------------------------------------------
+
+  document
+    .getElementById("materialModal")
+    .classList
+    .remove("hidden");
+
+}
+
   // =========================================================
-  // ZAPIS
-  // =========================================================
+// ZAPIS MATERIAŁU
+// =========================================================
 
-  async function saveMaterial() {
+async function saveMaterial() {
 
-    const id =
-      document.getElementById(
-        "materialId"
-      ).value;
+  const id =
+    document.getElementById("materialId").value;
+
+  const type =
+    document.getElementById("materialType").value;
+
+  const steel =
+    document.getElementById("materialSteel").value.trim();
+
+  const quantity =
+    Number(
+      document.getElementById("materialQuantity").value
+    );
+
+  const location =
+    document.getElementById("materialLocation").value.trim();
+
+  const department =
+    Number(
+      document.getElementById("materialDepartment").value
+    );
 
 
-    const type =
-      document.getElementById(
-        "materialType"
-      ).value;
+  // ---------------------------------------------------------
+  // SPRAWDZENIE GATUNKU
+  // ---------------------------------------------------------
+
+  if (!steel) {
+
+    showModalError("Podaj gatunek materiału.");
+
+    return;
+
+  }
 
 
-    const dimension =
-      document.getElementById(
-        "materialDimension"
-      ).value.trim();
+  // ---------------------------------------------------------
+  // SPRAWDZENIE ILOŚCI
+  // ---------------------------------------------------------
 
+  if (
+    isNaN(quantity) ||
+    quantity <= 0
+  ) {
+
+    showModalError("Podaj prawidłową ilość.");
+
+    return;
+
+  }
+
+
+  // ---------------------------------------------------------
+  // SPRAWDZENIE LOKALIZACJI
+  // ---------------------------------------------------------
+
+  if (!location) {
+
+    showModalError("Podaj lokalizację.");
+
+    return;
+
+  }
+
+
+  // ---------------------------------------------------------
+  // ZBUDOWANIE WYMIARU
+  // ---------------------------------------------------------
+
+  let dimension = "";
+
+
+  // BLACHA
+  if (type === "Blacha") {
+
+    const length =
+      Number(
+        document.getElementById("materialLength").value
+      );
+
+    const width =
+      Number(
+        document.getElementById("materialWidth").value
+      );
 
     const thickness =
-      document.getElementById(
-        "materialThickness"
-      ).value.trim();
-
-
-    // -------------------------------------------------------
-    // TWORZENIE KOŃCOWEGO WYMIARU
-    // -------------------------------------------------------
-
-    let finalDimension =
-      dimension;
+      Number(
+        document.getElementById("materialThickness").value
+      );
 
 
     if (
-      (
-        type === "Blacha" ||
-        type === "Profil" ||
-        type === "Rura"
-      ) &&
-      thickness
+      length <= 0 ||
+      width <= 0 ||
+      thickness <= 0
     ) {
 
-      finalDimension =
-        "#" +
-        thickness +
-        " " +
-        dimension;
+      showModalError(
+        "Dla blachy podaj długość, szerokość i grubość."
+      );
+
+      return;
 
     }
 
 
-    const material = {
+    dimension =
+      `${length}x${width} #${thickness}`;
 
-      typ:
-        type,
-
-
-      gatunek:
-        document
-          .getElementById(
-            "materialSteel"
-          )
-          .value
-          .trim(),
+  }
 
 
-      wymiar:
-        finalDimension,
+  // PŁASKOWNIK
+  else if (type === "Płaskownik") {
+
+    const width =
+      Number(
+        document.getElementById("flatWidth").value
+      );
+
+    const thickness =
+      Number(
+        document.getElementById("flatThickness").value
+      );
+
+    const length =
+      Number(
+        document.getElementById("materialLength2").value
+      );
 
 
-      ilosc:
-        Number(
-          document
-            .getElementById(
-              "materialQuantity"
-            )
-            .value
-        ),
+    if (
+      width <= 0 ||
+      thickness <= 0 ||
+      length <= 0
+    ) {
+
+      showModalError(
+        "Dla płaskownika podaj szerokość, grubość i długość."
+      );
+
+      return;
+
+    }
 
 
-      lokalizacja:
-        document
-          .getElementById(
-            "materialLocation"
-          )
-          .value
-          .trim(),
+    dimension =
+      `${width}x${thickness}x${length}`;
+
+  }
 
 
-      dzial_id:
-        Number(
-          document
-            .getElementById(
-              "materialDepartment"
-            )
-            .value
-        )
+  // CEOWNIK
+  else if (type === "Ceownik") {
 
-    };
+    const height =
+      Number(
+        document.getElementById("channelHeight").value
+      );
 
+    const width =
+      Number(
+        document.getElementById("channelWidth").value
+      );
+
+    const thickness =
+      Number(
+        document.getElementById("channelThickness").value
+      );
+
+    const length =
+      Number(
+        document.getElementById("materialLength2").value
+      );
+
+
+    if (
+      height <= 0 ||
+      width <= 0 ||
+      thickness <= 0 ||
+      length <= 0
+    ) {
+
+      showModalError(
+        "Dla ceownika podaj wysokość, szerokość, grubość i długość."
+      );
+
+      return;
+
+    }
+
+
+    dimension =
+      `${height}x${width}x${thickness}x${length}`;
+
+  }
+
+
+  // PRĘT
+  else if (type === "Pręt") {
+
+    const diameter =
+      Number(
+        document.getElementById("materialDiameter").value
+      );
+
+    const length =
+      Number(
+        document.getElementById("materialLength2").value
+      );
+
+
+    if (
+      diameter <= 0 ||
+      length <= 0
+    ) {
+
+      showModalError(
+        "Dla pręta podaj średnicę i długość."
+      );
+
+      return;
+
+    }
+
+
+    dimension =
+      `${diameter}x${length}`;
+
+  }
+
+
+  // WAŁEK
+  else if (type === "Wałek") {
+
+    const diameter =
+      Number(
+        document.getElementById("materialDiameter").value
+      );
+
+    const length =
+      Number(
+        document.getElementById("materialLength2").value
+      );
+
+
+    if (
+      diameter <= 0 ||
+      length <= 0
+    ) {
+
+      showModalError(
+        "Dla wałka podaj średnicę i długość."
+      );
+
+      return;
+
+    }
+
+
+    dimension =
+      `${diameter}x${length}`;
+
+  }
+
+
+  // RURA
+  else if (type === "Rura") {
+
+    const diameter =
+      Number(
+        document.getElementById("pipeDiameter").value
+      );
+
+    const thickness =
+      Number(
+        document.getElementById("pipeThickness").value
+      );
+
+    const length =
+      Number(
+        document.getElementById("materialLength2").value
+      );
+
+
+    if (
+      diameter <= 0 ||
+      thickness <= 0 ||
+      length <= 0
+    ) {
+
+      showModalError(
+        "Dla rury podaj średnicę, grubość ścianki i długość."
+      );
+
+      return;
+
+    }
+
+
+    dimension =
+      `${diameter} #${thickness}x${length}`;
+
+  }
+
+
+  // DWUTEOWNIK
+  else if (type === "Dwuteownik") {
+
+    const height =
+      Number(
+        document.getElementById("ibeamHeight").value
+      );
+
+    const width =
+      Number(
+        document.getElementById("ibeamWidth").value
+      );
+
+    const web =
+      Number(
+        document.getElementById("ibeamWeb").value
+      );
+
+    const flange =
+      Number(
+        document.getElementById("ibeamFlange").value
+      );
+
+    const length =
+      Number(
+        document.getElementById("materialLength2").value
+      );
+
+
+    if (
+      height <= 0 ||
+      width <= 0 ||
+      web <= 0 ||
+      flange <= 0 ||
+      length <= 0
+    ) {
+
+      showModalError(
+        "Dla dwuteownika uzupełnij wszystkie wymiary."
+      );
+
+      return;
+
+    }
+
+
+    dimension =
+      `${height}x${width}x${web}x${flange}x${length}`;
+
+  }
+
+
+  // INNE
+  else {
+
+    dimension =
+      document.getElementById("materialDimension")
+        ? document.getElementById("materialDimension").value.trim()
+        : "";
+
+  }
+
+
+  // ---------------------------------------------------------
+  // DANE DO SUPABASE
+  // ---------------------------------------------------------
+
+  const material = {
+
+    typ: type,
+
+    gatunek: steel,
+
+    wymiar: dimension,
+
+    ilosc: quantity,
+
+    lokalizacja: location,
+
+    dzial_id: department
+
+  };
+
+
+  // ---------------------------------------------------------
+  // ZAPIS / EDYCJA
+  // ---------------------------------------------------------
+
+  let result;
+
+
+  if (id) {
+
+    result =
+      await supabaseClient
+        .from("materialy")
+        .update(material)
+        .eq("id", id);
+
+  } else {
+
+    result =
+      await supabaseClient
+        .from("materialy")
+        .insert(material);
+
+  }
+
+
+  // ---------------------------------------------------------
+  // OBSŁUGA BŁĘDU
+  // ---------------------------------------------------------
+
+  if (result.error) {
+
+    showModalError(
+      "Błąd zapisu: " +
+      result.error.message
+    );
+
+    return;
+
+  }
+
+
+  closeModal();
+
+  await loadMaterials();
+
+}
+
+
+// =========================================================
+// KOMUNIKAT BŁĘDU
+// =========================================================
+
+function showModalError(message) {
+
+  const element =
+    document.getElementById("modalMessage");
+
+  element.className = "error";
+
+  element.innerText = message;
+
+}
 
     // -------------------------------------------------------
     // WALIDACJA
