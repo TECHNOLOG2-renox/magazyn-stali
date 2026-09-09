@@ -895,39 +895,39 @@
   // DODAWANIE
   // =========================================================
 
-  function openAddModal() {
+ function openAddModal() {
 
-    document.getElementById("modalTitle").innerText =
-      "Dodaj materiał";
+  document.getElementById("modalTitle").innerText =
+    "Dodaj materiał";
 
+  document.getElementById("materialId").value = "";
 
-    document.getElementById("materialId").value = "";
+  document.getElementById("materialType").value =
+    "Blacha";
 
-    document.getElementById("materialType").value =
-      "Blacha";
+  document.getElementById("materialSteel").value =
+    "";
 
-    document.getElementById("materialSteel").value =
-      "";
+  document.getElementById("materialDimension").value =
+    "";
 
-    document.getElementById("materialDimension").value =
-      "";
+  document.getElementById("materialThickness").value =
+    "";
 
-    document.getElementById("materialQuantity").value =
-      "";
+  document.getElementById("materialQuantity").value =
+    "";
 
-    document.getElementById("materialLocation").value =
-      "";
+  document.getElementById("materialLocation").value =
+    "";
 
+  document.getElementById("modalMessage").innerText = "";
 
-    document.getElementById("modalMessage").innerText =
-      "";
+  updateThicknessField();
 
-
-    document
-      .getElementById("materialModal")
-      .classList.remove("hidden");
-
-  }
+  document
+    .getElementById("materialModal")
+    .classList.remove("hidden");
+}
 
 
   // =========================================================
