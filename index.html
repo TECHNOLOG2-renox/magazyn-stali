@@ -2609,33 +2609,6 @@ function showModalError(message) {
 
 }
 
-    // -------------------------------------------------------
-    // WALIDACJA
-    // -------------------------------------------------------
-
-    if (
-      !material.gatunek ||
-      !material.wymiar ||
-      !material.lokalizacja ||
-      isNaN(material.ilosc)
-    ) {
-
-      document.getElementById(
-        "modalMessage"
-      ).className =
-        "error";
-
-
-      document.getElementById(
-        "modalMessage"
-      ).innerText =
-        "Uzupełnij wszystkie pola.";
-
-
-      return;
-
-    }
-
 
     let result;
 
