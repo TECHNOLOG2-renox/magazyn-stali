@@ -684,6 +684,7 @@
   let departments = [];
 
   let currentUser = null;
+  
   // =========================================================
 // GĘSTOŚĆ MATERIAŁU
 // =========================================================
@@ -717,6 +718,194 @@ function getDensity(materialSteel) {
 
   // Stal czarna
   return 7.85;
+}
+  
+  // =========================================================
+// OBLICZANIE WAGI MATERIAŁU
+// =========================================================
+
+function calculateWeight(type, dimension, quantity, density) {
+
+  const d = String(dimension || "")
+    .toLowerCase()
+    .replace(/,/g, ".")
+    .trim();
+
+  const qty = Number(quantity) || 0;
+  const rho = Number(density) || 7.85;
+
+  let volume = 0;
+
+  // ---------------------------------------------------------
+  // BLACHA
+  // wymiar: długość x szerokość x grubość
+  // np. 2000x1000 + grubość 3 mm
+  // ---------------------------------------------------------
+
+  if (type === "Blacha") {
+
+    const numbers = d.match(/\d+(?:\.\d+)?/g);
+
+    if (numbers && numbers.length >= 2) {
+
+      const length = Number(numbers[0]);
+      const width = Number(numbers[1]);
+
+      const thicknessMatch =
+        d.match(/#(\d+(?:\.\d+)?)/);
+
+      const thickness =
+        thicknessMatch
+          ? Number(thicknessMatch[1])
+          : 0;
+
+      if (thickness > 0) {
+
+        volume =
+          (length / 1000) *
+          (width / 1000) *
+          (thickness / 1000);
+
+      }
+
+    }
+  }
+
+  // ---------------------------------------------------------
+  // PŁASKOWNIK
+  // wymiar: szerokość x grubość x długość
+  // np. 50x5x6000
+  // ---------------------------------------------------------
+
+  else if (type === "Płaskownik") {
+
+    const numbers = d.match(/\d+(?:\.\d+)?/g);
+
+    if (numbers && numbers.length >= 3) {
+
+      const width = Number(numbers[0]);
+      const thickness = Number(numbers[1]);
+      const length = Number(numbers[2]);
+
+      volume =
+        (width / 1000) *
+        (thickness / 1000) *
+        (length / 1000);
+
+    }
+  }
+
+  // ---------------------------------------------------------
+  // PRĘT OKRĄGŁY
+  // wymiar: średnica x długość
+  // np. 20x6000
+  // ---------------------------------------------------------
+
+  else if (type === "Pręt") {
+
+    const numbers = d.match(/\d+(?:\.\d+)?/g);
+
+    if (numbers && numbers.length >= 2) {
+
+      const diameter = Number(numbers[0]);
+      const length = Number(numbers[1]);
+
+      const radius =
+        diameter / 2000;
+
+      volume =
+        Math.PI *
+        radius *
+        radius *
+        (length / 1000);
+
+    }
+  }
+
+  // ---------------------------------------------------------
+  // WAŁEK
+  // wymiar: średnica x długość
+  // np. 50x3000
+  // ---------------------------------------------------------
+
+  else if (type === "Wałek") {
+
+    const numbers = d.match(/\d+(?:\.\d+)?/g);
+
+    if (numbers && numbers.length >= 2) {
+
+      const diameter = Number(numbers[0]);
+      const length = Number(numbers[1]);
+
+      const radius =
+        diameter / 2000;
+
+      volume =
+        Math.PI *
+        radius *
+        radius *
+        (length / 1000);
+
+    }
+  }
+
+  // ---------------------------------------------------------
+  // RURA
+  // wymiar: średnica x długość
+  // grubość ścianki z # 
+  // np. #3 60x6000
+  // ---------------------------------------------------------
+
+  else if (type === "Rura") {
+
+    const numbers = d.match(/\d+(?:\.\d+)?/g);
+
+    const thicknessMatch =
+      d.match(/#(\d+(?:\.\d+)?)/);
+
+    if (
+      numbers &&
+      numbers.length >= 2 &&
+      thicknessMatch
+    ) {
+
+      const diameter =
+        Number(numbers[numbers.length - 2]);
+
+      const length =
+        Number(numbers[numbers.length - 1]);
+
+      const thickness =
+        Number(thicknessMatch[1]);
+
+      const outerRadius =
+        diameter / 2000;
+
+      const innerRadius =
+        (diameter - 2 * thickness) / 2000;
+
+      volume =
+        Math.PI *
+        (
+          outerRadius * outerRadius -
+          innerRadius * innerRadius
+        ) *
+        (length / 1000);
+
+    }
+  }
+
+  // ---------------------------------------------------------
+  // WYNIK
+  // ---------------------------------------------------------
+
+  const weight =
+    volume *
+    rho *
+    1000 *
+    qty;
+
+  return weight;
 }
 
 
