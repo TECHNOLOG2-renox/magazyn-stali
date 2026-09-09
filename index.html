@@ -610,15 +610,49 @@
 
     <div class="form-group">
 
-      <label>Gatunek stali</label>
+  <label>Materiał</label>
 
-      <input
-        type="text"
-        id="materialSteel"
-        placeholder="np. S355J2, S235JR, C45"
-      >
+  <select
+    id="materialGroup"
+    onchange="updateDensityInfo()"
+  >
 
-    </div>
+    <option value="stal_czarna">
+      Stal czarna
+    </option>
+
+    <option value="stal_nierdzewna">
+      Stal nierdzewna
+    </option>
+
+    <option value="aluminium">
+      Aluminium
+    </option>
+
+  </select>
+
+</div>
+
+
+<div
+  id="densityInfo"
+  class="info-box"
+>
+  Gęstość: <strong>7,85 kg/dm³</strong>
+</div>
+
+
+<div class="form-group">
+
+  <label>Gatunek materiału</label>
+
+  <input
+    type="text"
+    id="materialSteel"
+    placeholder="np. S355J2, 1.4301, EN AW-6060"
+  >
+
+</div>
 
 
     <!-- =====================================================
