@@ -1711,77 +1711,122 @@ function calculateWeight(type, dimension, quantity, density) {
   }
 
 
-  // =========================================================
-  // OBSŁUGA POLA GRUBOŚCI
-  // =========================================================
+// =========================================================
+// ZMIANA PÓL WYMIARÓW W ZALEŻNOŚCI OD TYPU
+// =========================================================
 
-  function updateThicknessField() {
+function updateThicknessField() {
 
-    const type =
-      document.getElementById(
-        "materialType"
-      ).value;
+  const type =
+    document.getElementById("materialType").value;
 
-
-    const group =
-      document.getElementById(
-        "thicknessGroup"
-      );
-
-
-    const label =
-      document.getElementById(
-        "thicknessLabel"
-      );
+  // Ukryj wszystkie pola wymiarów
+  document
+    .querySelectorAll("#dimensionFields .form-group")
+    .forEach(field => {
+      field.classList.add("hidden");
+    });
 
 
-    const input =
-      document.getElementById(
-        "materialThickness"
-      );
+  // BLACHA
+  if (type === "Blacha") {
 
-
-    if (type === "Blacha") {
-
-      group.classList.remove(
-        "hidden"
-      );
-
-      label.innerText =
-        "Grubość";
-
-      input.placeholder =
-        "np. 3.0";
-
-
-    } else if (
-      type === "Profil" ||
-      type === "Rura"
-    ) {
-
-      group.classList.remove(
-        "hidden"
-      );
-
-      label.innerText =
-        "Grubość ścianki";
-
-      input.placeholder =
-        "np. 3.0";
-
-
-    } else {
-
-      group.classList.add(
-        "hidden"
-      );
-
-      input.value = "";
-
-    }
+    showFields([
+      "dimension-blacha",
+      "dimension-length"
+    ]);
 
   }
 
+
+  // PŁASKOWNIK
+  else if (type === "Płaskownik") {
+
+    showFields([
+      "dimension-plaskownik"
+    ]);
+
+  }
+
+
+  // CEOWNIK
+  else if (type === "Ceownik") {
+
+    showFields([
+      "dimension-ceownik",
+      "dimension-length"
+    ]);
+
+  }
+
+
+  // PRĘT
+  else if (type === "Pręt") {
+
+    showFields([
+      "dimension-round",
+      "dimension-length"
+    ]);
+
+  }
+
+
+  // WAŁEK
+  else if (type === "Wałek") {
+
+    showFields([
+      "dimension-round",
+      "dimension-length"
+    ]);
+
+  }
+
+
+  // RURA
+  else if (type === "Rura") {
+
+    showFields([
+      "dimension-rura",
+      "dimension-length"
+    ]);
+
+  }
+
+
+  // DWUTEOWNIK
+  else if (type === "Dwuteownik") {
+
+    showFields([
+      "dimension-dwuteownik",
+      "dimension-length"
+    ]);
+
+  }
+
+}
+
+
+// =========================================================
+// POKAZYWANIE GRUP PÓL
+// =========================================================
+
+function showFields(classNames) {
+
+  classNames.forEach(className => {
+
+    document
+      .querySelectorAll(
+        "#dimensionFields ." + className
+      )
+      .forEach(field => {
+
+        field.classList.remove("hidden");
+
+      });
+
+  });
+
+}
 
   // =========================================================
   // DODAWANIE
