@@ -2610,60 +2610,6 @@ function showModalError(message) {
 }
 
 
-    let result;
-
-
-    // -------------------------------------------------------
-    // EDYCJA
-    // -------------------------------------------------------
-
-    if (id) {
-
-      result =
-        await supabaseClient
-          .from("materialy")
-          .update(material)
-          .eq("id", id);
-
-
-    // -------------------------------------------------------
-    // DODAWANIE
-    // -------------------------------------------------------
-
-    } else {
-
-      result =
-        await supabaseClient
-          .from("materialy")
-          .insert(material);
-
-    }
-
-
-    // -------------------------------------------------------
-    // BŁĄD
-    // -------------------------------------------------------
-
-    if (result.error) {
-
-      document.getElementById(
-        "modalMessage"
-      ).className =
-        "error";
-
-
-      document.getElementById(
-        "modalMessage"
-      ).innerText =
-        "Błąd: " +
-        result.error.message;
-
-
-      return;
-
-    }
-
-
     closeModal();
 
     await loadMaterials();
