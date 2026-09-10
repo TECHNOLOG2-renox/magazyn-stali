@@ -566,7 +566,8 @@
             <th>Gatunek stali</th>
             <th>Wymiary</th>
             <th>Ilość (szt)</th>
-            <th>Waga (kg)</th>
+            <th>Waga/szt (kg)</th>
+            <th>Waga razem (kg)</th>
             <th>Lokalizacja</th>
             <th>Akcje</th>
 
@@ -702,7 +703,7 @@
 
     <div class="form-group">
 
-      <label>⚖️ Waga całkowita (kg)</label>
+      <label>⚖️ Waga za sztukę (kg)</label>
 
       <input
         type="number"
@@ -1313,7 +1314,7 @@
     if (filtered.length === 0) {
 
       tableBody.innerHTML =
-        '<tr><td colspan="7" class="empty">Brak materiałów do wyświetlenia</td></tr>';
+        '<tr><td colspan="8" class="empty">Brak materiałów do wyświetlenia</td></tr>';
 
       return;
 
@@ -1331,13 +1332,15 @@
             "tr"
           );
 
-        const totalWeight = (material.waga || 0) * (material.ilosc || 1);
+        const weightPerPiece = material.waga || 0;
+        const totalWeight = weightPerPiece * (material.ilosc || 1);
 
         row.innerHTML = `
           <td>${material.typ}</td>
           <td>${material.gatunek}</td>
-          <td>${material.wymiar}</td>
-          <td>${material.ilosc}</td>
+          <td>${material.wymiar || "—"}</td>
+          <td>${material.ilosc || 0}</td>
+          <td>${weightPerPiece.toFixed(2)}</td>
           <td>${totalWeight.toFixed(2)}</td>
           <td>${material.lokalizacja}</td>
           <td>
@@ -2088,7 +2091,7 @@
 
               item.typ,
 
-              item.wymiar,
+              item.wymiar || "—",
 
               item.ilosc,
 
