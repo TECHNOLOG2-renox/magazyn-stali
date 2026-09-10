@@ -312,6 +312,16 @@
       font-size: 13px;
     }
 
+    .density-info {
+      background: #fef3c7;
+      border: 1px solid #f59e0b;
+      border-radius: 7px;
+      padding: 12px;
+      margin-bottom: 15px;
+      color: #92400e;
+      font-size: 13px;
+    }
+
     .dimension-fields {
       background: #f0fdf4;
       border-left: 4px solid #16a34a;
@@ -609,7 +619,7 @@
     >
 
     <div class="info-box">
-      ℹ️ Wypełnij wymiary materiału, a waga zostanie policzona automatycznie (stal: 7,85 g/cm³)
+      ℹ️ Waga będzie obliczana automatycznie na podstawie wymiarów i wybranego materiału
     </div>
 
     <!-- TYP -->
@@ -635,18 +645,27 @@
     </div>
 
 
-    <!-- GATUNEK -->
+    <!-- GATUNEK - LISTA ROZWIJANA -->
 
     <div class="form-group">
 
-      <label>Gatunek stali</label>
+      <label>Materiał / Gatunek stali</label>
 
-      <input
-        type="text"
+      <select
         id="materialSteel"
-        placeholder="np. S355J2, S235JR, C45"
+        onchange="calculateWeight()"
       >
+        <option value="">-- Wybierz materiał --</option>
+        <option value="S235">🏢 S235 (Stal zwykła, gęstość: 7,85 g/cm³)</option>
+        <option value="S355">🔩 S355 (Stal wysokowytrzymała, gęstość: 7,85 g/cm³)</option>
+        <option value="Aluminium">⚪ Aluminium (gęstość: 2,70 g/cm³)</option>
+        <option value="Stal nierdzewna">✨ Stal nierdzewna (gęstość: 8,00 g/cm³)</option>
+      </select>
 
+    </div>
+
+    <div class="density-info" id="densityInfo">
+      Wybierz materiał aby zobaczyć jego gęstość
     </div>
 
 
@@ -802,7 +821,7 @@
     <h2>📊 Generuj Raport Magazynu</h2>
 
     <p style="color: #6b7280; font-size: 14px; margin-top: 0;">
-      Podaj cenę za kilogram (kg) dla każdego gatunku stali:
+      Podaj cenę za kilogram (kg) dla każdego materiału:
     </p>
 
     <div class="price-list" id="priceList">
@@ -861,7 +880,13 @@
 
   let steelPrices = {};
 
-  const STEEL_DENSITY = 7.85; // g/cm³
+  // Gęstości materiałów (g/cm³)
+  const MATERIAL_DENSITIES = {
+    "S235": 7.85,
+    "S355": 7.85,
+    "Aluminium": 2.70,
+    "Stal nierdzewna": 8.00
+  };
 
 
   // =========================================================
@@ -1423,6 +1448,10 @@
       .getElementById("modalMessage")
       .innerHTML = "";
 
+    document
+      .getElementById("densityInfo")
+      .innerText = "Wybierz materiał aby zobaczyć jego gęstość";
+
 
     updateDimensionFields();
 
@@ -1504,7 +1533,7 @@
       .getElementById("modalMessage")
       .innerHTML = "";
 
-
+    updateDensityInfo();
     updateDimensionFields();
 
     document
@@ -1522,6 +1551,27 @@
       .classList
       .add("hidden");
 
+  }
+
+
+  // =========================================================
+  // WYŚWIETLENIE INFORMACJI O GĘSTOŚCI
+  // =========================================================
+
+  function updateDensityInfo() {
+
+    const material = document.getElementById("materialSteel").value;
+    const densityInfo = document.getElementById("densityInfo");
+
+    if (!material) {
+      densityInfo.innerText = "Wybierz materiał aby zobaczyć jego gęstość";
+      return;
+    }
+
+    const density = MATERIAL_DENSITIES[material];
+    if (density) {
+      densityInfo.innerText = `📊 Gęstość materiału: ${density} g/cm³`;
+    }
   }
 
 
@@ -1584,22 +1634,29 @@
 
 
   // =========================================================
-  // KALKULATOR WAGI
+  // KALKULATOR WAGI - z uwzględnieniem gęstości materiału
   // =========================================================
 
   function calculateWeight() {
 
     const type = document.getElementById("materialType").value;
+    const steel = document.getElementById("materialSteel").value;
     const length = parseFloat(document.getElementById("dimensionLength").value) || 0;
     const dim2 = parseFloat(document.getElementById("dimension2").value) || 0;
     const dim3 = parseFloat(document.getElementById("dimension3").value) || 0;
 
+    // Aktualizuj info o gęstości
+    updateDensityInfo();
+
     let weightPerPiece = 0;
 
-    if (length === 0 || dim2 === 0) {
+    if (length === 0 || dim2 === 0 || !steel) {
       document.getElementById("materialWeight").value = "";
       return;
     }
+
+    // Pobierz gęstość wybranego materiału
+    const density = MATERIAL_DENSITIES[steel] || 7.85;
 
     try {
       // Konwersja wymiarów z mm na cm
@@ -1609,25 +1666,25 @@
 
       if (type === "Blacha") {
         // V = L × W × H (cm³)
-        weightPerPiece = L * D2 * D3 * STEEL_DENSITY / 1000;
+        weightPerPiece = L * D2 * D3 * density / 1000;
       } else if (type === "Pręt" || type === "Wałek") {
         // V = π × r² × L (cm³)
         const r = D2 / 2;
         const volume = Math.PI * r * r * L;
-        weightPerPiece = volume * STEEL_DENSITY / 1000;
+        weightPerPiece = volume * density / 1000;
       } else if (type === "Profil") {
         // Uproszczenie: prostokątny profil
         // V = L × H × W × 0.9 (0.9 to przybliżony współczynnik)
-        weightPerPiece = L * D2 * D3 * 0.9 * STEEL_DENSITY / 1000;
+        weightPerPiece = L * D2 * D3 * 0.9 * density / 1000;
       } else if (type === "Rura") {
         // V = π × (R² - r²) × L (cm³)
         const R = D2 / 2;
         const r = (D2 - 2 * D3) / 2;
         const volume = Math.PI * (R * R - r * r) * L;
-        weightPerPiece = volume * STEEL_DENSITY / 1000;
+        weightPerPiece = volume * density / 1000;
       } else if (type === "Inne") {
         // V = L × W × H (cm³)
-        weightPerPiece = L * D2 * D3 * STEEL_DENSITY / 1000;
+        weightPerPiece = L * D2 * D3 * density / 1000;
       }
 
       document.getElementById("materialWeight").value = 
