@@ -392,16 +392,13 @@
             onchange="renderMaterials()"
           >
 
-           <option value="">Wszystkie</option>
-<option value="Blacha">Blacha</option>
-<option value="Płaskownik">Płaskownik</option>
-<option value="Ceownik">Ceownik</option>
-<option value="Pręt">Pręt</option>
-<option value="Wałek">Wałek</option>
-<option value="Rura">Rura</option>
-<option value="Dwuteownik">Dwuteownik</option>
-<option value="Inne">Inne</option>
-
+            <option value="">Wszystkie</option>
+            <option value="Blacha">Blacha</option>
+            <option value="Profil">Profil</option>
+            <option value="Pręt">Pręt</option>
+            <option value="Wałek">Wałek</option>
+            <option value="Rura">Rura</option>
+            <option value="Inne">Inne</option>
 
           </select>
 
@@ -513,34 +510,15 @@
       >
 
         <option value="Blacha">Blacha</option>
-<option value="Płaskownik">Płaskownik</option>
-<option value="Ceownik">Ceownik</option>
-<option value="Pręt">Pręt</option>
-<option value="Wałek">Wałek</option>
-<option value="Rura">Rura</option>
-<option value="Dwuteownik">Dwuteownik</option>
-<option value="Inne">Inne</option>
-
+        <option value="Profil">Profil</option>
+        <option value="Pręt">Pręt</option>
+        <option value="Wałek">Wałek</option>
+        <option value="Rura">Rura</option>
+        <option value="Inne">Inne</option>
 
       </select>
 
     </div>
-
-    <!-- RODZAJ MATERIAŁU -->
-
-<div class="form-group">
-
-  <label>Rodzaj materiału</label>
-
-  <select id="materialMaterialType">
-
-    <option value="Stal czarna">Stal czarna</option>
-    <option value="Stal nierdzewna">Stal nierdzewna</option>
-    <option value="Aluminium">Aluminium</option>
-
-  </select>
-
-</div>
 
 
     <!-- GATUNEK -->
@@ -558,279 +536,20 @@
     </div>
 
 
-   <!-- WYMIARY MATERIAŁU -->
+    <!-- WYMIAR -->
 
-<div id="dimensionFields">
+    <div class="form-group">
 
-  <!-- BLACHA -->
+      <label>Wymiar</label>
 
-  <div
-    class="form-group dimension-blacha"
-  >
+      <input
+        type="text"
+        id="materialDimension"
+        placeholder="np. 2000x1000"
+      >
 
-    <label>Długość (mm)</label>
+    </div>
 
-    <input
-      type="number"
-      id="materialLength"
-      min="0"
-      step="0.1"
-      placeholder="np. 2000"
-    >
-
-  </div>
-
-
-  <div
-    class="form-group dimension-blacha"
-  >
-
-    <label>Szerokość (mm)</label>
-
-    <input
-      type="number"
-      id="materialWidth"
-      min="0"
-      step="0.1"
-      placeholder="np. 1000"
-    >
-
-  </div>
-
-
-  <!-- PŁASKOWNIK -->
-
-  <div
-    class="form-group dimension-plaskownik hidden"
-  >
-
-    <label>Szerokość płaskownika (mm)</label>
-
-    <input
-      type="number"
-      id="flatWidth"
-      min="0"
-      step="0.1"
-      placeholder="np. 50"
-    >
-
-  </div>
-
-
-  <div
-    class="form-group dimension-plaskownik hidden"
-  >
-
-    <label>Grubość płaskownika (mm)</label>
-
-    <input
-      type="number"
-      id="flatThickness"
-      min="0"
-      step="0.1"
-      placeholder="np. 5"
-    >
-
-  </div>
-
-
-  <!-- CEOWNIK -->
-
-  <div
-    class="form-group dimension-ceownik hidden"
-  >
-
-    <label>Wysokość ceownika (mm)</label>
-
-    <input
-      type="number"
-      id="channelHeight"
-      min="0"
-      step="0.1"
-      placeholder="np. 100"
-    >
-
-  </div>
-
-
-  <div
-    class="form-group dimension-ceownik hidden"
-  >
-
-    <label>Szerokość ceownika (mm)</label>
-
-    <input
-      type="number"
-      id="channelWidth"
-      min="0"
-      step="0.1"
-      placeholder="np. 50"
-    >
-
-  </div>
-
-
-  <div
-    class="form-group dimension-ceownik hidden"
-  >
-
-    <label>Grubość ścianki (mm)</label>
-
-    <input
-      type="number"
-      id="channelThickness"
-      min="0"
-      step="0.1"
-      placeholder="np. 5"
-    >
-
-  </div>
-
-
-  <!-- PRĘT / WAŁEK -->
-
-  <div
-    class="form-group dimension-round hidden"
-  >
-
-    <label>Średnica (mm)</label>
-
-    <input
-      type="number"
-      id="materialDiameter"
-      min="0"
-      step="0.1"
-      placeholder="np. 20"
-    >
-
-  </div>
-
-
-  <!-- DŁUGOŚĆ -->
-
-  <div
-    class="form-group dimension-length"
-  >
-
-    <label>Długość (mm)</label>
-
-    <input
-      type="number"
-      id="materialLength2"
-      min="0"
-      step="0.1"
-      placeholder="np. 6000"
-    >
-
-  </div>
-
-
-  <!-- RURA -->
-
-  <div
-    class="form-group dimension-rura hidden"
-  >
-
-    <label>Średnica zewnętrzna (mm)</label>
-
-    <input
-      type="number"
-      id="pipeDiameter"
-      min="0"
-      step="0.1"
-      placeholder="np. 60"
-    >
-
-  </div>
-
-
-  <div
-    class="form-group dimension-rura hidden"
-  >
-
-    <label>Grubość ścianki (mm)</label>
-
-    <input
-      type="number"
-      id="pipeThickness"
-      min="0"
-      step="0.1"
-      placeholder="np. 3"
-    >
-
-  </div>
-
-
-  <!-- DWUTEOWNIK -->
-
-  <div
-    class="form-group dimension-dwuteownik hidden"
-  >
-
-    <label>Wysokość dwuteownika (mm)</label>
-
-    <input
-      type="number"
-      id="ibeamHeight"
-      min="0"
-      step="0.1"
-      placeholder="np. 200"
-    >
-
-  </div>
-
-
-  <div
-    class="form-group dimension-dwuteownik hidden"
-  >
-
-    <label>Szerokość stopki (mm)</label>
-
-    <input
-      type="number"
-      id="ibeamWidth"
-      min="0"
-      step="0.1"
-      placeholder="np. 100"
-    >
-
-  </div>
-
-
-  <div
-    class="form-group dimension-dwuteownik hidden"
-  >
-
-    <label>Grubość środnika (mm)</label>
-
-    <input
-      type="number"
-      id="ibeamWeb"
-      min="0"
-      step="0.1"
-      placeholder="np. 6"
-    >
-
-  </div>
-
-
-  <div
-    class="form-group dimension-dwuteownik hidden"
-  >
-
-    <label>Grubość stopki (mm)</label>
-
-    <input
-      type="number"
-      id="ibeamFlange"
-      min="0"
-      step="0.1"
-      placeholder="np. 8"
-    >
-
-  </div>
-
-</div>
 
     <!-- GRUBOŚĆ -->
 
@@ -949,229 +668,6 @@
   let departments = [];
 
   let currentUser = null;
-  
-  // =========================================================
-// GĘSTOŚĆ MATERIAŁU
-// =========================================================
-
-function getDensity(materialSteel) {
-
-  const steel = String(materialSteel || "")
-    .trim()
-    .toLowerCase();
-
-  // Aluminium
-  if (
-    steel.includes("aluminium") ||
-    steel.includes("aluminum") ||
-    steel.includes("en aw")
-  ) {
-    return 2.70;
-  }
-
-  // Stal nierdzewna
-  if (
-    steel.includes("nierdzewna") ||
-    steel.includes("inox") ||
-    steel.includes("1.4301") ||
-    steel.includes("1.4307") ||
-    steel.includes("1.4404") ||
-    steel.includes("1.4571")
-  ) {
-    return 8.00;
-  }
-
-  // Stal czarna
-  return 7.85;
-}
-  
-  // =========================================================
-// OBLICZANIE WAGI MATERIAŁU
-// =========================================================
-
-function calculateWeight(type, dimension, quantity, density) {
-
-  const d = String(dimension || "")
-    .toLowerCase()
-    .replace(/,/g, ".")
-    .trim();
-
-  const qty = Number(quantity) || 0;
-  const rho = Number(density) || 7.85;
-
-  let volume = 0;
-
-  // ---------------------------------------------------------
-  // BLACHA
-  // wymiar: długość x szerokość x grubość
-  // np. 2000x1000 + grubość 3 mm
-  // ---------------------------------------------------------
-
-  if (type === "Blacha") {
-
-    const numbers = d.match(/\d+(?:\.\d+)?/g);
-
-    if (numbers && numbers.length >= 2) {
-
-      const length = Number(numbers[0]);
-      const width = Number(numbers[1]);
-
-      const thicknessMatch =
-        d.match(/#(\d+(?:\.\d+)?)/);
-
-      const thickness =
-        thicknessMatch
-          ? Number(thicknessMatch[1])
-          : 0;
-
-      if (thickness > 0) {
-
-        volume =
-          (length / 1000) *
-          (width / 1000) *
-          (thickness / 1000);
-
-      }
-
-    }
-  }
-
-  // ---------------------------------------------------------
-  // PŁASKOWNIK
-  // wymiar: szerokość x grubość x długość
-  // np. 50x5x6000
-  // ---------------------------------------------------------
-
-  else if (type === "Płaskownik") {
-
-    const numbers = d.match(/\d+(?:\.\d+)?/g);
-
-    if (numbers && numbers.length >= 3) {
-
-      const width = Number(numbers[0]);
-      const thickness = Number(numbers[1]);
-      const length = Number(numbers[2]);
-
-      volume =
-        (width / 1000) *
-        (thickness / 1000) *
-        (length / 1000);
-
-    }
-  }
-
-  // ---------------------------------------------------------
-  // PRĘT OKRĄGŁY
-  // wymiar: średnica x długość
-  // np. 20x6000
-  // ---------------------------------------------------------
-
-  else if (type === "Pręt") {
-
-    const numbers = d.match(/\d+(?:\.\d+)?/g);
-
-    if (numbers && numbers.length >= 2) {
-
-      const diameter = Number(numbers[0]);
-      const length = Number(numbers[1]);
-
-      const radius =
-        diameter / 2000;
-
-      volume =
-        Math.PI *
-        radius *
-        radius *
-        (length / 1000);
-
-    }
-  }
-
-  // ---------------------------------------------------------
-  // WAŁEK
-  // wymiar: średnica x długość
-  // np. 50x3000
-  // ---------------------------------------------------------
-
-  else if (type === "Wałek") {
-
-    const numbers = d.match(/\d+(?:\.\d+)?/g);
-
-    if (numbers && numbers.length >= 2) {
-
-      const diameter = Number(numbers[0]);
-      const length = Number(numbers[1]);
-
-      const radius =
-        diameter / 2000;
-
-      volume =
-        Math.PI *
-        radius *
-        radius *
-        (length / 1000);
-
-    }
-  }
-
-  // ---------------------------------------------------------
-  // RURA
-  // wymiar: średnica x długość
-  // grubość ścianki z # 
-  // np. #3 60x6000
-  // ---------------------------------------------------------
-
-  else if (type === "Rura") {
-
-    const numbers = d.match(/\d+(?:\.\d+)?/g);
-
-    const thicknessMatch =
-      d.match(/#(\d+(?:\.\d+)?)/);
-
-    if (
-      numbers &&
-      numbers.length >= 2 &&
-      thicknessMatch
-    ) {
-
-      const diameter =
-        Number(numbers[numbers.length - 2]);
-
-      const length =
-        Number(numbers[numbers.length - 1]);
-
-      const thickness =
-        Number(thicknessMatch[1]);
-
-      const outerRadius =
-        diameter / 2000;
-
-      const innerRadius =
-        (diameter - 2 * thickness) / 2000;
-
-      volume =
-        Math.PI *
-        (
-          outerRadius * outerRadius -
-          innerRadius * innerRadius
-        ) *
-        (length / 1000);
-
-    }
-  }
-
-  // ---------------------------------------------------------
-  // WYNIK
-  // ---------------------------------------------------------
-
-  const weight =
-    volume *
-    rho *
-    1000 *
-    qty;
-
-  return weight;
-}
 
 
   // =========================================================
@@ -1711,122 +1207,77 @@ function calculateWeight(type, dimension, quantity, density) {
   }
 
 
-// =========================================================
-// ZMIANA PÓL WYMIARÓW W ZALEŻNOŚCI OD TYPU
-// =========================================================
+  // =========================================================
+  // OBSŁUGA POLA GRUBOŚCI
+  // =========================================================
 
-function updateThicknessField() {
+  function updateThicknessField() {
 
-  const type =
-    document.getElementById("materialType").value;
-
-  // Ukryj wszystkie pola wymiarów
-  document
-    .querySelectorAll("#dimensionFields .form-group")
-    .forEach(field => {
-      field.classList.add("hidden");
-    });
+    const type =
+      document.getElementById(
+        "materialType"
+      ).value;
 
 
-  // BLACHA
-  if (type === "Blacha") {
-
-    showFields([
-      "dimension-blacha",
-      "dimension-length"
-    ]);
-
-  }
+    const group =
+      document.getElementById(
+        "thicknessGroup"
+      );
 
 
-  // PŁASKOWNIK
-  else if (type === "Płaskownik") {
-
-    showFields([
-      "dimension-plaskownik"
-    ]);
-
-  }
+    const label =
+      document.getElementById(
+        "thicknessLabel"
+      );
 
 
-  // CEOWNIK
-  else if (type === "Ceownik") {
-
-    showFields([
-      "dimension-ceownik",
-      "dimension-length"
-    ]);
-
-  }
+    const input =
+      document.getElementById(
+        "materialThickness"
+      );
 
 
-  // PRĘT
-  else if (type === "Pręt") {
+    if (type === "Blacha") {
 
-    showFields([
-      "dimension-round",
-      "dimension-length"
-    ]);
+      group.classList.remove(
+        "hidden"
+      );
 
-  }
+      label.innerText =
+        "Grubość";
 
-
-  // WAŁEK
-  else if (type === "Wałek") {
-
-    showFields([
-      "dimension-round",
-      "dimension-length"
-    ]);
-
-  }
+      input.placeholder =
+        "np. 3.0";
 
 
-  // RURA
-  else if (type === "Rura") {
+    } else if (
+      type === "Profil" ||
+      type === "Rura"
+    ) {
 
-    showFields([
-      "dimension-rura",
-      "dimension-length"
-    ]);
+      group.classList.remove(
+        "hidden"
+      );
+
+      label.innerText =
+        "Grubość ścianki";
+
+      input.placeholder =
+        "np. 3.0";
+
+
+    } else {
+
+      group.classList.add(
+        "hidden"
+      );
+
+      input.value = "";
+
+    }
 
   }
 
-
-  // DWUTEOWNIK
-  else if (type === "Dwuteownik") {
-
-    showFields([
-      "dimension-dwuteownik",
-      "dimension-length"
-    ]);
-
-  }
-
-}
-
-
-// =========================================================
-// POKAZYWANIE GRUP PÓL
-// =========================================================
-
-function showFields(classNames) {
-
-  classNames.forEach(className => {
-
-    document
-      .querySelectorAll(
-        "#dimensionFields ." + className
-      )
-      .forEach(field => {
-
-        field.classList.remove("hidden");
-
-      });
-
-  });
-
-}
 
   // =========================================================
   // DODAWANIE
@@ -1894,720 +1345,324 @@ function showFields(classNames) {
   }
 
 
- // =========================================================
-// EDYCJA MATERIAŁU
-// =========================================================
+  // =========================================================
+  // EDYCJA
+  // =========================================================
 
-function editMaterial(id) {
+  function editMaterial(id) {
 
-  const material =
-    materials.find(
-      m => m.id === id
-    );
-
-
-  if (!material) return;
-
-
-  // ---------------------------------------------------------
-  // PODSTAWOWE DANE
-  // ---------------------------------------------------------
-
-  document.getElementById("modalTitle").innerText =
-    "Edytuj materiał";
-
-
-  document.getElementById("materialId").value =
-    material.id;
-
-
-  document.getElementById("materialType").value =
-    material.typ;
-
-
-  document.getElementById("materialSteel").value =
-    material.gatunek || "";
-
-
-  document.getElementById("materialQuantity").value =
-    material.ilosc || "";
-
-
-  document.getElementById("materialLocation").value =
-    material.lokalizacja || "";
-
-
-  document.getElementById("materialDepartment").value =
-    material.dzial_id || "";
-
-
-  document.getElementById("modalMessage").innerText =
-    "";
-
-
-  // ---------------------------------------------------------
-  // POKAŻ ODPOWIEDNIE POLA
-  // ---------------------------------------------------------
-
-  updateThicknessField();
-
-
-  // ---------------------------------------------------------
-  // WYCIĄGNIJ LICZBY Z WYMIARU
-  // ---------------------------------------------------------
-
-  const dimension =
-    String(material.wymiar || "")
-      .replace(/,/g, ".")
-      .trim();
-
-
-  const numbers =
-    dimension.match(
-      /\d+(?:\.\d+)?/g
-    ) || [];
-
-
-  // ---------------------------------------------------------
-  // BLACHA
-  // zapis: 2000x1000 #3
-  // ---------------------------------------------------------
-
-  if (material.typ === "Blacha") {
-
-    document.getElementById("materialLength").value =
-      numbers[0] || "";
-
-
-    document.getElementById("materialWidth").value =
-      numbers[1] || "";
-
-
-    const thicknessMatch =
-      dimension.match(
-        /#(\d+(?:\.\d+)?)/
+    const material =
+      materials.find(
+        m => m.id === id
       );
 
 
-    document.getElementById("materialThickness").value =
-      thicknessMatch
-        ? thicknessMatch[1]
-        : "";
+    if (!material) return;
+
+
+    document.getElementById(
+      "modalTitle"
+    ).innerText =
+      "Edytuj materiał";
+
+
+    document.getElementById(
+      "materialId"
+    ).value =
+      material.id;
+
+
+    document.getElementById(
+      "materialType"
+    ).value =
+      material.typ;
+
+
+    // -------------------------------------------------------
+    // ODCZYT GRUBOŚCI Z WYMIARU
+    // -------------------------------------------------------
+
+    let savedDimension =
+      material.wymiar || "";
+
+
+    let savedThickness =
+      "";
+
+
+    if (
+      material.typ === "Blacha" ||
+      material.typ === "Profil" ||
+      material.typ === "Rura"
+    ) {
+
+      const match =
+        savedDimension.match(
+          /^#([0-9.,]+)\s+(.*)$/
+        );
+
+
+      if (match) {
+
+        savedThickness =
+          match[1];
+
+
+        savedDimension =
+          match[2];
+
+      }
+
+    }
+
+
+    document.getElementById(
+      "materialSteel"
+    ).value =
+      material.gatunek || "";
+
+
+    document.getElementById(
+      "materialDimension"
+    ).value =
+      savedDimension;
+
+
+    document.getElementById(
+      "materialThickness"
+    ).value =
+      savedThickness;
+
+
+    document.getElementById(
+      "materialQuantity"
+    ).value =
+      material.ilosc;
+
+
+    document.getElementById(
+      "materialLocation"
+    ).value =
+      material.lokalizacja;
+
+
+    document.getElementById(
+      "materialDepartment"
+    ).value =
+      material.dzial_id || "";
+
+
+    document.getElementById(
+      "modalMessage"
+    ).innerText = "";
+
+
+    updateThicknessField();
+
+
+    document
+      .getElementById(
+        "materialModal"
+      )
+      .classList
+      .remove("hidden");
 
   }
 
-
-  // ---------------------------------------------------------
-  // PŁASKOWNIK
-  // zapis: 50x5x6000
-  // ---------------------------------------------------------
-
-  else if (material.typ === "Płaskownik") {
-
-    document.getElementById("flatWidth").value =
-      numbers[0] || "";
-
-
-    document.getElementById("flatThickness").value =
-      numbers[1] || "";
-
-
-    document.getElementById("materialLength2").value =
-      numbers[2] || "";
-
-  }
-
-
-  // ---------------------------------------------------------
-  // CEOWNIK
-  // zapis: 100x50x5x6000
-  // ---------------------------------------------------------
-
-  else if (material.typ === "Ceownik") {
-
-    document.getElementById("channelHeight").value =
-      numbers[0] || "";
-
-
-    document.getElementById("channelWidth").value =
-      numbers[1] || "";
-
-
-    document.getElementById("channelThickness").value =
-      numbers[2] || "";
-
-
-    document.getElementById("materialLength2").value =
-      numbers[3] || "";
-
-  }
-
-
-  // ---------------------------------------------------------
-  // PRĘT
-  // zapis: 20x6000
-  // ---------------------------------------------------------
-
-  else if (material.typ === "Pręt") {
-
-    document.getElementById("materialDiameter").value =
-      numbers[0] || "";
-
-
-    document.getElementById("materialLength2").value =
-      numbers[1] || "";
-
-  }
-
-
-  // ---------------------------------------------------------
-  // WAŁEK
-  // zapis: 50x3000
-  // ---------------------------------------------------------
-
-  else if (material.typ === "Wałek") {
-
-    document.getElementById("materialDiameter").value =
-      numbers[0] || "";
-
-
-    document.getElementById("materialLength2").value =
-      numbers[1] || "";
-
-  }
-
-
-  // ---------------------------------------------------------
-  // RURA
-  // zapis: 60 #3x6000
-  // ---------------------------------------------------------
-
-  else if (material.typ === "Rura") {
-
-    document.getElementById("pipeDiameter").value =
-      numbers[0] || "";
-
-
-    const thicknessMatch =
-      dimension.match(
-        /#(\d+(?:\.\d+)?)/
-      );
-
-
-    document.getElementById("pipeThickness").value =
-      thicknessMatch
-        ? thicknessMatch[1]
-        : "";
-
-
-    document.getElementById("materialLength2").value =
-      numbers[numbers.length - 1] || "";
-
-  }
-
-
-  // ---------------------------------------------------------
-  // DWUTEOWNIK
-  // zapis: 200x100x6x8x6000
-  // ---------------------------------------------------------
-
-  else if (material.typ === "Dwuteownik") {
-
-    document.getElementById("ibeamHeight").value =
-      numbers[0] || "";
-
-
-    document.getElementById("ibeamWidth").value =
-      numbers[1] || "";
-
-
-    document.getElementById("ibeamWeb").value =
-      numbers[2] || "";
-
-
-    document.getElementById("ibeamFlange").value =
-      numbers[3] || "";
-
-
-    document.getElementById("materialLength2").value =
-      numbers[4] || "";
-
-  }
-
-
-  // ---------------------------------------------------------
-  // OTWÓRZ MODAL
-  // ---------------------------------------------------------
-
-  document
-    .getElementById("materialModal")
-    .classList
-    .remove("hidden");
-
-}
 
   // =========================================================
-// ZAPIS MATERIAŁU
-// =========================================================
+  // ZAPIS
+  // =========================================================
 
-async function saveMaterial() {
+  async function saveMaterial() {
 
-  const id =
-    document.getElementById("materialId").value;
-
-  const type =
-    document.getElementById("materialType").value;
-
-  const steel =
-    document.getElementById("materialSteel").value.trim();
-
-  const quantity =
-    Number(
-      document.getElementById("materialQuantity").value
-    );
-
-  const location =
-    document.getElementById("materialLocation").value.trim();
-
-  const department =
-    Number(
-      document.getElementById("materialDepartment").value
-    );
-  const density = getDensity(steel);
-  const mass = quantity * density;
+    const id =
+      document.getElementById(
+        "materialId"
+      ).value;
 
 
-  // ---------------------------------------------------------
-  // SPRAWDZENIE GATUNKU
-  // ---------------------------------------------------------
-
-  if (!steel) {
-
-    showModalError("Podaj gatunek materiału.");
-
-    return;
-
-  }
+    const type =
+      document.getElementById(
+        "materialType"
+      ).value;
 
 
-  // ---------------------------------------------------------
-  // SPRAWDZENIE ILOŚCI
-  // ---------------------------------------------------------
+    const dimension =
+      document.getElementById(
+        "materialDimension"
+      ).value.trim();
 
-  if (
-    isNaN(quantity) ||
-    quantity <= 0
-  ) {
-
-    showModalError("Podaj prawidłową ilość.");
-
-    return;
-
-  }
-
-
-  // ---------------------------------------------------------
-  // SPRAWDZENIE LOKALIZACJI
-  // ---------------------------------------------------------
-
-  if (!location) {
-
-    showModalError("Podaj lokalizację.");
-
-    return;
-
-  }
-
-
-  // ---------------------------------------------------------
-  // ZBUDOWANIE WYMIARU
-  // ---------------------------------------------------------
-
-  let dimension = "";
-
-
-  // BLACHA
-  if (type === "Blacha") {
-
-    const length =
-      Number(
-        document.getElementById("materialLength").value
-      );
-
-    const width =
-      Number(
-        document.getElementById("materialWidth").value
-      );
 
     const thickness =
-      Number(
-        document.getElementById("materialThickness").value
-      );
+      document.getElementById(
+        "materialThickness"
+      ).value.trim();
+
+
+    // -------------------------------------------------------
+    // TWORZENIE KOŃCOWEGO WYMIARU
+    // -------------------------------------------------------
+
+    let finalDimension =
+      dimension;
 
 
     if (
-      length <= 0 ||
-      width <= 0 ||
-      thickness <= 0
+      (
+        type === "Blacha" ||
+        type === "Profil" ||
+        type === "Rura"
+      ) &&
+      thickness
     ) {
 
-      showModalError(
-        "Dla blachy podaj długość, szerokość i grubość."
-      );
+      finalDimension =
+        "#" +
+        thickness +
+        " " +
+        dimension;
+
+    }
+
+
+    const material = {
+
+      typ:
+        type,
+
+
+      gatunek:
+        document
+          .getElementById(
+            "materialSteel"
+          )
+          .value
+          .trim(),
+
+
+      wymiar:
+        finalDimension,
+
+
+      ilosc:
+        Number(
+          document
+            .getElementById(
+              "materialQuantity"
+            )
+            .value
+        ),
+
+
+      lokalizacja:
+        document
+          .getElementById(
+            "materialLocation"
+          )
+          .value
+          .trim(),
+
+
+      dzial_id:
+        Number(
+          document
+            .getElementById(
+              "materialDepartment"
+            )
+            .value
+        )
+
+    };
+
+
+    // -------------------------------------------------------
+    // WALIDACJA
+    // -------------------------------------------------------
+
+    if (
+      !material.gatunek ||
+      !material.wymiar ||
+      !material.lokalizacja ||
+      isNaN(material.ilosc)
+    ) {
+
+      document.getElementById(
+        "modalMessage"
+      ).className =
+        "error";
+
+
+      document.getElementById(
+        "modalMessage"
+      ).innerText =
+        "Uzupełnij wszystkie pola.";
+
 
       return;
 
     }
 
 
-    dimension =
-      `${length}x${width} #${thickness}`;
-
-  }
+    let result;
 
 
-  // PŁASKOWNIK
-  else if (type === "Płaskownik") {
+    // -------------------------------------------------------
+    // EDYCJA
+    // -------------------------------------------------------
 
-    const width =
-      Number(
-        document.getElementById("flatWidth").value
-      );
+    if (id) {
 
-    const thickness =
-      Number(
-        document.getElementById("flatThickness").value
-      );
-
-    const length =
-      Number(
-        document.getElementById("materialLength2").value
-      );
+      result =
+        await supabaseClient
+          .from("materialy")
+          .update(material)
+          .eq("id", id);
 
 
-    if (
-      width <= 0 ||
-      thickness <= 0 ||
-      length <= 0
-    ) {
+    // -------------------------------------------------------
+    // DODAWANIE
+    // -------------------------------------------------------
 
-      showModalError(
-        "Dla płaskownika podaj szerokość, grubość i długość."
-      );
+    } else {
+
+      result =
+        await supabaseClient
+          .from("materialy")
+          .insert(material);
+
+    }
+
+
+    // -------------------------------------------------------
+    // BŁĄD
+    // -------------------------------------------------------
+
+    if (result.error) {
+
+      document.getElementById(
+        "modalMessage"
+      ).className =
+        "error";
+
+
+      document.getElementById(
+        "modalMessage"
+      ).innerText =
+        "Błąd: " +
+        result.error.message;
+
 
       return;
 
     }
 
 
-    dimension =
-      `${width}x${thickness}x${length}`;
+    closeModal();
+
+    await loadMaterials();
 
   }
-
-
-  // CEOWNIK
-  else if (type === "Ceownik") {
-
-    const height =
-      Number(
-        document.getElementById("channelHeight").value
-      );
-
-    const width =
-      Number(
-        document.getElementById("channelWidth").value
-      );
-
-    const thickness =
-      Number(
-        document.getElementById("channelThickness").value
-      );
-
-    const length =
-      Number(
-        document.getElementById("materialLength2").value
-      );
-
-
-    if (
-      height <= 0 ||
-      width <= 0 ||
-      thickness <= 0 ||
-      length <= 0
-    ) {
-
-      showModalError(
-        "Dla ceownika podaj wysokość, szerokość, grubość i długość."
-      );
-
-      return;
-
-    }
-
-
-    dimension =
-      `${height}x${width}x${thickness}x${length}`;
-
-  }
-
-
-  // PRĘT
-  else if (type === "Pręt") {
-
-    const diameter =
-      Number(
-        document.getElementById("materialDiameter").value
-      );
-
-    const length =
-      Number(
-        document.getElementById("materialLength2").value
-      );
-
-
-    if (
-      diameter <= 0 ||
-      length <= 0
-    ) {
-
-      showModalError(
-        "Dla pręta podaj średnicę i długość."
-      );
-
-      return;
-
-    }
-
-
-    dimension =
-      `${diameter}x${length}`;
-
-  }
-
-
-  // WAŁEK
-  else if (type === "Wałek") {
-
-    const diameter =
-      Number(
-        document.getElementById("materialDiameter").value
-      );
-
-    const length =
-      Number(
-        document.getElementById("materialLength2").value
-      );
-
-
-    if (
-      diameter <= 0 ||
-      length <= 0
-    ) {
-
-      showModalError(
-        "Dla wałka podaj średnicę i długość."
-      );
-
-      return;
-
-    }
-
-
-    dimension =
-      `${diameter}x${length}`;
-
-  }
-
-
-  // RURA
-  else if (type === "Rura") {
-
-    const diameter =
-      Number(
-        document.getElementById("pipeDiameter").value
-      );
-
-    const thickness =
-      Number(
-        document.getElementById("pipeThickness").value
-      );
-
-    const length =
-      Number(
-        document.getElementById("materialLength2").value
-      );
-
-
-    if (
-      diameter <= 0 ||
-      thickness <= 0 ||
-      length <= 0
-    ) {
-
-      showModalError(
-        "Dla rury podaj średnicę, grubość ścianki i długość."
-      );
-
-      return;
-
-    }
-
-
-    dimension =
-      `${diameter} #${thickness}x${length}`;
-
-  }
-
-
-  // DWUTEOWNIK
-  else if (type === "Dwuteownik") {
-
-    const height =
-      Number(
-        document.getElementById("ibeamHeight").value
-      );
-
-    const width =
-      Number(
-        document.getElementById("ibeamWidth").value
-      );
-
-    const web =
-      Number(
-        document.getElementById("ibeamWeb").value
-      );
-
-    const flange =
-      Number(
-        document.getElementById("ibeamFlange").value
-      );
-
-    const length =
-      Number(
-        document.getElementById("materialLength2").value
-      );
-
-
-    if (
-      height <= 0 ||
-      width <= 0 ||
-      web <= 0 ||
-      flange <= 0 ||
-      length <= 0
-    ) {
-
-      showModalError(
-        "Dla dwuteownika uzupełnij wszystkie wymiary."
-      );
-
-      return;
-
-    }
-
-
-    dimension =
-      `${height}x${width}x${web}x${flange}x${length}`;
-
-  }
-
-
-  // INNE
-  else {
-
-    dimension =
-      document.getElementById("materialDimension")
-        ? document.getElementById("materialDimension").value.trim()
-        : "";
-
-  }
-
-
-  // ---------------------------------------------------------
-  // DANE DO SUPABASE
-  // ---------------------------------------------------------
-
-  const material = {
-
-  typ: type,
-
-  gatunek: steel,
-
-  wymiar: dimension,
-
-  ilosc: quantity,
-
-  lokalizacja: location,
-
-  dzial_id: department,
-
-  masa: mass
-
-};
-
-
-  // ---------------------------------------------------------
-  // ZAPIS / EDYCJA
-  // ---------------------------------------------------------
-
-  let result;
-
-
-  if (id) {
-
-    result =
-      await supabaseClient
-        .from("materialy")
-        .update(material)
-        .eq("id", id);
-
-  } else {
-
-    result =
-      await supabaseClient
-        .from("materialy")
-        .insert(material);
-
-  }
-
-
-  // ---------------------------------------------------------
-  // OBSŁUGA BŁĘDU
-  // ---------------------------------------------------------
-
-  if (result.error) {
-
-    showModalError(
-      "Błąd zapisu: " +
-      result.error.message
-    );
-
-    return;
-
-  }
-
-
-  closeModal();
-
-  await loadMaterials();
-
-}
-
-
-// =========================================================
-// KOMUNIKAT BŁĘDU
-// =========================================================
-
-function showModalError(message) {
-
-  const element =
-    document.getElementById("modalMessage");
-
-  element.className = "error";
-
-  element.innerText = message;
-
-}
 
 
   // =========================================================
