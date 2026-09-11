@@ -517,6 +517,8 @@
             <option value="Pręt">Pręt</option>
             <option value="Wałek">Wałek</option>
             <option value="Rura">Rura</option>
+            <option value="Ceownik">Ceownik</option>
+            <option value="Dwuteownik">Dwuteownik</option>
             <option value="Inne">Inne</option>
 
           </select>
@@ -638,6 +640,8 @@
         <option value="Profil">📐 Profil (wymiary: długość × wysokość × szerokość)</option>
         <option value="Wałek">⭕ Wałek (wymiary: długość × średnica)</option>
         <option value="Rura">🔲 Rura (wymiary: długość × średnica × grubość)</option>
+        <option value="Ceownik">📦 Ceownik (wymiary: długość × wysokość × grubość)</option>
+        <option value="Dwuteownik">📊 Dwuteownik (wymiary: długość × wysokość × grubość)</option>
         <option value="Inne">❓ Inne (wymiary: długość × szerokość × grubość)</option>
 
       </select>
@@ -999,7 +1003,6 @@
       .classList
       .remove("hidden");
 
-
     document
       .getElementById("appScreen")
       .classList
@@ -1007,10 +1010,6 @@
 
   }
 
-
-  // =========================================================
-  // POKAZANIE APLIKACJI
-  // =========================================================
 
   async function showApplication() {
 
@@ -1019,42 +1018,71 @@
       .classList
       .add("hidden");
 
-
     document
       .getElementById("appScreen")
       .classList
       .remove("hidden");
 
 
-    document.getElementById("userName").innerText =
-      currentUser.email;
+    document
+      .getElementById("userName")
+      .innerText =
+        currentUser.email;
 
-
-    await loadDepartments();
 
     await loadMaterials();
+
+    await loadDepartments();
 
   }
 
 
   // =========================================================
-  // DZIAŁY
+  // ŁADOWANIE DANYCH
   // =========================================================
+
+  async function loadMaterials() {
+
+    const { data, error } =
+      await supabaseClient
+        .from("materials")
+        .select("*");
+
+
+    if (error) {
+
+      console.error(
+        "Błąd ładowania materiałów:",
+        error
+      );
+
+      return;
+
+    }
+
+
+    materials =
+      data || [];
+
+
+    renderMaterials();
+
+  }
+
 
   async function loadDepartments() {
 
     const { data, error } =
       await supabaseClient
-        .from("dzialy")
-        .select("*")
-        .order("nazwa");
+        .from("departments")
+        .select("*");
 
 
     if (error) {
 
-      alert(
-        "Błąd pobierania działów: " +
-        error.message
+      console.error(
+        "Błąd ładowania działów:",
+        error
       );
 
       return;
@@ -1067,201 +1095,48 @@
 
 
     const select =
-      document.getElementById(
-        "materialDepartment"
-      );
+      document
+        .getElementById("materialDepartment");
 
 
-    select.innerHTML = "";
+    select.innerHTML =
+      "";
 
 
-    departments.forEach(
-      department => {
+    if (departments.length === 0) {
 
-        const option =
-          document.createElement(
-            "option"
-          );
+      const option =
+        document.createElement("option");
 
+      option.value =
+        "";
 
-        option.value =
-          department.id;
+      option.innerText =
+        "Brak działów w bazie";
 
-
-        option.textContent =
-          department.nazwa;
-
-
-        select.appendChild(
-          option
-        );
-
-      }
-    );
-
-  }
-
-
-  // =========================================================
-  // MATERIAŁY
-  // =========================================================
-
-  async function loadMaterials() {
-
-    const { data, error } =
-      await supabaseClient
-        .from("materialy")
-        .select(`
-          *,
-          dzialy (
-            nazwa
-          )
-        `)
-        .order(
-          "id",
-          {
-            ascending: false
-          }
-        );
-
-
-    if (error) {
-
-      alert(
-        "Błąd pobierania materiałów: " +
-        error.message
-      );
+      select
+        .appendChild(option);
 
       return;
 
     }
 
 
-    materials =
-      data || [];
+    departments.forEach(dept => {
 
+      const option =
+        document.createElement("option");
 
-    updateFilters();
+      option.value =
+        dept.id;
 
-    renderMaterials();
+      option.innerText =
+        dept.name;
 
-  }
+      select
+        .appendChild(option);
 
-
-  // =========================================================
-  // FILTRY
-  // =========================================================
-
-  function updateFilters() {
-
-    const steelSelect =
-      document.getElementById(
-        "steelFilter"
-      );
-
-
-    const locationSelect =
-      document.getElementById(
-        "locationFilter"
-      );
-
-
-    const steels =
-      [
-        ...new Set(
-          materials
-            .map(
-              m => m.gatunek
-            )
-            .filter(Boolean)
-        )
-      ].sort();
-
-
-    const locations =
-      [
-        ...new Set(
-          materials
-            .map(
-              m => m.lokalizacja
-            )
-            .filter(Boolean)
-        )
-      ].sort();
-
-
-    const currentSteel =
-      steelSelect.value;
-
-
-    const currentLocation =
-      locationSelect.value;
-
-
-    steelSelect.innerHTML =
-      '<option value="">Wszystkie</option>';
-
-
-    steels.forEach(
-      steel => {
-
-        const option =
-          document.createElement(
-            "option"
-          );
-
-
-        option.value =
-          steel;
-
-
-        option.textContent =
-          steel;
-
-
-        steelSelect.appendChild(
-          option
-        );
-
-      }
-    );
-
-
-    steelSelect.value =
-      currentSteel;
-
-
-    locationSelect.innerHTML =
-      '<option value="">Wszystkie</option>';
-
-
-    locations.forEach(
-      location => {
-
-        const option =
-          document.createElement(
-            "option"
-          );
-
-
-        option.value =
-          location;
-
-
-        option.textContent =
-          location;
-
-
-        locationSelect.appendChild(
-          option
-        );
-
-      }
-    );
-
-
-    locationSelect.value =
-      currentLocation;
+    });
 
   }
 
@@ -1272,13 +1147,7 @@
 
   function renderMaterials() {
 
-    const tableBody =
-      document.getElementById(
-        "materialsTable"
-      );
-
-
-    const search =
+    const searchInput =
       document
         .getElementById("searchInput")
         .value
@@ -1303,96 +1172,242 @@
         .value;
 
 
-    const filtered =
-      materials.filter(
-        material => {
+    let filtered =
+      materials.filter(m => {
 
-          const matchSearch =
-            !search ||
-            material.typ?.toLowerCase().includes(search) ||
-            material.gatunek?.toLowerCase().includes(search) ||
-            material.wymiar?.toLowerCase().includes(search) ||
-            material.lokalizacja?.toLowerCase().includes(search);
+        let typeMatch = true;
 
+        let steelMatch = true;
 
-          const matchType =
-            !typeFilter ||
-            material.typ === typeFilter;
+        let locationMatch = true;
+
+        let searchMatch = true;
 
 
-          const matchSteel =
-            !steelFilter ||
-            material.gatunek === steelFilter;
+        if (typeFilter) {
 
-
-          const matchLocation =
-            !locationFilter ||
-            material.lokalizacja === locationFilter;
-
-
-          return matchSearch && matchType && matchSteel && matchLocation;
+          typeMatch =
+            m.type ===
+            typeFilter;
 
         }
-      );
 
 
-    if (filtered.length === 0) {
+        if (steelFilter) {
 
-      tableBody.innerHTML =
-        '<tr><td colspan="8" class="empty">Brak materiałów do wyświetlenia</td></tr>';
+          steelMatch =
+            m.steel ===
+            steelFilter;
+
+        }
+
+
+        if (locationFilter) {
+
+          locationMatch =
+            m.location ===
+            locationFilter;
+
+        }
+
+
+        if (searchInput) {
+
+          const search =
+            searchInput;
+
+          searchMatch =
+            (m.type &&
+              m.type
+                .toLowerCase()
+                .includes(search)) ||
+            (m.steel &&
+              m.steel
+                .toLowerCase()
+                .includes(search)) ||
+            (m.location &&
+              m.location
+                .toLowerCase()
+                .includes(search));
+
+        }
+
+
+        return (
+
+          typeMatch &&
+          steelMatch &&
+          locationMatch &&
+          searchMatch
+
+        );
+
+      });
+
+
+    updateFilterOptions();
+
+
+    const tbody =
+      document
+        .getElementById("materialsTable");
+
+
+    if (filtered.length ===
+      0) {
+
+      tbody.innerHTML =
+        "<tr><td colspan='8' class='empty'>Brak materiałów</td></tr>";
 
       return;
 
     }
 
 
-    tableBody.innerHTML = "";
+    tbody.innerHTML =
+      filtered
+        .map(m => {
+
+          const totalWeight =
+            (m.weight *
+              m.quantity)
+              .toFixed(2);
+
+          return `
+
+          <tr>
+
+            <td>${m.type}</td>
+
+            <td>${m.steel}</td>
+
+            <td>${m.dimension1}×${m.dimension2}×${m.dimension3}mm</td>
+
+            <td>${m.quantity}</td>
+
+            <td>${m.weight.toFixed(2)}</td>
+
+            <td>${totalWeight}</td>
+
+            <td>${m.location || "-"}</td>
+
+            <td>
+
+              <div class="actions">
+
+                <button
+                  class="btn-edit btn-small"
+                  onclick="editMaterial(${m.id})"
+                >
+                  ✏️
+                </button>
+
+                <button
+                  class="btn-danger btn-small"
+                  onclick="deleteMaterial(${m.id})"
+                >
+                  🗑️
+                </button>
+
+              </div>
+
+            </td>
+
+          </tr>
+
+          `;
+
+        })
+        .join("");
+
+  }
 
 
-    filtered.forEach(
-      material => {
+  function updateFilterOptions() {
 
-        const row =
-          document.createElement(
-            "tr"
-          );
-
-        const weightPerPiece = material.waga || 0;
-        const totalWeight = weightPerPiece * (material.ilosc || 1);
-
-        row.innerHTML = `
-          <td>${material.typ}</td>
-          <td>${material.gatunek}</td>
-          <td>${material.wymiar || "—"}</td>
-          <td>${material.ilosc || 0}</td>
-          <td>${weightPerPiece.toFixed(2)}</td>
-          <td>${totalWeight.toFixed(2)}</td>
-          <td>${material.lokalizacja}</td>
-          <td>
-            <div class="actions">
-              <button class="btn-edit btn-small" onclick="openEditModal(${material.id})">
-                Edytuj
-              </button>
-              <button class="btn-danger btn-small" onclick="deleteMaterial(${material.id})">
-                Usuń
-              </button>
-            </div>
-          </td>
-        `;
+    const steelSelect =
+      document
+        .getElementById("steelFilter");
 
 
-        tableBody.appendChild(
-          row
-        );
+    const locationSelect =
+      document
+        .getElementById("locationFilter");
 
-      }
-    );
+
+    const steels =
+      [... new Set(
+        materials
+          .map(m => m.steel)
+          .filter(s => s)
+      )];
+
+
+    const locations =
+      [... new Set(
+        materials
+          .map(m => m.location)
+          .filter(l => l)
+      )];
+
+
+    const selectedSteel =
+      steelSelect.value;
+
+    const selectedLocation =
+      locationSelect.value;
+
+
+    steelSelect.innerHTML =
+      "<option value=''>Wszystkie</option>";
+
+    steels.forEach(steel => {
+
+      const option =
+        document.createElement("option");
+
+      option.value =
+        steel;
+
+      option.innerText =
+        steel;
+
+      steelSelect
+        .appendChild(option);
+
+    });
+
+    steelSelect.value =
+      selectedSteel;
+
+
+    locationSelect.innerHTML =
+      "<option value=''>Wszystkie</option>";
+
+    locations.forEach(location => {
+
+      const option =
+        document.createElement("option");
+
+      option.value =
+        location;
+
+      option.innerText =
+        location;
+
+      locationSelect
+        .appendChild(option);
+
+    });
+
+    locationSelect.value =
+      selectedLocation;
 
   }
 
 
   // =========================================================
-  // MODAL MATERIAŁU
+  // OBSŁUGA MODALU
   // =========================================================
 
   function openAddModal() {
@@ -1401,21 +1416,18 @@
       .getElementById("materialId")
       .value = "";
 
-
     document
       .getElementById("modalTitle")
-      .innerText = "Dodaj materiał";
-
+      .innerText =
+        "Dodaj materiał";
 
     document
       .getElementById("materialType")
       .value = "Blacha";
 
-
     document
       .getElementById("materialSteel")
       .value = "";
-
 
     document
       .getElementById("dimensionLength")
@@ -1433,108 +1445,28 @@
       .getElementById("materialWeight")
       .value = "";
 
-
     document
       .getElementById("materialQuantity")
       .value = "";
 
-
     document
       .getElementById("materialLocation")
       .value = "";
-
-
-    document
-      .getElementById("modalMessage")
-      .innerHTML = "";
 
     document
       .getElementById("densityInfo")
-      .innerText = "Wybierz materiał aby zobaczyć jego gęstość";
-
+      .innerText =
+        "Wybierz materiał aby zobaczyć jego gęstość";
 
     updateDimensionFields();
-
-    document
-      .getElementById("materialModal")
-      .classList
-      .remove("hidden");
-
-  }
-
-
-  function openEditModal(materialId) {
-
-    const material =
-      materials.find(
-        m => m.id === materialId
-      );
-
-
-    if (!material) {
-
-      return;
-
-    }
-
-
-    document
-      .getElementById("materialId")
-      .value = material.id;
-
-
-    document
-      .getElementById("modalTitle")
-      .innerText = "Edytuj materiał";
-
-
-    document
-      .getElementById("materialType")
-      .value = material.typ;
-
-
-    document
-      .getElementById("materialSteel")
-      .value = material.gatunek;
-
-
-    document
-      .getElementById("materialQuantity")
-      .value = material.ilosc;
-
-
-    document
-      .getElementById("materialLocation")
-      .value = material.lokalizacja;
-
-
-    document
-      .getElementById("materialDepartment")
-      .value = material.dzial_id || "";
-
-
-    document
-      .getElementById("materialWeight")
-      .value = (material.waga || 0).toFixed(2);
-
-    // Wczytaj wymiary jeśli dostępne
-    if (material.wymiary_json) {
-      try {
-        const dims = JSON.parse(material.wymiary_json);
-        document.getElementById("dimensionLength").value = dims.length || "";
-        document.getElementById("dimension2").value = dims.dim2 || "";
-        document.getElementById("dimension3").value = dims.dim3 || "";
-      } catch (e) {
-        console.log("Nie można sparsować wymiarów");
-      }
-    }
 
     document
       .getElementById("modalMessage")
-      .innerHTML = "";
+      .className = "";
 
-    updateDensityInfo();
-    updateDimensionFields();
+    document
+      .getElementById("modalMessage")
+      .innerText = "";
 
     document
       .getElementById("materialModal")
@@ -1554,31 +1486,6 @@
   }
 
 
-  // =========================================================
-  // WYŚWIETLENIE INFORMACJI O GĘSTOŚCI
-  // =========================================================
-
-  function updateDensityInfo() {
-
-    const material = document.getElementById("materialSteel").value;
-    const densityInfo = document.getElementById("densityInfo");
-
-    if (!material) {
-      densityInfo.innerText = "Wybierz materiał aby zobaczyć jego gęstość";
-      return;
-    }
-
-    const density = MATERIAL_DENSITIES[material];
-    if (density) {
-      densityInfo.innerText = `📊 Gęstość materiału: ${density} g/cm³`;
-    }
-  }
-
-
-  // =========================================================
-  // DYNAMICZNE POLA WYMIARÓW
-  // =========================================================
-
   function updateDimensionFields() {
 
     const type =
@@ -1586,302 +1493,474 @@
         .getElementById("materialType")
         .value;
 
-    const dim2Label = document.getElementById("dimension2Label");
-    const dim2Help = document.getElementById("dimension2Help");
-    const dim3Label = document.getElementById("dimension3Label");
-    const dim3Help = document.getElementById("dimension3Help");
-    const dim3Group = document.getElementById("dimension3Group");
 
-    switch (type) {
-      case "Blacha":
-        dim2Label.textContent = "Szerokość (mm)";
-        dim2Help.textContent = "Szerokość blachy w milimetrach";
-        dim3Label.textContent = "Grubość (mm)";
-        dim3Help.textContent = "Grubość blachy w milimetrach";
-        dim3Group.classList.remove("hidden");
-        break;
-      case "Pręt":
-      case "Wałek":
-        dim2Label.textContent = "Średnica (mm)";
-        dim2Help.textContent = "Średnica pręta/wałka w milimetrach";
-        dim3Group.classList.add("hidden");
-        break;
-      case "Profil":
-        dim2Label.textContent = "Wysokość (mm)";
-        dim2Help.textContent = "Wysokość profilu w milimetrach";
-        dim3Label.textContent = "Szerokość (mm)";
-        dim3Help.textContent = "Szerokość profilu w milimetrach";
-        dim3Group.classList.remove("hidden");
-        break;
-      case "Rura":
-        dim2Label.textContent = "Średnica (mm)";
-        dim2Help.textContent = "Średnica zewnętrzna rury w milimetrach";
-        dim3Label.textContent = "Grubość ścianki (mm)";
-        dim3Help.textContent = "Grubość ścianki rury w milimetrach";
-        dim3Group.classList.remove("hidden");
-        break;
-      case "Inne":
-      default:
-        dim2Label.textContent = "Szerokość (mm)";
-        dim2Help.textContent = "Szerokość materiału w milimetrach";
-        dim3Label.textContent = "Grubość (mm)";
-        dim3Help.textContent = "Grubość materiału w milimetrach";
-        dim3Group.classList.remove("hidden");
+    const dim2Label =
+      document
+        .getElementById("dimension2Label");
+
+    const dim3Label =
+      document
+        .getElementById("dimension3Label");
+
+    const dim2Help =
+      document
+        .getElementById("dimension2Help");
+
+    const dim3Help =
+      document
+        .getElementById("dimension3Help");
+
+
+    document
+      .getElementById("dimension2")
+      .value = "";
+
+    document
+      .getElementById("dimension3")
+      .value = "";
+
+
+    if (type === "Pręt" || type === "Wałek") {
+
+      dim2Label.innerText =
+        "Średnica (mm)";
+
+      dim2Help.innerText =
+        "Średnica pręta / wałka w milimetrach";
+
+      document
+        .getElementById("dimension3Group")
+        .classList
+        .add("hidden");
+
+    } else if (type === "Rura") {
+
+      dim2Label.innerText =
+        "Średnica (mm)";
+
+      dim2Help.innerText =
+        "Średnica rury w milimetrach";
+
+      dim3Label.innerText =
+        "Grubość ścianki (mm)";
+
+      dim3Help.innerText =
+        "Grubość ścianki rury w milimetrach";
+
+      document
+        .getElementById("dimension3Group")
+        .classList
+        .remove("hidden");
+
+    } else if (type === "Profil" || type === "Ceownik" || type === "Dwuteownik") {
+
+      dim2Label.innerText =
+        "Wysokość (mm)";
+
+      dim2Help.innerText =
+        "Wysokość profilu w milimetrach";
+
+      dim3Label.innerText =
+        "Grubość (mm)";
+
+      dim3Help.innerText =
+        "Grubość materiału w milimetrach";
+
+      document
+        .getElementById("dimension3Group")
+        .classList
+        .remove("hidden");
+
+    } else {
+
+      dim2Label.innerText =
+        "Szerokość (mm)";
+
+      dim2Help.innerText =
+        "Szerokość materiału w milimetrach";
+
+      dim3Label.innerText =
+        "Grubość (mm)";
+
+      dim3Help.innerText =
+        "Grubość materiału w milimetrach";
+
+      document
+        .getElementById("dimension3Group")
+        .classList
+        .remove("hidden");
+
     }
 
+
     calculateWeight();
+
   }
 
-
-  // =========================================================
-  // KALKULATOR WAGI - z uwzględnieniem gęstości materiału
-  // =========================================================
 
   function calculateWeight() {
 
-    const type = document.getElementById("materialType").value;
-    const steel = document.getElementById("materialSteel").value;
-    const length = parseFloat(document.getElementById("dimensionLength").value) || 0;
-    const dim2 = parseFloat(document.getElementById("dimension2").value) || 0;
-    const dim3 = parseFloat(document.getElementById("dimension3").value) || 0;
-
-    // Aktualizuj info o gęstości
-    updateDensityInfo();
-
-    let weightPerPiece = 0;
-
-    if (length === 0 || dim2 === 0 || !steel) {
-      document.getElementById("materialWeight").value = "";
-      return;
-    }
-
-    // Pobierz gęstość wybranego materiału
-    const density = MATERIAL_DENSITIES[steel] || 7.85;
-
-    try {
-      // Konwersja wymiarów z mm na cm
-      const L = length / 10;
-      const D2 = dim2 / 10;
-      const D3 = dim3 / 10;
-
-      if (type === "Blacha") {
-        // V = L × W × H (cm³)
-        weightPerPiece = L * D2 * D3 * density / 1000;
-      } else if (type === "Pręt" || type === "Wałek") {
-        // V = π × r² × L (cm³)
-        const r = D2 / 2;
-        const volume = Math.PI * r * r * L;
-        weightPerPiece = volume * density / 1000;
-      } else if (type === "Profil") {
-        // Uproszczenie: prostokątny profil
-        // V = L × H × W × 0.9 (0.9 to przybliżony współczynnik)
-        weightPerPiece = L * D2 * D3 * 0.9 * density / 1000;
-      } else if (type === "Rura") {
-        // V = π × (R² - r²) × L (cm³)
-        const R = D2 / 2;
-        const r = (D2 - 2 * D3) / 2;
-        const volume = Math.PI * (R * R - r * r) * L;
-        weightPerPiece = volume * density / 1000;
-      } else if (type === "Inne") {
-        // V = L × W × H (cm³)
-        weightPerPiece = L * D2 * D3 * density / 1000;
-      }
-
-      document.getElementById("materialWeight").value = 
-        Math.max(0, weightPerPiece).toFixed(2);
-
-    } catch (e) {
-      console.error("Błąd kalkulacji wagi:", e);
-      document.getElementById("materialWeight").value = "";
-    }
-  }
-
-
-  // =========================================================
-  // ZAPIS/EDYCJA MATERIAŁU
-  // =========================================================
-
-  async function saveMaterial() {
-
-    const materialId =
+    const steel =
       document
-        .getElementById("materialId")
+        .getElementById("materialSteel")
         .value;
 
 
-    const materialType =
+    if (!steel) {
+
+      document
+        .getElementById("materialWeight")
+        .value = "";
+
+      document
+        .getElementById("densityInfo")
+        .innerText =
+          "Wybierz materiał aby zobaczyć jego gęstość";
+
+      return;
+
+    }
+
+
+    const density =
+      MATERIAL_DENSITIES[steel] ||
+      7.85;
+
+
+    document
+      .getElementById("densityInfo")
+      .innerText =
+        `Gęstość: ${density} g/cm³`;
+
+
+    const type =
       document
         .getElementById("materialType")
         .value;
 
-
-    const materialSteel =
-      document
-        .getElementById("materialSteel")
-        .value
-        .trim();
-
-
-    const length = parseFloat(
-      document.getElementById("dimensionLength").value
-    ) || 0;
-
-    const dim2 = parseFloat(
-      document.getElementById("dimension2").value
-    ) || 0;
-
-    const dim3 = parseFloat(
-      document.getElementById("dimension3").value
-    ) || 0;
-
-    const materialWeight = parseFloat(
-      document
-        .getElementById("materialWeight")
-        .value
-    ) || 0;
-
-
-    const materialQuantity =
-      parseInt(
+    const length =
+      parseFloat(
         document
-          .getElementById("materialQuantity")
+          .getElementById("dimensionLength")
+          .value
+      ) || 0;
+
+    const dim2 =
+      parseFloat(
+        document
+          .getElementById("dimension2")
+          .value
+      ) || 0;
+
+    const dim3 =
+      parseFloat(
+        document
+          .getElementById("dimension3")
           .value
       ) || 0;
 
 
-    const materialLocation =
+    let volume =
+      0; // cm³
+
+
+    if (type === "Blacha" || type === "Inne") {
+
+      volume =
+        (length *
+          dim2 *
+          dim3) /
+        1000;
+
+    } else if (type === "Pręt" || type === "Wałek") {
+
+      const radius =
+        dim2 / 2;
+
+      volume =
+        (Math.PI *
+          Math.pow(radius, 2) *
+          length) /
+        1000;
+
+    } else if (type === "Rura") {
+
+      const outerRadius =
+        dim2 / 2;
+
+      const innerRadius =
+        (dim2 - 2 * dim3) /
+        2;
+
+      volume =
+        (Math.PI *
+          (Math.pow(outerRadius, 2) -
+            Math.pow(
+              innerRadius,
+              2
+            )) *
+          length) /
+        1000;
+
+    } else if (type === "Profil" || type === "Ceownik" || type === "Dwuteownik") {
+
+      volume =
+        (length *
+          dim2 *
+          dim3) /
+        1000;
+
+    }
+
+
+    const weight =
+      (volume *
+        density) /
+      1000; // kg
+
+
+    document
+      .getElementById("materialWeight")
+      .value =
+        weight.toFixed(2);
+
+  }
+
+
+  async function saveMaterial() {
+
+    const id =
+      document
+        .getElementById("materialId")
+        .value;
+
+    const type =
+      document
+        .getElementById("materialType")
+        .value;
+
+    const steel =
+      document
+        .getElementById("materialSteel")
+        .value;
+
+    const dimension1 =
+      parseFloat(
+        document
+          .getElementById("dimensionLength")
+          .value
+      );
+
+    const dimension2 =
+      parseFloat(
+        document
+          .getElementById("dimension2")
+          .value
+      );
+
+    const dimension3 =
+      parseFloat(
+        document
+          .getElementById("dimension3")
+          .value
+      );
+
+    const weight =
+      parseFloat(
+        document
+          .getElementById("materialWeight")
+          .value
+      );
+
+    const quantity =
+      parseInt(
+        document
+          .getElementById("materialQuantity")
+          .value
+      );
+
+    const location =
       document
         .getElementById("materialLocation")
-        .value
-        .trim();
+        .value;
 
-
-    const materialDepartment =
+    const department_id =
       document
         .getElementById("materialDepartment")
         .value;
 
 
-    const messageDiv =
+    if (!type ||
+      !steel ||
+      !dimension1 ||
+      !dimension2 ||
+      !weight ||
+      !quantity) {
+
       document
         .getElementById("modalMessage")
-      ;
+        .className = "error";
 
-
-    if (!materialSteel || length === 0 || dim2 === 0 || !materialLocation || materialQuantity === 0) {
-
-      messageDiv.className = "error";
-
-      messageDiv.innerText =
-        "Wypełnij wszystkie wymagane pola!";
+      document
+        .getElementById("modalMessage")
+        .innerText =
+          "Proszę wypełnić wszystkie wymagane pola";
 
       return;
 
     }
 
 
-    // Przygotowanie wymiarów
-    const dimensionsStr = 
-      `${length}×${dim2}` + (dim3 > 0 ? `×${dim3}` : "");
-
-    const dimensionsJson = JSON.stringify({
-      length: length,
-      dim2: dim2,
-      dim3: dim3
-    });
-
     const data = {
 
-      typ: materialType,
+      type: type,
 
-      gatunek: materialSteel,
+      steel: steel,
 
-      wymiar: dimensionsStr,
+      dimension1: dimension1,
 
-      wymiary_json: dimensionsJson,
+      dimension2: dimension2,
 
-      waga: materialWeight,
+      dimension3: dimension3,
 
-      ilosc: materialQuantity,
+      weight: weight,
 
-      lokalizacja: materialLocation,
+      quantity: quantity,
 
-      dzial_id: materialDepartment || null
+      location: location,
+
+      department_id: department_id || null,
+
+      user_id:
+        currentUser.id
 
     };
 
 
-    if (materialId) {
+    let result;
 
-      const { error } =
+    if (id) {
+
+      result =
         await supabaseClient
-          .from("materialy")
+          .from("materials")
           .update(data)
-          .eq("id", materialId);
-
-
-      if (error) {
-
-        messageDiv.className = "error";
-
-        messageDiv.innerText =
-          "Błąd przy edycji: " +
-          error.message;
-
-        return;
-
-      }
+          .eq("id", id);
 
     } else {
 
-      const { error } =
+      result =
         await supabaseClient
-          .from("materialy")
+          .from("materials")
           .insert([data]);
-
-
-      if (error) {
-
-        messageDiv.className = "error";
-
-        messageDiv.innerText =
-          "Błąd przy dodawaniu: " +
-          error.message;
-
-        return;
-
-      }
 
     }
 
 
-    messageDiv.className = "success";
+    if (result.error) {
 
-    messageDiv.innerText =
-      "✓ Zapisano!";
+      document
+        .getElementById("modalMessage")
+        .className = "error";
+
+      document
+        .getElementById("modalMessage")
+        .innerText =
+          "Błąd zapisu: " +
+          result.error.message;
+
+      return;
+
+    }
 
 
-    setTimeout(
-      () => {
+    closeModal();
 
-        closeModal();
-
-        loadMaterials();
-
-      },
-      1000
-    );
+    await loadMaterials();
 
   }
 
 
-  // =========================================================
-  // USUWANIE MATERIAŁU
-  // =========================================================
+  async function editMaterial(id) {
 
-  async function deleteMaterial(materialId) {
+    const material =
+      materials.find(m =>
+        m.id === id
+      );
 
-    if (!confirm("Czy na pewno chcesz usunąć ten materiał?")) {
+
+    if (!material) return;
+
+
+    document
+      .getElementById("materialId")
+      .value = material.id;
+
+    document
+      .getElementById("modalTitle")
+      .innerText =
+        "Edytuj materiał";
+
+    document
+      .getElementById("materialType")
+      .value = material.type;
+
+    document
+      .getElementById("materialSteel")
+      .value = material.steel;
+
+    document
+      .getElementById("dimensionLength")
+      .value = material.dimension1;
+
+    document
+      .getElementById("dimension2")
+      .value = material.dimension2;
+
+    document
+      .getElementById("dimension3")
+      .value = material.dimension3;
+
+    document
+      .getElementById("materialWeight")
+      .value = material.weight
+        .toFixed(2);
+
+    document
+      .getElementById("materialQuantity")
+      .value = material.quantity;
+
+    document
+      .getElementById("materialLocation")
+      .value = material.location;
+
+    document
+      .getElementById("materialDepartment")
+      .value = material.department_id || "";
+
+    updateDimensionFields();
+
+    document
+      .getElementById("modalMessage")
+      .className = "";
+
+    document
+      .getElementById("modalMessage")
+      .innerText = "";
+
+    document
+      .getElementById("materialModal")
+      .classList
+      .remove("hidden");
+
+  }
+
+
+  async function deleteMaterial(id) {
+
+    if (!confirm(
+      "Czy na pewno chcesz usunąć ten materiał?"
+    )) {
 
       return;
 
@@ -1890,15 +1969,15 @@
 
     const { error } =
       await supabaseClient
-        .from("materialy")
+        .from("materials")
         .delete()
-        .eq("id", materialId);
+        .eq("id", id);
 
 
     if (error) {
 
       alert(
-        "Błąd przy usuwaniu: " +
+        "Błąd usuwania: " +
         error.message
       );
 
@@ -1907,78 +1986,94 @@
     }
 
 
-    loadMaterials();
+    await loadMaterials();
 
   }
 
 
   // =========================================================
-  // RAPORT - MODAL Z CENAMI
+  // RAPORT Z CENAMI
   // =========================================================
 
   function openReportModal() {
 
-    const uniqueSteels =
-      [
-        ...new Set(
-          materials
-            .map(m => m.gatunek)
-            .filter(Boolean)
-        )
-      ].sort();
-
-
-    if (uniqueSteels.length === 0) {
-
-      alert(
-        "Brak materiałów w magazynie!"
-      );
-
-      return;
-
-    }
-
-
-    steelPrices = {};
-
-    const priceList =
-      document.getElementById(
-        "priceList"
-      );
-
-
-    priceList.innerHTML = "";
-
-
-    uniqueSteels.forEach(
-      steel => {
-
-        const div =
-          document.createElement(
-            "div"
-          );
-
-
-        div.className = "price-item";
-
-
-        div.innerHTML = `
-          <label>💰 ${steel}</label>
-          <input type="number" id="price_${steel}" min="0" step="0.01" placeholder="Cena za kg" value="0">
-        `;
-
-
-        priceList.appendChild(
-          div
-        );
-
-      }
-    );
-
+    document
+      .getElementById("reportMessage")
+      .className = "";
 
     document
       .getElementById("reportMessage")
-      .innerHTML = "";
+      .innerText = "";
+
+
+    const priceList =
+      document
+        .getElementById("priceList");
+
+    priceList.innerHTML =
+      "";
+
+
+    const steels =
+      [... new Set(
+        materials
+          .map(m => m.steel)
+          .filter(s => s)
+      )]
+        .sort();
+
+
+    steels.forEach(steel => {
+
+      const div =
+        document.createElement("div");
+
+      div.className =
+        "price-item";
+
+
+      const label =
+        document.createElement("label");
+
+      label.innerText =
+        steel;
+
+      div.appendChild(label);
+
+
+      const input =
+        document.createElement("input");
+
+      input.type =
+        "number";
+
+      input.min =
+        "0";
+
+      input.step =
+        "0.01";
+
+      input.placeholder =
+        "Cena za kg...";
+
+      input.value =
+        steelPrices[steel] ||
+        "";
+
+      input.onchange = () => {
+
+        steelPrices[steel] =
+          parseFloat(
+            input.value
+          ) || 0;
+
+      };
+
+      div.appendChild(input);
+
+      priceList.appendChild(div);
+
+    });
 
 
     document
@@ -1999,269 +2094,125 @@
   }
 
 
-  // =========================================================
-  // GENEROWANIE EXCEL RAPORTU
-  // =========================================================
+  async function generateExcelReport() {
 
-  function generateExcelReport() {
-
-    const messageDiv =
-      document.getElementById(
-        "reportMessage"
-      );
-
-
-    const uniqueSteels =
-      [
-        ...new Set(
-          materials
-            .map(m => m.gatunek)
-            .filter(Boolean)
-        )
-      ].sort();
+    const missingPrices =
+      materials
+        .map(m => m.steel)
+        .filter(s => s)
+        .some(steel =>
+          !steelPrices[steel] ||
+          steelPrices[steel] ===
+          0
+        );
 
 
-    steelPrices = {};
+    if (missingPrices) {
 
-    let allValid = true;
+      document
+        .getElementById("reportMessage")
+        .className = "error";
 
-
-    uniqueSteels.forEach(
-      steel => {
-
-        const priceInput =
-          document.getElementById(
-            `price_${steel}`
-          );
-
-
-        const price =
-          parseFloat(
-            priceInput.value || 0
-          );
-
-
-        if (price < 0) {
-
-          allValid = false;
-
-        }
-
-
-        steelPrices[steel] = price;
-
-      }
-    );
-
-
-    if (!allValid) {
-
-      messageDiv.className = "error";
-
-      messageDiv.innerText =
-        "Ceny muszą być liczbami dodatnimi!";
+      document
+        .getElementById("reportMessage")
+        .innerText =
+          "Proszę podać ceny dla wszystkich materiałów";
 
       return;
 
     }
 
 
-    // Przygotowanie danych
-    const reportData = [];
+    const reportData =
+      materials.map(m => {
 
-    const steelGroups = {};
+        const pricePerKg =
+          steelPrices[m.steel] ||
+          0;
 
+        const totalWeight =
+          m.weight *
+          m.quantity;
 
-    materials.forEach(
-      material => {
+        const totalPrice =
+          totalWeight *
+          pricePerKg;
 
-        if (!steelGroups[material.gatunek]) {
 
-          steelGroups[material.gatunek] = [];
+        return {
 
-        }
+          Typ: m.type,
 
+          "Gatunek stali":
+            m.steel,
 
-        steelGroups[material.gatunek].push(
-          material
-        );
+          "Wymiary (mm)":
+            `${m.dimension1}×${m.dimension2}×${m.dimension3}`,
 
-      }
-    );
+          "Ilość (szt)":
+            m.quantity,
 
+          "Waga/szt (kg)":
+            m.weight
+              .toFixed(2),
 
-    // Nagłówki
-    reportData.push([
+          "Waga razem (kg)":
+            totalWeight
+              .toFixed(2),
 
-      "Gatunek stali",
+          "Cena za kg":
+            pricePerKg
+              .toFixed(2),
 
-      "Typ",
+          "Wartość (PLN)":
+            totalPrice
+              .toFixed(2),
 
-      "Wymiary",
+          Lokalizacja:
+            m.location || "-"
 
-      "Ilość (szt)",
+        };
 
-      "Waga/szt (kg)",
-
-      "Waga razem (kg)",
-
-      "Cena/kg (zł)",
-
-      "Wartość całkowita (zł)",
-
-      "Lokalizacja",
-
-      "Dział"
-
-    ]);
-
-
-    // Dane
-    let totalValue = 0;
-    let totalWeight = 0;
-
-
-    Object.keys(steelGroups).sort().forEach(
-      steel => {
-
-        const items =
-          steelGroups[steel];
-
-
-        const price =
-          steelPrices[steel] || 0;
-
-
-        items.forEach(
-          item => {
-
-            const weightPerPiece = item.waga || 0;
-            const totalItemWeight = weightPerPiece * item.ilosc;
-            const value = totalItemWeight * price;
-
-            totalValue += value;
-            totalWeight += totalItemWeight;
-
-            reportData.push([
-
-              steel,
-
-              item.typ,
-
-              item.wymiar || "—",
-
-              item.ilosc,
-
-              weightPerPiece.toFixed(2),
-
-              totalItemWeight.toFixed(2),
-
-              price.toFixed(2),
-
-              value.toFixed(2),
-
-              item.lokalizacja,
-
-              item.dzialy?.nazwa || "-"
-
-            ]);
-
-          }
-        );
-
-      }
-    );
-
-
-    // Podsumowanie
-    reportData.push([]);
-
-    reportData.push([
-
-      "PODSUMOWANIE",
-
-      "",
-
-      "",
-
-      "",
-
-      "",
-
-      totalWeight.toFixed(2),
-
-      "",
-
-      totalValue.toFixed(2),
-
-      "",
-
-      ""
-
-    ]);
-
-
-    // Tworzenie workbooka
-    const ws =
-      XLSX.utils.aoa_to_sheet(
-        reportData
-      );
-
-
-    ws["!cols"] = [
-
-      { wch: 15 },
-      { wch: 12 },
-      { wch: 15 },
-      { wch: 13 },
-      { wch: 14 },
-      { wch: 14 },
-      { wch: 14 },
-      { wch: 18 },
-      { wch: 18 },
-      { wch: 15 }
-
-    ];
+      });
 
 
     const wb =
       XLSX.utils.book_new();
 
+    const ws =
+      XLSX.utils.json_to_sheet(
+        reportData
+      );
 
     XLSX.utils.book_append_sheet(
+
       wb,
+
       ws,
-      "Raport Magazynu"
+
+      "Magazyn"
+
     );
 
 
-    // Pobranie pliku
-    const fileName =
-      `Raport_Magazynu_${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(
 
+      wb,
 
-    XLSX.writeFile(wb, fileName);
+      "Raport_Magazynu.xlsx"
 
-
-    messageDiv.className = "success";
-
-    messageDiv.innerText =
-      "✓ Raport wygenerowany i pobrany!";
-
-
-    setTimeout(
-      () => {
-
-        closeReportModal();
-
-      },
-      1500
     );
+
+
+    closeReportModal();
 
   }
 
 
-  // Inicjalizacja
+  // =========================================================
+  // INICJALIZACJA
+  // =========================================================
+
   startApp();
 
 </script>
