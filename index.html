@@ -852,6 +852,58 @@
     }
   };
 
+  const materialColumnAliases = {
+    wymiar: ["wymiary"],
+    wymiar_dlugosc: ["dlugosc"],
+    wymiar_szerokosc: ["szerokosc"],
+    wymiar_grubosc: ["grubosc"],
+    wymiar_wysokosc: ["wysokosc"],
+    wymiar_srednica: ["srednica"],
+    wymiar_srednicy_zew: ["srednica_zew", "srednica_zewnetrzna"],
+    wymiar_grubosc_scianki: ["grubosc_scianki"],
+    wymiar_a: ["a"],
+    wymiar_b: ["b"],
+    waga_kg: ["waga"]
+  };
+
+  let materialColumnNames = new Set();
+
+  function registerMaterialColumns(rows) {
+    materialColumnNames = new Set();
+    rows.forEach(row => {
+      Object.keys(row || {}).forEach(key => materialColumnNames.add(key));
+    });
+  }
+
+  function resolveMaterialColumnName(fieldName, useAliasFallback = false) {
+    const aliases = materialColumnAliases[fieldName] || [];
+
+    if (materialColumnNames.size > 0) {
+      const candidates = [fieldName, ...aliases];
+      const matchedColumn = candidates.find(candidate => materialColumnNames.has(candidate));
+      if (matchedColumn) {
+        return matchedColumn;
+      }
+    }
+
+    if (useAliasFallback && aliases.length > 0) {
+      return aliases[0];
+    }
+
+    return fieldName;
+  }
+
+  function getMaterialFieldValue(material, fieldName) {
+    const aliases = materialColumnAliases[fieldName] || [];
+    const candidates = [fieldName, ...aliases];
+    for (const candidate of candidates) {
+      if (material[candidate] !== undefined && material[candidate] !== null) {
+        return material[candidate];
+      }
+    }
+    return null;
+  }
+
 
   const SUPABASE_URL = "https://ynmcfagoxshigqbcgvkb.supabase.co";
   const SUPABASE_KEY = "sb_publishable_PCfv8KZPMsfqNwuZkBXj0A_zPxIcPZi";
@@ -947,6 +999,7 @@
       return;
     }
     materials = data || [];
+    registerMaterialColumns(materials);
     updateFilters();
     renderMaterials();
   }
@@ -1000,12 +1053,13 @@
     const locationFilter = document.getElementById("locationFilter").value;
 
     const filtered = materials.filter(m => {
+      const materialDimension = getMaterialFieldValue(m, "wymiar");
       const matchType = !typeFilter || m.typ === typeFilter;
       const matchSteel = !steelFilter || m.gatunek === steelFilter;
       const matchLocation = !locationFilter || m.lokalizacja === locationFilter;
       const matchSearch = !search || (m.typ && m.typ.toLowerCase().includes(search)) || 
                          (m.gatunek && m.gatunek.toLowerCase().includes(search)) || 
-                         (m.wymiar && m.wymiar.toString().toLowerCase().includes(search)) || 
+                         (materialDimension && materialDimension.toString().toLowerCase().includes(search)) || 
                          (m.lokalizacja && m.lokalizacja.toLowerCase().includes(search));
       return matchType && matchSteel && matchLocation && matchSearch;
     });
@@ -1017,13 +1071,14 @@
     }
 
     tbody.innerHTML = filtered.map(m => {
+      const materialDimension = getMaterialFieldValue(m, "wymiar");
       const weight = calculateWeight(m);
       const totalWeight = weight * (m.ilosc || 1);
       return `
         <tr>
           <td>${m.typ}</td>
           <td>${m.gatunek}</td>
-          <td>${m.wymiar || '-'}</td>
+          <td>${materialDimension || '-'}</td>
           <td>${m.ilosc}</td>
           <td>${totalWeight.toFixed(2)}</td>
           <td>${m.lokalizacja}</td>
@@ -1154,8 +1209,9 @@
       if (dims) {
         dims.fields.forEach(field => {
           const input = document.getElementById(field.id);
-          if (input && material[field.name]) {
-            input.value = material[field.name];
+          const fieldValue = getMaterialFieldValue(material, field.name);
+          if (input && fieldValue !== null) {
+            input.value = fieldValue;
           }
         });
       }
@@ -1192,7 +1248,7 @@
 
     const dims = materialDimensions[type];
     let wymiarSummary = [];
-    let materialData = {
+    const baseMaterialData = {
       typ: type,
       gatunek: steel,
       ilosc: quantity,
@@ -1200,33 +1256,44 @@
       dzial_id: departmentId
     };
 
-    dims.fields.forEach(field => {
-      const input = document.getElementById(field.id);
-      const value = input ? parseFloat(input.value) || 0 : 0;
-      materialData[field.name] = value;
-      if (value > 0) {
-        wymiarSummary.push(value);
-      }
-    });
+    const buildMaterialData = (useAliasFallback = false) => {
+      const materialData = { ...baseMaterialData };
+      wymiarSummary = [];
 
-    materialData.wymiar = wymiarSummary.join(" x ") || "-";
+      dims.fields.forEach(field => {
+        const input = document.getElementById(field.id);
+        const value = input ? parseFloat(input.value) || 0 : 0;
+        const dbFieldName = resolveMaterialColumnName(field.name, useAliasFallback);
+        materialData[dbFieldName] = value;
+        if (value > 0) {
+          wymiarSummary.push(value);
+        }
+      });
+
+      const dimensionSummaryColumn = resolveMaterialColumnName("wymiar", useAliasFallback);
+      materialData[dimensionSummaryColumn] = wymiarSummary.join(" x ") || "-";
+      return materialData;
+    };
+
+    const saveToDatabase = async (payload) => {
+      if (materialId) {
+        return await supabaseClient
+          .from("materialy")
+          .update(payload)
+          .eq("id", materialId);
+      }
+
+      return await supabaseClient
+        .from("materialy")
+        .insert([payload]);
+    };
 
     messageDiv.className = "";
     messageDiv.innerText = "Zapisywanie...";
 
-    let error;
-
-    if (materialId) {
-      const { error: updateError } = await supabaseClient
-        .from("materialy")
-        .update(materialData)
-        .eq("id", materialId);
-      error = updateError;
-    } else {
-      const { error: insertError } = await supabaseClient
-        .from("materialy")
-        .insert([materialData]);
-      error = insertError;
+    let { error } = await saveToDatabase(buildMaterialData(false));
+    if (error && error.message && error.message.includes("Could not find") && error.message.includes("column of 'materialy'")) {
+      ({ error } = await saveToDatabase(buildMaterialData(true)));
     }
 
     if (error) {
@@ -1290,6 +1357,7 @@
     });
 
     const reportData = materials.map(m => {
+      const materialDimension = getMaterialFieldValue(m, "wymiar");
       const weight = calculateWeight(m);
       const totalWeight = weight * (m.ilosc || 1);
       const price = prices[m.gatunek] || 0;
@@ -1298,7 +1366,7 @@
       return {
         "Typ": m.typ,
         "Gatunek": m.gatunek,
-        "Wymiar": m.wymiar || "-",
+        "Wymiar": materialDimension || "-",
         "Ilość (szt)": m.ilosc,
         "Waga jednostkowa (kg)": weight.toFixed(2),
         "Waga całkowita (kg)": totalWeight.toFixed(2),
