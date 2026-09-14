@@ -922,8 +922,10 @@
 
   function shouldRetryWithAliasColumns(error) {
     if (!error) return false;
-    const details = (error.details || "").toString();
-    return error.code === "PGRST204" || details.includes("Could not find") || details.includes("column of 'materialy'");
+    const code = (error.code || "").toString();
+    const details = (error.details || "").toString().toLowerCase();
+    const message = (error.message || "").toString().toLowerCase();
+    return code === "PGRST204" || details.includes("schema cache") || message.includes("schema cache");
   }
 
 
@@ -1312,10 +1314,7 @@
     messageDiv.innerText = "Zapisywanie...";
 
     let { error } = await saveToDatabase(buildMaterialData(false));
-    const isSchemaColumnError = shouldRetryWithAliasColumns(error);
-    const canRetryUpdate = !!materialId && isSchemaColumnError;
-    const canRetryInsert = !materialId && error && error.code === "PGRST204";
-    if (canRetryUpdate || canRetryInsert) {
+    if (shouldRetryWithAliasColumns(error)) {
       ({ error } = await saveToDatabase(buildMaterialData(true)));
     }
 
