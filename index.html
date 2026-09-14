@@ -730,16 +730,16 @@
 <script>
 
   // =========================================================
-  // GĘSTOŚĆ MATERIAŁÓW (kg/dm³)
+  // GĘSTOŚĆ MATERIAŁÓW (kg/m³)
   // =========================================================
 
   const materialDensity = {
-    "S235": 7.85,
-    "S355": 7.85,
-    "Aluminium": 2.70,
-    "Stal nierdzewna 304": 8.00,
-    "Stal nierdzewna 316": 8.00,
-    "Corten": 7.85
+    "S235": 7850,
+    "S355": 7850,
+    "Aluminium": 2700,
+    "Stal nierdzewna 304": 8000,
+    "Stal nierdzewna 316": 8000,
+    "Corten": 7850
   };
 
 
@@ -755,10 +755,11 @@
         { id: "dim_thickness", label: "Grubość (mm)", name: "wymiar_grubosc" }
       ],
       calcWeight: (fields) => {
+        // Konwertuj mm na m i policz objętość w m³
         const length = (fields.wymiar_dlugosc || 0) / 1000;
         const width = (fields.wymiar_szerokosc || 0) / 1000;
         const thickness = (fields.wymiar_grubosc || 0) / 1000;
-        return length * width * thickness;
+        return length * width * thickness; // m³
       }
     },
     "Profil": {
@@ -771,7 +772,7 @@
         const height = (fields.wymiar_wysokosc || 0) / 1000;
         const width = (fields.wymiar_szerokosc || 0) / 1000;
         const thickness = (fields.wymiar_grubosc || 0) / 1000;
-        return height * width * thickness;
+        return height * width * thickness; // m³
       }
     },
     "Pręt": {
@@ -783,7 +784,7 @@
         const diameter = (fields.wymiar_srednica || 0) / 1000;
         const length = (fields.wymiar_dlugosc || 0) / 1000;
         const radius = diameter / 2;
-        return Math.PI * radius * radius * length;
+        return Math.PI * radius * radius * length; // m³
       }
     },
     "Wałek": {
@@ -795,7 +796,7 @@
         const diameter = (fields.wymiar_srednica || 0) / 1000;
         const length = (fields.wymiar_dlugosc || 0) / 1000;
         const radius = diameter / 2;
-        return Math.PI * radius * radius * length;
+        return Math.PI * radius * radius * length; // m³
       }
     },
     "Rura": {
@@ -810,7 +811,7 @@
         const length = (fields.wymiar_dlugosc || 0) / 1000;
         const outerRadius = outerDiam / 2;
         const innerRadius = outerRadius - wallThickness;
-        return Math.PI * (outerRadius * outerRadius - innerRadius * innerRadius) * length;
+        return Math.PI * (outerRadius * outerRadius - innerRadius * innerRadius) * length; // m³
       }
     },
     "Płaskownik": {
@@ -823,7 +824,7 @@
         const dimA = (fields.wymiar_a || 0) / 1000;
         const dimB = (fields.wymiar_b || 0) / 1000;
         const length = (fields.wymiar_dlugosc || 0) / 1000;
-        return dimA * dimB * length;
+        return dimA * dimB * length; // m³
       }
     },
     "Kątownik": {
@@ -839,7 +840,7 @@
         const wallThickness = (fields.wymiar_grubosc_scianki || 0) / 1000;
         const length = (fields.wymiar_dlugosc || 0) / 1000;
         const volume = (dimA + dimB - wallThickness) * wallThickness * length;
-        return volume;
+        return volume; // m³
       }
     },
     "Inne": {
@@ -1150,10 +1151,10 @@
     }
 
     const dimConfig = materialDimensions[type];
-    const volume = dimConfig.calcWeight(material) || 0;
-    const density = materialDensity[steel] || 7.85;
+    const volume = dimConfig.calcWeight(material) || 0; // m³
+    const density = materialDensity[steel] || 7850; // kg/m³
 
-    return volume * density;
+    return volume * density; // kg
   }
 
 
@@ -1535,9 +1536,9 @@
       fieldData[field.name] = input ? parseFloat(input.value) || 0 : 0;
     });
 
-    const volume = dims.calcWeight(fieldData) || 0;
-    const density = materialDensity[steel] || 7.85;
-    const weight = volume * density;
+    const volume = dims.calcWeight(fieldData) || 0; // m³
+    const density = materialDensity[steel] || 7850; // kg/m³
+    const weight = volume * density; // kg
     const totalWeight = weight * quantity;
 
     const weightDisplay = document.getElementById("weightDisplay");
