@@ -459,6 +459,8 @@
             <option value="Pręt">Pręt</option>
             <option value="Wałek">Wałek</option>
             <option value="Rura">Rura</option>
+            <option value="Płaskownik">Płaskownik</option>
+            <option value="Kątownik">Kątownik</option>
             <option value="Inne">Inne</option>
 
           </select>
@@ -983,6 +985,7 @@
   function showLogin() {
     document.getElementById("loginScreen").classList.remove("hidden");
     document.getElementById("appScreen").classList.add("hidden");
+    document.getElementById("userName").innerText = "";
   }
 
 
@@ -1246,7 +1249,8 @@
 
     if (type === "Inne") {
       const customWeightInput = document.getElementById("dim_custom");
-      if (!customWeightInput?.value?.toString().trim()) {
+      const quantityInput = document.getElementById("materialQuantity");
+      if (!customWeightInput?.value?.toString().trim() || !quantityInput?.value?.toString().trim()) {
         document.getElementById("weightDisplay").classList.add("hidden");
         return;
       }
