@@ -244,6 +244,12 @@
       color: #6b7280;
     }
 
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
     @media (max-width: 800px) {
       .filter-grid {
         grid-template-columns: 1fr;
@@ -261,6 +267,10 @@
 
       .app {
         padding: 15px;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -506,7 +516,7 @@
 
       <select
         id="materialType"
-        onchange="updateThicknessField()"
+        onchange="updateDimensionFields()"
       >
 
         <option value="Blacha">Blacha</option>
@@ -540,41 +550,9 @@
 
     </div>
 
-    <!-- POLA WYMIAROWE -->
-
-    <input
-      type="hidden"
-      id="materialDimension"
-    >
+    <!-- POLA WYMIAROWE - DYNAMICZNE -->
 
     <div id="dynamicFields">
-
-      <div class="form-group">
-        <label>Długość (mm)</label>
-        <input type="number" id="materialLength" min="0" step="0.1">
-      </div>
-
-    </div>
-    
-    <!-- GRUBOŚĆ -->
-
-    <div
-      class="form-group"
-      id="thicknessGroup"
-    >
-
-      <label id="thicknessLabel">
-        Grubość
-      </label>
-
-      <input
-        type="number"
-        id="materialThickness"
-        min="0"
-        step="0.1"
-        placeholder="np. 3.0"
-      >
-
     </div>
 
 
@@ -673,6 +651,66 @@
   let departments = [];
 
   let currentUser = null;
+
+
+  // =========================================================
+  // WYMIARY MATERIAŁÓW - DEFINICJA
+  // =========================================================
+
+  const materialDimensions = {
+    "Blacha": {
+      fields: [
+        { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc" },
+        { id: "dim_width", label: "Szerokość (mm)", name: "wymiar_szerokosc" },
+        { id: "dim_thickness", label: "Grubość (mm)", name: "wymiar_grubosc" }
+      ]
+    },
+    "Profil": {
+      fields: [
+        { id: "dim_height", label: "Wysokość (mm)", name: "wymiar_wysokosc" },
+        { id: "dim_width", label: "Szerokość (mm)", name: "wymiar_szerokosc" },
+        { id: "dim_thickness", label: "Grubość (mm)", name: "wymiar_grubosc" }
+      ]
+    },
+    "Pręt": {
+      fields: [
+        { id: "dim_diameter", label: "Średnica (mm)", name: "wymiar_srednica" },
+        { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc" }
+      ]
+    },
+    "Wałek": {
+      fields: [
+        { id: "dim_diameter", label: "Średnica (mm)", name: "wymiar_srednica" },
+        { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc" }
+      ]
+    },
+    "Rura": {
+      fields: [
+        { id: "dim_outer_diameter", label: "Średnica zewnętrzna (mm)", name: "wymiar_srednicy_zew" },
+        { id: "dim_inner_diameter", label: "Średnica wewnętrzna (mm)", name: "wymiar_srednicy_wew" },
+        { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc" }
+      ]
+    },
+    "Płaskownik": {
+      fields: [
+        { id: "dim_width", label: "Szerokość (mm)", name: "wymiar_szerokosc" },
+        { id: "dim_thickness", label: "Grubość (mm)", name: "wymiar_grubosc" },
+        { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc" }
+      ]
+    },
+    "Kątownik": {
+      fields: [
+        { id: "dim_width", label: "Ramię (mm)", name: "wymiar_ramie" },
+        { id: "dim_thickness", label: "Grubość (mm)", name: "wymiar_grubosc" },
+        { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc" }
+      ]
+    },
+    "Inne": {
+      fields: [
+        { id: "dim_custom", label: "Wymiar niestandardowy", name: "wymiar_niestandardowy" }
+      ]
+    }
+  };
 
 
   // =========================================================
@@ -1162,6 +1200,68 @@
 
 
   // =========================================================
+  // POLA WYMIAROWE - DYNAMICZNE
+  // =========================================================
+
+  function updateDimensionFields() {
+
+    const type = document.getElementById("materialType").value;
+    const dynamicFields = document.getElementById("dynamicFields");
+    
+    dynamicFields.innerHTML = "";
+
+    const dims = materialDimensions[type];
+
+    if (!dims) {
+      return;
+    }
+
+    if (dims.fields.length === 2) {
+      // Dwa pola obok siebie
+      const row = document.createElement("div");
+      row.className = "form-row";
+
+      dims.fields.forEach(field => {
+        const group = document.createElement("div");
+        group.className = "form-group";
+        group.innerHTML = `
+          <label>${field.label}</label>
+          <input 
+            type="number" 
+            id="${field.id}" 
+            data-field="${field.name}"
+            min="0" 
+            step="0.1" 
+            placeholder="np. 100"
+          >
+        `;
+        row.appendChild(group);
+      });
+
+      dynamicFields.appendChild(row);
+    } else {
+      // Wszystkie pola w kolumnie
+      dims.fields.forEach(field => {
+        const group = document.createElement("div");
+        group.className = "form-group";
+        group.innerHTML = `
+          <label>${field.label}</label>
+          <input 
+            type="number" 
+            id="${field.id}" 
+            data-field="${field.name}"
+            min="0" 
+            step="0.1" 
+            placeholder="np. 100"
+          >
+        `;
+        dynamicFields.appendChild(group);
+      });
+    }
+  }
+
+
+  // =========================================================
   // MODAL - DODAWANIE MATERIAŁU
   // =========================================================
 
@@ -1171,12 +1271,12 @@
     document.getElementById("modalTitle").innerText = "Dodaj materiał";
     document.getElementById("materialType").value = "Blacha";
     document.getElementById("materialSteel").value = "";
-    document.getElementById("materialLength").value = "";
-    document.getElementById("materialThickness").value = "";
     document.getElementById("materialQuantity").value = "";
     document.getElementById("materialLocation").value = "";
     document.getElementById("materialDepartment").value = departments[0]?.id || "";
     document.getElementById("modalMessage").innerHTML = "";
+
+    updateDimensionFields();
 
     document
       .getElementById("materialModal")
@@ -1209,12 +1309,23 @@
     document.getElementById("modalTitle").innerText = "Edytuj materiał";
     document.getElementById("materialType").value = material.typ;
     document.getElementById("materialSteel").value = material.gatunek;
-    document.getElementById("materialLength").value = material.wymiar || "";
-    document.getElementById("materialThickness").value = material.grubosc || "";
     document.getElementById("materialQuantity").value = material.ilosc;
     document.getElementById("materialLocation").value = material.lokalizacja;
     document.getElementById("materialDepartment").value = material.dzial_id;
     document.getElementById("modalMessage").innerHTML = "";
+
+    updateDimensionFields();
+
+    // Załaduj wymiary z bazy
+    setTimeout(() => {
+      const fields = document.querySelectorAll("[data-field]");
+      fields.forEach(field => {
+        const fieldName = field.getAttribute("data-field");
+        if (material[fieldName]) {
+          field.value = material[fieldName];
+        }
+      });
+    }, 0);
 
     document
       .getElementById("materialModal")
@@ -1262,22 +1373,6 @@
         .value;
 
 
-    const length =
-      parseFloat(
-        document
-          .getElementById("materialLength")
-          .value
-      ) || 0;
-
-
-    const thickness =
-      parseFloat(
-        document
-          .getElementById("materialThickness")
-          .value
-      ) || 0;
-
-
     const quantity =
       parseFloat(
         document
@@ -1312,15 +1407,28 @@
     }
 
 
-    const materialData = {
+    // Zbierz wymiary z pól dynamicznych
+    const dimensionFields = document.querySelectorAll("[data-field]");
+    let wymiarSummary = [];
+    let materialData = {
       typ: type,
       gatunek: steel,
-      wymiar: length,
-      grubosc: thickness,
       ilosc: quantity,
       lokalizacja: location,
       dzial_id: departmentId
     };
+
+    dimensionFields.forEach(field => {
+      const fieldName = field.getAttribute("data-field");
+      const value = parseFloat(field.value) || 0;
+      materialData[fieldName] = value;
+      if (value > 0) {
+        wymiarSummary.push(value);
+      }
+    });
+
+    // Wymiar podsumowanie
+    materialData.wymiar = wymiarSummary.join(" x ") || "-";
 
 
     messageDiv.className = "";
@@ -1412,18 +1520,6 @@
 
 
     loadMaterials();
-
-  }
-
-
-  // =========================================================
-  // UKRYTY FIELD GRUBOŚCI
-  // =========================================================
-
-  function updateThicknessField() {
-
-    // Logika do pokazywania/ukrywania pola grubości
-    // w zależności od typu materiału
 
   }
 
