@@ -499,12 +499,6 @@
       id="materialId"
     >
 
-    <input
-      type="hidden"
-      id="materialDepartmentOriginal"
-    >
-
-
     <!-- TYP -->
 
     <div class="form-group">
@@ -1356,6 +1350,43 @@
   }
 
 
+  function ensureDepartmentOption(material) {
+
+    const select =
+      document.getElementById(
+        "materialDepartment"
+      );
+
+
+    if (
+      !material.dzial_id ||
+      Array.from(select.options).some(
+        option => option.value === material.dzial_id
+      )
+    ) {
+      return;
+    }
+
+
+    const option =
+      document.createElement(
+        "option"
+      );
+
+
+    option.value =
+      material.dzial_id;
+
+    option.textContent =
+      material.dzialy?.nazwa ||
+      "Obecny dział";
+
+
+    select.appendChild(option);
+
+  }
+
+
   function getFieldValue(id) {
 
     return String(
@@ -1728,11 +1759,6 @@
     ).value = "";
 
     document.getElementById(
-      "materialDepartmentOriginal"
-    ).value = "";
-
-
-    document.getElementById(
       "materialType"
     ).value =
       "Blacha";
@@ -1854,13 +1880,10 @@
       material.lokalizacja;
 
 
-    document.getElementById(
-      "materialDepartment"
-    ).value =
-      material.dzial_id || "";
+    ensureDepartmentOption(material);
 
     document.getElementById(
-      "materialDepartmentOriginal"
+      "materialDepartment"
     ).value =
       material.dzial_id || "";
 
@@ -1964,11 +1987,7 @@
     const departmentId =
       getFieldValue(
         "materialDepartment"
-      ) ||
-      getFieldValue(
-        "materialDepartmentOriginal"
-      ) ||
-      null;
+      ) || null;
 
     const material = {
       typ: type,
