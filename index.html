@@ -931,6 +931,7 @@
   let materials = [];
   let departments = [];
   let currentUser = null;
+  const steelPriceInputs = new Map();
 
 
   async function startApp() {
@@ -1093,28 +1094,47 @@
       return matchSearch && matchType && matchSteel && matchLocation;
     });
 
+    tbody.innerHTML = "";
+
     if (filtered.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7" class="empty">Brak materiałów spełniających kryteria</td></tr>';
+      const row = document.createElement("tr");
+      const cell = document.createElement("td");
+      cell.colSpan = 7;
+      cell.className = "empty";
+      cell.textContent = "Brak materiałów spełniających kryteria";
+      row.appendChild(cell);
+      tbody.appendChild(row);
       return;
     }
 
-    tbody.innerHTML = filtered.map(material => {
+    filtered.forEach(material => {
       const weight = calculateWeight(material);
-      return `
-        <tr>
-          <td>${material.typ}</td>
-          <td>${material.gatunek}</td>
-          <td>${getMaterialDimensionText(material)}</td>
-          <td>${material.ilosc || 0}</td>
-          <td>${weight.toFixed(2)}</td>
-          <td>${material.lokalizacja}</td>
-          <td class="actions">
-            <button class="btn-edit" onclick="editMaterial(${material.id})">✏️ Edytuj</button>
-            <button class="btn-danger" onclick="deleteMaterial(${material.id})">🗑️ Usuń</button>
-          </td>
-        </tr>
-      `;
-    }).join("");
+      const row = document.createElement("tr");
+
+      [material.typ, material.gatunek, getMaterialDimensionText(material), material.ilosc || 0, weight.toFixed(2), material.lokalizacja].forEach(value => {
+        const cell = document.createElement("td");
+        cell.textContent = value ?? "";
+        row.appendChild(cell);
+      });
+
+      const actionsCell = document.createElement("td");
+      actionsCell.className = "actions";
+
+      const editButton = document.createElement("button");
+      editButton.className = "btn-edit";
+      editButton.textContent = "✏️ Edytuj";
+      editButton.onclick = () => editMaterial(material.id);
+
+      const deleteButton = document.createElement("button");
+      deleteButton.className = "btn-danger";
+      deleteButton.textContent = "🗑️ Usuń";
+      deleteButton.onclick = () => deleteMaterial(material.id);
+
+      actionsCell.appendChild(editButton);
+      actionsCell.appendChild(deleteButton);
+      row.appendChild(actionsCell);
+      tbody.appendChild(row);
+    });
   }
 
 
@@ -1304,12 +1324,28 @@
     const steels = [...new Set(materials.map(m => m.gatunek).filter(Boolean))].sort();
     const container = document.getElementById("priceInputs");
 
-    container.innerHTML = steels.map(steel => `
-      <div class="form-group">
-        <label>${steel} (zł/kg)</label>
-        <input type="number" id="price_${steel}" step="0.01" min="0" value="0">
-      </div>
-    `).join("");
+    container.innerHTML = "";
+    steelPriceInputs.clear();
+
+    steels.forEach((steel, index) => {
+      const wrapper = document.createElement("div");
+      wrapper.className = "form-group";
+
+      const label = document.createElement("label");
+      label.textContent = `${steel} (zł/kg)`;
+
+      const input = document.createElement("input");
+      input.type = "number";
+      input.id = `price_${index}`;
+      input.step = "0.01";
+      input.min = "0";
+      input.value = "0";
+
+      wrapper.appendChild(label);
+      wrapper.appendChild(input);
+      container.appendChild(wrapper);
+      steelPriceInputs.set(steel, input.id);
+    });
 
     document.getElementById("exportModal").classList.remove("hidden");
   }
@@ -1324,7 +1360,8 @@
     const steels = [...new Set(materials.map(m => m.gatunek).filter(Boolean))];
     const prices = {};
     steels.forEach(steel => {
-      prices[steel] = parseNumericInput(document.getElementById(`price_${steel}`)?.value);
+      const inputId = steelPriceInputs.get(steel);
+      prices[steel] = parseNumericInput(document.getElementById(inputId)?.value);
     });
 
     const data = materials.map(m => {
