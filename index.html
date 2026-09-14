@@ -752,7 +752,7 @@
       fields: [
         { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc" },
         { id: "dim_width", label: "Szerokość (mm)", name: "wymiar_szerokosc" },
-        { id: "dim_thickness", label: "Grubość (mm)", name: "wymiar_grubosc" }
+        { id: "dim_thickness", label: "# Grubość (mm)", name: "wymiar_grubosc" }
       ],
       calcWeight: (fields) => {
         const length = (fields.wymiar_dlugosc || 0) / 1000;
@@ -765,7 +765,7 @@
       fields: [
         { id: "dim_height", label: "Wysokość (mm)", name: "wymiar_wysokosc" },
         { id: "dim_width", label: "Szerokość (mm)", name: "wymiar_szerokosc" },
-        { id: "dim_thickness", label: "Grubość ścianki (mm)", name: "wymiar_grubosc" },
+        { id: "dim_thickness", label: "# Grubość ścianki (mm)", name: "wymiar_grubosc" },
         { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc" }
       ],
       calcWeight: (fields) => {
@@ -789,7 +789,7 @@
     },
     "Pręt": {
       fields: [
-        { id: "dim_diameter", label: "Średnica (mm)", name: "wymiar_srednica" },
+        { id: "dim_diameter", label: "ø Średnica (mm)", name: "wymiar_srednica" },
         { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc" }
       ],
       calcWeight: (fields) => {
@@ -801,7 +801,7 @@
     },
     "Wałek": {
       fields: [
-        { id: "dim_diameter", label: "Średnica (mm)", name: "wymiar_srednica" },
+        { id: "dim_diameter", label: "ø Średnica (mm)", name: "wymiar_srednica" },
         { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc" }
       ],
       calcWeight: (fields) => {
@@ -813,8 +813,8 @@
     },
     "Rura": {
       fields: [
-        { id: "dim_outer_diameter", label: "Średnica zewnętrzna (mm)", name: "wymiar_srednicy_zew" },
-        { id: "dim_wall_thickness", label: "Grubość ścianki (mm)", name: "wymiar_grubosc_scianki" },
+        { id: "dim_outer_diameter", label: "ø Średnica zewnętrzna (mm)", name: "wymiar_srednicy_zew" },
+        { id: "dim_wall_thickness", label: "# Grubość ścianki (mm)", name: "wymiar_grubosc_scianki" },
         { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc" }
       ],
       calcWeight: (fields) => {
@@ -843,7 +843,7 @@
       fields: [
         { id: "dim_dim_a", label: "Wymiar A (mm)", name: "wymiar_a" },
         { id: "dim_dim_b", label: "Wymiar B (mm)", name: "wymiar_b" },
-        { id: "dim_wall_thickness", label: "Grubość ścianki (mm)", name: "wymiar_grubosc_scianki" },
+        { id: "dim_wall_thickness", label: "# Grubość ścianki (mm)", name: "wymiar_grubosc_scianki" },
         { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc" }
       ],
       calcWeight: (fields) => {
@@ -1007,42 +1007,43 @@
 
 
   function renderMaterials() {
+    const tbody = document.getElementById("materialsTable");
     const search = document.getElementById("searchInput").value.toLowerCase();
     const typeFilter = document.getElementById("typeFilter").value;
     const steelFilter = document.getElementById("steelFilter").value;
     const locationFilter = document.getElementById("locationFilter").value;
 
     const filtered = materials.filter(m => {
-      const matchType = !typeFilter || m.typ === typeFilter;
-      const matchSteel = !steelFilter || m.gatunek === steelFilter;
-      const matchLocation = !locationFilter || m.lokalizacja === locationFilter;
-      const matchSearch = !search || (m.typ && m.typ.toLowerCase().includes(search)) || 
-                         (m.gatunek && m.gatunek.toLowerCase().includes(search)) || 
-                         (m.wymiar && m.wymiar.toString().toLowerCase().includes(search)) || 
-                         (m.lokalizacja && m.lokalizacja.toLowerCase().includes(search));
-      return matchType && matchSteel && matchLocation && matchSearch;
+      const matchSearch = search === "" || 
+        (m.typ && m.typ.toLowerCase().includes(search)) ||
+        (m.gatunek && m.gatunek.toLowerCase().includes(search)) ||
+        (m.lokalizacja && m.lokalizacja.toLowerCase().includes(search));
+      
+      const matchType = typeFilter === "" || m.typ === typeFilter;
+      const matchSteel = steelFilter === "" || m.gatunek === steelFilter;
+      const matchLocation = locationFilter === "" || m.lokalizacja === locationFilter;
+
+      return matchSearch && matchType && matchSteel && matchLocation;
     });
 
-    const tbody = document.getElementById("materialsTable");
     if (filtered.length === 0) {
       tbody.innerHTML = '<tr><td colspan="7" class="empty">Brak materiałów spełniających kryteria</td></tr>';
       return;
     }
 
-    tbody.innerHTML = filtered.map(m => {
-      const weight = calculateWeight(m);
-      const totalWeight = weight * (m.ilosc || 1);
+    tbody.innerHTML = filtered.map(material => {
+      const weight = calculateWeight(material);
       return `
         <tr>
-          <td>${m.typ}</td>
-          <td>${m.gatunek}</td>
-          <td>${m.wymiar || '-'}</td>
-          <td>${m.ilosc}</td>
-          <td>${totalWeight.toFixed(2)}</td>
-          <td>${m.lokalizacja}</td>
+          <td>${material.typ}</td>
+          <td>${material.gatunek}</td>
+          <td>${material.wymiar || "-"}</td>
+          <td>${material.ilosc || 0}</td>
+          <td>${weight.toFixed(2)}</td>
+          <td>${material.lokalizacja}</td>
           <td class="actions">
-            <button class="btn-edit" onclick="editMaterial(${m.id})">✏️ Edytuj</button>
-            <button class="btn-danger" onclick="deleteMaterial(${m.id})">🗑️ Usuń</button>
+            <button class="btn-edit" onclick="editMaterial(${material.id})">✏️ Edytuj</button>
+            <button class="btn-danger" onclick="deleteMaterial(${material.id})">🗑️ Usuń</button>
           </td>
         </tr>
       `;
@@ -1050,210 +1051,159 @@
   }
 
 
+  function openAddModal() {
+    document.getElementById("materialId").value = "";
+    document.getElementById("modalTitle").textContent = "Dodaj materiał";
+    document.getElementById("materialType").value = "Blacha";
+    document.getElementById("materialSteel").value = "";
+    document.getElementById("materialQuantity").value = "";
+    document.getElementById("materialLocation").value = "";
+    document.getElementById("modalMessage").innerHTML = "";
+    updateDimensionFields();
+    document.getElementById("materialModal").classList.remove("hidden");
+  }
+
+
+  async function editMaterial(id) {
+    const material = materials.find(m => m.id === id);
+    if (!material) return;
+
+    document.getElementById("materialId").value = id;
+    document.getElementById("modalTitle").textContent = "Edytuj materiał";
+    document.getElementById("materialType").value = material.typ || "Blacha";
+    document.getElementById("materialSteel").value = material.gatunek || "";
+    document.getElementById("materialQuantity").value = material.ilosc || "";
+    document.getElementById("materialLocation").value = material.lokalizacja || "";
+    document.getElementById("materialDepartment").value = material.dział_id || "";
+    document.getElementById("modalMessage").innerHTML = "";
+
+    updateDimensionFields();
+
+    // Ustaw wartości wymiarów
+    const fields = materialDimensions[material.typ]?.fields || [];
+    fields.forEach(field => {
+      const input = document.getElementById(field.id);
+      if (input) {
+        input.value = material[field.name] || "";
+      }
+    });
+
+    updateWeightDisplay();
+    document.getElementById("materialModal").classList.remove("hidden");
+  }
+
+
   function updateDimensionFields() {
     const type = document.getElementById("materialType").value;
-    const dynamicFields = document.getElementById("dynamicFields");
-    dynamicFields.innerHTML = "";
-    const dims = materialDimensions[type];
-    if (!dims) return;
+    const container = document.getElementById("dynamicFields");
+    const config = materialDimensions[type];
 
-    if (dims.fields.length === 2) {
-      const row = document.createElement("div");
-      row.className = "form-row";
-      dims.fields.forEach(field => {
-        const group = document.createElement("div");
-        group.className = "form-group";
-        group.innerHTML = `<label>${field.label}</label><input type="number" id="${field.id}" min="0" step="0.01" placeholder="np. 100" onchange="updateWeightDisplay()">`;
-        row.appendChild(group);
-      });
-      dynamicFields.appendChild(row);
-    } else if (dims.fields.length === 3) {
-      const row = document.createElement("div");
-      row.className = "form-row-3";
-      dims.fields.forEach(field => {
-        const group = document.createElement("div");
-        group.className = "form-group";
-        group.innerHTML = `<label>${field.label}</label><input type="number" id="${field.id}" min="0" step="0.01" placeholder="np. 100" onchange="updateWeightDisplay()">`;
-        row.appendChild(group);
-      });
-      dynamicFields.appendChild(row);
-    } else if (dims.fields.length === 4) {
-      for (let i = 0; i < dims.fields.length; i += 2) {
-        const row = document.createElement("div");
-        row.className = "form-row";
-        for (let j = i; j < i + 2 && j < dims.fields.length; j++) {
-          const field = dims.fields[j];
-          const group = document.createElement("div");
-          group.className = "form-group";
-          group.innerHTML = `<label>${field.label}</label><input type="number" id="${field.id}" min="0" step="0.01" placeholder="np. 100" onchange="updateWeightDisplay()">`;
-          row.appendChild(group);
-        }
-        dynamicFields.appendChild(row);
-      }
-    } else {
-      dims.fields.forEach(field => {
-        const group = document.createElement("div");
-        group.className = "form-group";
-        group.innerHTML = `<label>${field.label}</label><input type="number" id="${field.id}" min="0" step="0.01" placeholder="np. 100" onchange="updateWeightDisplay()">`;
-        dynamicFields.appendChild(group);
-      });
+    if (!config) {
+      container.innerHTML = "";
+      return;
     }
+
+    container.innerHTML = config.fields.map(field => `
+      <div class="form-group">
+        <label>${field.label}</label>
+        <input
+          type="number"
+          id="${field.id}"
+          step="0.01"
+          onchange="updateWeightDisplay()"
+        >
+      </div>
+    `).join("");
+
+    updateWeightDisplay();
   }
 
 
   function updateWeightDisplay() {
     const type = document.getElementById("materialType").value;
     const steel = document.getElementById("materialSteel").value;
-    const quantity = parseFloat(document.getElementById("materialQuantity").value) || 1;
+    const quantity = parseFloat(document.getElementById("materialQuantity").value) || 0;
 
     if (!type || !steel) {
       document.getElementById("weightDisplay").classList.add("hidden");
       return;
     }
 
-    const dims = materialDimensions[type];
-    if (!dims) {
+    const config = materialDimensions[type];
+    if (!config) {
       document.getElementById("weightDisplay").classList.add("hidden");
       return;
     }
 
-    const fieldData = {};
-    dims.fields.forEach(field => {
+    const fieldsData = {};
+    config.fields.forEach(field => {
       const input = document.getElementById(field.id);
-      fieldData[field.name] = input ? parseFloat(input.value) || 0 : 0;
+      fieldsData[field.name] = parseFloat(input?.value) || 0;
     });
 
-    const volume = dims.calcWeight(fieldData) || 0;
+    const volume = config.calcWeight(fieldsData) || 0;
     const density = materialDensity[steel] || 7850;
-    const weight = volume * density;
-    const totalWeight = weight * quantity;
+    const weight = volume * density * quantity;
 
-    const weightDisplay = document.getElementById("weightDisplay");
-    weightDisplay.classList.remove("hidden");
-    document.getElementById("weightValue").innerText = totalWeight.toFixed(2) + " kg";
-  }
-
-
-  function openAddModal() {
-    document.getElementById("materialId").value = "";
-    document.getElementById("modalTitle").innerText = "Dodaj materiał";
-    document.getElementById("materialType").value = "Blacha";
-    document.getElementById("materialSteel").value = "";
-    document.getElementById("materialQuantity").value = "";
-    document.getElementById("materialLocation").value = "";
-    document.getElementById("materialDepartment").value = departments[0]?.id || "";
-    document.getElementById("modalMessage").innerHTML = "";
-    updateDimensionFields();
-    document.getElementById("materialModal").classList.remove("hidden");
-  }
-
-
-  function editMaterial(id) {
-    const material = materials.find(m => m.id === id);
-    if (!material) return;
-
-    document.getElementById("materialId").value = material.id;
-    document.getElementById("modalTitle").innerText = "Edytuj materiał";
-    document.getElementById("materialType").value = material.typ;
-    document.getElementById("materialSteel").value = material.gatunek;
-    document.getElementById("materialQuantity").value = material.ilosc;
-    document.getElementById("materialLocation").value = material.lokalizacja;
-    document.getElementById("materialDepartment").value = material.dzial_id;
-    document.getElementById("modalMessage").innerHTML = "";
-    updateDimensionFields();
-
-    setTimeout(() => {
-      const dims = materialDimensions[material.typ];
-      if (dims) {
-        dims.fields.forEach(field => {
-          const input = document.getElementById(field.id);
-          if (input && material[field.name]) {
-            input.value = material[field.name];
-          }
-        });
-      }
-      updateWeightDisplay();
-    }, 0);
-
-    document.getElementById("materialModal").classList.remove("hidden");
-  }
-
-
-  function closeModal() {
-    document.getElementById("materialModal").classList.add("hidden");
+    document.getElementById("weightValue").textContent = weight.toFixed(2) + " kg";
+    document.getElementById("weightDisplay").classList.remove("hidden");
   }
 
 
   async function saveMaterial() {
-    const materialId = document.getElementById("materialId").value;
+    const id = document.getElementById("materialId").value;
     const type = document.getElementById("materialType").value;
     const steel = document.getElementById("materialSteel").value;
-    
-    const quantityValue = document.getElementById("materialQuantity").value.trim();
-    const quantity = quantityValue === "" ? null : parseFloat(quantityValue);
-
+    const quantity = parseFloat(document.getElementById("materialQuantity").value) || 0;
     const location = document.getElementById("materialLocation").value;
     const departmentId = document.getElementById("materialDepartment").value;
-    const messageDiv = document.getElementById("modalMessage");
+    const message = document.getElementById("modalMessage");
 
-    if (!type || !steel || quantity === null || isNaN(quantity) || quantity < 0 || !location || !departmentId) {
-      messageDiv.className = "error";
-      messageDiv.innerText = "Wypełnij wszystkie pola prawidłowo";
+    if (!type || !steel || !location || !departmentId) {
+      message.className = "error";
+      message.textContent = "Wypełnij wszystkie pola!";
       return;
     }
 
-    const dims = materialDimensions[type];
-    let wymiarSummary = [];
-    let materialData = {
-      typ: type,
-      gatunek: steel,
-      ilosc: quantity,
-      lokalizacja: location,
-      dzial_id: departmentId
-    };
+    const config = materialDimensions[type];
+    const fieldsData = { typ: type, gatunek: steel, ilosc: quantity, lokalizacja: location, dział_id: departmentId };
 
-    dims.fields.forEach(field => {
+    config.fields.forEach(field => {
       const input = document.getElementById(field.id);
-      const value = input ? parseFloat(input.value) || 0 : 0;
-      materialData[field.name] = value;
-      if (value > 0) {
-        wymiarSummary.push(value);
-      }
+      fieldsData[field.name] = parseFloat(input?.value) || 0;
     });
 
-    materialData.wymiar = wymiarSummary.join(" x ") || "-";
+    const volume = config.calcWeight(fieldsData) || 0;
+    const density = materialDensity[steel] || 7850;
+    const weight = volume * density;
 
-    messageDiv.className = "";
-    messageDiv.innerText = "Zapisywanie...";
+    fieldsData.wymiar = `${type}`;
+    fieldsData.waga = weight;
 
-    let error;
+    try {
+      let result;
+      if (id) {
+        result = await supabaseClient.from("materialy").update(fieldsData).eq("id", id);
+      } else {
+        result = await supabaseClient.from("materialy").insert([fieldsData]);
+      }
 
-    if (materialId) {
-      const { error: updateError } = await supabaseClient
-        .from("materialy")
-        .update(materialData)
-        .eq("id", materialId);
-      error = updateError;
-    } else {
-      const { error: insertError } = await supabaseClient
-        .from("materialy")
-        .insert([materialData]);
-      error = insertError;
+      if (result.error) {
+        message.className = "error";
+        message.textContent = "Błąd: " + result.error.message;
+        return;
+      }
+
+      message.className = "success";
+      message.textContent = id ? "Materiał zaktualizowany!" : "Materiał dodany!";
+      setTimeout(() => {
+        closeModal();
+        loadMaterials();
+      }, 1500);
+    } catch (error) {
+      message.className = "error";
+      message.textContent = "Błąd: " + error.message;
     }
-
-    if (error) {
-      messageDiv.className = "error";
-      messageDiv.innerText = "Błąd: " + error.message;
-      return;
-    }
-
-    messageDiv.className = "success";
-    messageDiv.innerText = "Materiał zapisany!";
-
-    setTimeout(() => {
-      closeModal();
-      loadMaterials();
-    }, 1000);
   }
 
 
@@ -1263,25 +1213,29 @@
     const { error } = await supabaseClient.from("materialy").delete().eq("id", id);
 
     if (error) {
-      alert("Błąd usuwania: " + error.message);
+      alert("Błąd: " + error.message);
       return;
     }
 
-    loadMaterials();
+    await loadMaterials();
+  }
+
+
+  function closeModal() {
+    document.getElementById("materialModal").classList.add("hidden");
   }
 
 
   function openExcelExportModal() {
     const steels = [...new Set(materials.map(m => m.gatunek).filter(Boolean))].sort();
-    const priceInputs = document.getElementById("priceInputs");
-    priceInputs.innerHTML = "";
+    const container = document.getElementById("priceInputs");
 
-    steels.forEach(steel => {
-      const group = document.createElement("div");
-      group.className = "form-group";
-      group.innerHTML = `<label>Cena za kg - ${steel}</label><input type="number" id="price_${steel}" min="0" step="0.01" placeholder="0.00">`;
-      priceInputs.appendChild(group);
-    });
+    container.innerHTML = steels.map(steel => `
+      <div class="form-group">
+        <label>${steel} (zł/kg)</label>
+        <input type="number" id="price_${steel}" step="0.01" min="0" value="0">
+      </div>
+    `).join("");
 
     document.getElementById("exportModal").classList.remove("hidden");
   }
@@ -1293,43 +1247,35 @@
 
 
   function generateExcelReport() {
-    const steels = [...new Set(materials.map(m => m.gatunek).filter(Boolean))].sort();
+    const steels = [...new Set(materials.map(m => m.gatunek).filter(Boolean))];
     const prices = {};
-    
     steels.forEach(steel => {
-      const input = document.getElementById(`price_${steel}`);
-      prices[steel] = parseFloat(input.value) || 0;
+      prices[steel] = parseFloat(document.getElementById(`price_${steel}`).value) || 0;
     });
 
-    const reportData = materials.map(m => {
+    const data = materials.map(m => {
       const weight = calculateWeight(m);
-      const totalWeight = weight * (m.ilosc || 1);
-      const price = prices[m.gatunek] || 0;
-      const value = totalWeight * price;
-
       return {
-        "Typ": m.typ,
-        "Gatunek": m.gatunek,
-        "Wymiar": m.wymiar || "-",
-        "Ilość (szt)": m.ilosc,
-        "Waga jednostkowa (kg)": weight.toFixed(2),
-        "Waga całkowita (kg)": totalWeight.toFixed(2),
-        "Cena/kg (PLN)": price.toFixed(2),
-        "Wartość (PLN)": value.toFixed(2),
-        "Lokalizacja": m.lokalizacja
+        Typ: m.typ,
+        "Gatunek stali": m.gatunek,
+        Ilość: m.ilosc,
+        "Waga (kg)": weight.toFixed(2),
+        "Cena za kg": prices[m.gatunek] || 0,
+        "Wartość": (weight * prices[m.gatunek]).toFixed(2),
+        Lokalizacja: m.lokalizacja
       };
     });
 
-    const ws = XLSX.utils.json_to_sheet(reportData);
+    const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Raport");
-    XLSX.writeFile(wb, "Raport_Materialy.xlsx");
+    XLSX.utils.book_append_sheet(wb, ws, "Materiały");
+    XLSX.writeFile(wb, "Raport_Magazynu_Stali.xlsx");
 
     closeExcelExportModal();
   }
 
 
-  window.addEventListener("load", startApp);
+  startApp();
 
 </script>
 
