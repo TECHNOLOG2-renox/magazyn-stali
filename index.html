@@ -862,7 +862,7 @@
         const wallThickness = (fields.wymiar_grubosc_scianki || 0) / 1000;
         const length = (fields.wymiar_dlugosc || 0) / 1000;
         const outerRadius = outerDiam / 2;
-        const innerRadius = outerRadius - wallThickness;
+        const innerRadius = Math.max(0, outerRadius - wallThickness);
         return Math.PI * (outerRadius * outerRadius - innerRadius * innerRadius) * length;
       }
     },
@@ -916,6 +916,11 @@
       }
     }
   };
+
+
+  const allDimensionFieldNames = [...new Set(
+    Object.values(materialDimensions).flatMap(config => config.fields.map(field => field.name))
+  )];
 
 
   const SUPABASE_URL = "https://ynmcfagoxshigqbcgvkb.supabase.co";
@@ -1230,6 +1235,10 @@
     const config = materialDimensions[type];
     const fieldsData = { typ: type, gatunek: steel, ilosc: quantity, lokalizacja: location, dział_id: departmentId };
 
+    allDimensionFieldNames.forEach(fieldName => {
+      fieldsData[fieldName] = null;
+    });
+
     config.fields.forEach(field => {
       const input = document.getElementById(field.id);
       fieldsData[field.name] = parseNumericInput(input?.value);
@@ -1320,14 +1329,15 @@
 
     const data = materials.map(m => {
       const weight = calculateWeight(m);
+      const pricePerKg = prices[m.gatunek] || 0;
       return {
         Typ: m.typ,
         "Gatunek stali": m.gatunek,
         Ilość: m.ilosc,
         Wymiar: getMaterialDimensionText(m),
         "Waga (kg)": weight.toFixed(2),
-        "Cena za kg": prices[m.gatunek] || 0,
-        "Wartość": (weight * prices[m.gatunek]).toFixed(2),
+        "Cena za kg": pricePerKg,
+        "Wartość": (weight * pricePerKg).toFixed(2),
         Lokalizacja: m.lokalizacja
       };
     });
