@@ -755,11 +755,10 @@
         { id: "dim_thickness", label: "Grubość (mm)", name: "wymiar_grubosc" }
       ],
       calcWeight: (fields) => {
-        // Konwertuj mm na m i policz objętość w m³
         const length = (fields.wymiar_dlugosc || 0) / 1000;
         const width = (fields.wymiar_szerokosc || 0) / 1000;
         const thickness = (fields.wymiar_grubosc || 0) / 1000;
-        return length * width * thickness; // m³
+        return length * width * thickness;
       }
     },
     "Profil": {
@@ -772,7 +771,7 @@
         const height = (fields.wymiar_wysokosc || 0) / 1000;
         const width = (fields.wymiar_szerokosc || 0) / 1000;
         const thickness = (fields.wymiar_grubosc || 0) / 1000;
-        return height * width * thickness; // m³
+        return height * width * thickness;
       }
     },
     "Pręt": {
@@ -784,7 +783,7 @@
         const diameter = (fields.wymiar_srednica || 0) / 1000;
         const length = (fields.wymiar_dlugosc || 0) / 1000;
         const radius = diameter / 2;
-        return Math.PI * radius * radius * length; // m³
+        return Math.PI * radius * radius * length;
       }
     },
     "Wałek": {
@@ -796,7 +795,7 @@
         const diameter = (fields.wymiar_srednica || 0) / 1000;
         const length = (fields.wymiar_dlugosc || 0) / 1000;
         const radius = diameter / 2;
-        return Math.PI * radius * radius * length; // m³
+        return Math.PI * radius * radius * length;
       }
     },
     "Rura": {
@@ -811,7 +810,7 @@
         const length = (fields.wymiar_dlugosc || 0) / 1000;
         const outerRadius = outerDiam / 2;
         const innerRadius = outerRadius - wallThickness;
-        return Math.PI * (outerRadius * outerRadius - innerRadius * innerRadius) * length; // m³
+        return Math.PI * (outerRadius * outerRadius - innerRadius * innerRadius) * length;
       }
     },
     "Płaskownik": {
@@ -824,7 +823,7 @@
         const dimA = (fields.wymiar_a || 0) / 1000;
         const dimB = (fields.wymiar_b || 0) / 1000;
         const length = (fields.wymiar_dlugosc || 0) / 1000;
-        return dimA * dimB * length; // m³
+        return dimA * dimB * length;
       }
     },
     "Kątownik": {
@@ -840,7 +839,7 @@
         const wallThickness = (fields.wymiar_grubosc_scianki || 0) / 1000;
         const length = (fields.wymiar_dlugosc || 0) / 1000;
         const volume = (dimA + dimB - wallThickness) * wallThickness * length;
-        return volume; // m³
+        return volume;
       }
     },
     "Inne": {
@@ -854,665 +853,240 @@
   };
 
 
-  // =========================================================
-  // KONFIGURACJA SUPABASE
-  // =========================================================
+  const SUPABASE_URL = "https://ynmcfagoxshigqbcgvkb.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_PCfv8KZPMsfqNwuZkBXj0A_zPxIcPZi";
 
-  const SUPABASE_URL =
-    "https://ynmcfagoxshigqbcgvkb.supabase.co";
-
-  const SUPABASE_KEY =
-    "sb_publishable_PCfv8KZPMsfqNwuZkBXj0A_zPxIcPZi";
-
-
-  const supabaseClient =
-    window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_KEY
-    );
-
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   let materials = [];
-
   let departments = [];
-
   let currentUser = null;
 
 
-  // =========================================================
-  // START APLIKACJI
-  // =========================================================
-
   async function startApp() {
-
-    const { data } =
-      await supabaseClient.auth.getSession();
-
-
+    const { data } = await supabaseClient.auth.getSession();
     if (data.session) {
-
-      currentUser =
-        data.session.user;
-
+      currentUser = data.session.user;
       await showApplication();
-
     } else {
-
       showLogin();
-
     }
-
   }
 
-
-  // =========================================================
-  // LOGOWANIE
-  // =========================================================
 
   async function login() {
-
-    const email =
-      document
-        .getElementById("loginEmail")
-        .value
-        .trim();
-
-
-    const password =
-      document
-        .getElementById("loginPassword")
-        .value;
-
-
-    const message =
-      document.getElementById("loginMessage");
-
+    const email = document.getElementById("loginEmail").value.trim();
+    const password = document.getElementById("loginPassword").value;
+    const message = document.getElementById("loginMessage");
 
     message.className = "";
+    message.innerText = "Logowanie...";
 
-    message.innerText =
-      "Logowanie...";
-
-
-    const { data, error } =
-      await supabaseClient.auth.signInWithPassword({
-
-        email: email,
-
-        password: password
-
-      });
-
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
 
     if (error) {
-
-      message.className =
-        "error";
-
-      message.innerText =
-        "Błąd logowania: " +
-        error.message;
-
+      message.className = "error";
+      message.innerText = "Błąd logowania: " + error.message;
       return;
-
     }
 
-
-    currentUser =
-      data.user;
-
-
+    currentUser = data.user;
     await showApplication();
-
   }
 
 
-  // =========================================================
-  // WYLOGOWANIE
-  // =========================================================
-
   async function logout() {
-
     await supabaseClient.auth.signOut();
-
     currentUser = null;
-
     showLogin();
-
   }
 
 
   function showLogin() {
-
-    document
-      .getElementById("loginScreen")
-      .classList
-      .remove("hidden");
-
-
-    document
-      .getElementById("appScreen")
-      .classList
-      .add("hidden");
-
+    document.getElementById("loginScreen").classList.remove("hidden");
+    document.getElementById("appScreen").classList.add("hidden");
   }
 
-
-  // =========================================================
-  // POKAZANIE APLIKACJI
-  // =========================================================
 
   async function showApplication() {
-
-    document
-      .getElementById("loginScreen")
-      .classList
-      .add("hidden");
-
-
-    document
-      .getElementById("appScreen")
-      .classList
-      .remove("hidden");
-
-
-    document.getElementById("userName").innerText =
-      currentUser.email;
-
-
+    document.getElementById("loginScreen").classList.add("hidden");
+    document.getElementById("appScreen").classList.remove("hidden");
+    document.getElementById("userName").innerText = currentUser.email || "Użytkownik";
     await loadDepartments();
-
     await loadMaterials();
-
   }
 
-
-  // =========================================================
-  // DZIAŁY
-  // =========================================================
 
   async function loadDepartments() {
-
-    const { data, error } =
-      await supabaseClient
-        .from("dzialy")
-        .select("*")
-        .order("nazwa");
-
-
+    const { data, error } = await supabaseClient.from("dzialy").select("*");
     if (error) {
-
-      alert(
-        "Błąd pobierania działów: " +
-        error.message
-      );
-
+      alert("Błąd pobierania działów: " + error.message);
       return;
-
     }
-
-
-    departments =
-      data || [];
-
-
-    const select =
-      document.getElementById(
-        "materialDepartment"
-      );
-
-
-    select.innerHTML = "";
-
-
-    departments.forEach(
-      department => {
-
-        const option =
-          document.createElement(
-            "option"
-          );
-
-
-        option.value =
-          department.id;
-
-
-        option.textContent =
-          department.nazwa;
-
-
-        select.appendChild(
-          option
-        );
-
-      }
-    );
-
+    departments = data || [];
+    updateDepartmentSelect();
   }
 
 
-  // =========================================================
-  // MATERIAŁY
-  // =========================================================
+  function updateDepartmentSelect() {
+    const select = document.getElementById("materialDepartment");
+    select.innerHTML = "";
+    departments.forEach(department => {
+      const option = document.createElement("option");
+      option.value = department.id;
+      option.textContent = department.nazwa;
+      select.appendChild(option);
+    });
+  }
+
 
   async function loadMaterials() {
-
-    const { data, error } =
-      await supabaseClient
-        .from("materialy")
-        .select(`
-          *,
-          dzialy (
-            nazwa
-          )
-        `)
-        .order(
-          "id",
-          {
-            ascending: false
-          }
-        );
-
-
+    const { data, error } = await supabaseClient.from("materialy").select(`*, dzialy (nazwa)`).order("id", { ascending: false });
     if (error) {
-
-      alert(
-        "Błąd pobierania materiałów: " +
-        error.message
-      );
-
+      alert("Błąd pobierania materiałów: " + error.message);
       return;
-
     }
-
-
-    materials =
-      data || [];
-
-
+    materials = data || [];
     updateFilters();
-
     renderMaterials();
-
   }
 
-
-  // =========================================================
-  // OBLICZANIE WAGI
-  // =========================================================
 
   function calculateWeight(material) {
     const type = material.typ;
     const steel = material.gatunek;
-    
     if (!type || !steel || !materialDimensions[type]) {
       return 0;
     }
-
     const dimConfig = materialDimensions[type];
-    const volume = dimConfig.calcWeight(material) || 0; // m³
-    const density = materialDensity[steel] || 7850; // kg/m³
-
-    return volume * density; // kg
+    const volume = dimConfig.calcWeight(material) || 0;
+    const density = materialDensity[steel] || 7850;
+    return volume * density;
   }
 
-
-  // =========================================================
-  // FILTRY
-  // =========================================================
 
   function updateFilters() {
+    const steelSelect = document.getElementById("steelFilter");
+    const locationSelect = document.getElementById("locationFilter");
+    const steels = [...new Set(materials.map(m => m.gatunek).filter(Boolean))].sort();
+    const locations = [...new Set(materials.map(m => m.lokalizacja).filter(Boolean))].sort();
+    const currentSteel = steelSelect.value;
+    const currentLocation = locationSelect.value;
 
-    const steelSelect =
-      document.getElementById(
-        "steelFilter"
-      );
+    steelSelect.innerHTML = '<option value="">Wszystkie</option>';
+    steels.forEach(steel => {
+      const option = document.createElement("option");
+      option.value = steel;
+      option.textContent = steel;
+      steelSelect.appendChild(option);
+    });
+    steelSelect.value = currentSteel;
 
-
-    const locationSelect =
-      document.getElementById(
-        "locationFilter"
-      );
-
-
-    const steels =
-      [
-        ...new Set(
-          materials
-            .map(
-              m => m.gatunek
-            )
-            .filter(Boolean)
-        )
-      ].sort();
-
-
-    const locations =
-      [
-        ...new Set(
-          materials
-            .map(
-              m => m.lokalizacja
-            )
-            .filter(Boolean)
-        )
-      ].sort();
-
-
-    const currentSteel =
-      steelSelect.value;
-
-
-    const currentLocation =
-      locationSelect.value;
-
-
-    steelSelect.innerHTML =
-      '<option value="">Wszystkie</option>';
-
-
-    steels.forEach(
-      steel => {
-
-        const option =
-          document.createElement(
-            "option"
-          );
-
-
-        option.value =
-          steel;
-
-
-        option.textContent =
-          steel;
-
-
-        steelSelect.appendChild(
-          option
-        );
-
-      }
-    );
-
-
-    steelSelect.value =
-      currentSteel;
-
-
-    locationSelect.innerHTML =
-      '<option value="">Wszystkie</option>';
-
-
-    locations.forEach(
-      location => {
-
-        const option =
-          document.createElement(
-            "option"
-          );
-
-
-        option.value =
-          location;
-
-
-        option.textContent =
-          location;
-
-
-        locationSelect.appendChild(
-          option
-        );
-
-      }
-    );
-
-
-    locationSelect.value =
-      currentLocation;
-
+    locationSelect.innerHTML = '<option value="">Wszystkie</option>';
+    locations.forEach(location => {
+      const option = document.createElement("option");
+      option.value = location;
+      option.textContent = location;
+      locationSelect.appendChild(option);
+    });
+    locationSelect.value = currentLocation;
   }
 
-
-  // =========================================================
-  // RENDEROWANIE MATERIAŁÓW
-  // =========================================================
 
   function renderMaterials() {
+    const search = document.getElementById("searchInput").value.toLowerCase();
+    const typeFilter = document.getElementById("typeFilter").value;
+    const steelFilter = document.getElementById("steelFilter").value;
+    const locationFilter = document.getElementById("locationFilter").value;
 
-    const search =
-      document
-        .getElementById("searchInput")
-        .value
-        .toLowerCase();
+    const filtered = materials.filter(m => {
+      const matchType = !typeFilter || m.typ === typeFilter;
+      const matchSteel = !steelFilter || m.gatunek === steelFilter;
+      const matchLocation = !locationFilter || m.lokalizacja === locationFilter;
+      const matchSearch = !search || (m.typ && m.typ.toLowerCase().includes(search)) || 
+                         (m.gatunek && m.gatunek.toLowerCase().includes(search)) || 
+                         (m.wymiar && m.wymiar.toString().toLowerCase().includes(search)) || 
+                         (m.lokalizacja && m.lokalizacja.toLowerCase().includes(search));
+      return matchType && matchSteel && matchLocation && matchSearch;
+    });
 
-
-    const typeFilter =
-      document
-        .getElementById("typeFilter")
-        .value;
-
-
-    const steelFilter =
-      document
-        .getElementById("steelFilter")
-        .value;
-
-
-    const locationFilter =
-      document
-        .getElementById("locationFilter")
-        .value;
-
-
-    const filtered =
-      materials.filter(
-        m => {
-
-          const matchType =
-            !typeFilter ||
-            m.typ === typeFilter;
-
-
-          const matchSteel =
-            !steelFilter ||
-            m.gatunek === steelFilter;
-
-
-          const matchLocation =
-            !locationFilter ||
-            m.lokalizacja === locationFilter;
-
-
-          const matchSearch =
-            !search ||
-            (m.typ &&
-              m.typ.toLowerCase().includes(search)) ||
-            (m.gatunek &&
-              m.gatunek.toLowerCase().includes(search)) ||
-            (m.wymiar &&
-              m.wymiar.toString().toLowerCase().includes(search)) ||
-            (m.lokalizacja &&
-              m.lokalizacja.toLowerCase().includes(search));
-
-
-          return matchType &&
-            matchSteel &&
-            matchLocation &&
-            matchSearch;
-
-        }
-      );
-
-
-    const tbody =
-      document.getElementById(
-        "materialsTable"
-      );
-
-
+    const tbody = document.getElementById("materialsTable");
     if (filtered.length === 0) {
-
-      tbody.innerHTML =
-        '<tr><td colspan="7" class="empty">Brak materiałów spełniających kryteria</td></tr>';
-
+      tbody.innerHTML = '<tr><td colspan="7" class="empty">Brak materiałów spełniających kryteria</td></tr>';
       return;
-
     }
 
-
-    tbody.innerHTML =
-      filtered
-        .map(
-          m => {
-            const weight = calculateWeight(m);
-            const totalWeight = weight * (m.ilosc || 1);
-            return `
-              <tr>
-                <td>${m.typ}</td>
-                <td>${m.gatunek}</td>
-                <td>${m.wymiar || '-'}</td>
-                <td>${m.ilosc}</td>
-                <td>${totalWeight.toFixed(2)}</td>
-                <td>${m.lokalizacja}</td>
-                <td class="actions">
-                  <button class="btn-edit" onclick="editMaterial(${m.id})">✏️ Edytuj</button>
-                  <button class="btn-danger" onclick="deleteMaterial(${m.id})">🗑️ Usuń</button>
-                </td>
-              </tr>
-            `;
-          }
-        )
-        .join("");
-
+    tbody.innerHTML = filtered.map(m => {
+      const weight = calculateWeight(m);
+      const totalWeight = weight * (m.ilosc || 1);
+      return `
+        <tr>
+          <td>${m.typ}</td>
+          <td>${m.gatunek}</td>
+          <td>${m.wymiar || '-'}</td>
+          <td>${m.ilosc}</td>
+          <td>${totalWeight.toFixed(2)}</td>
+          <td>${m.lokalizacja}</td>
+          <td class="actions">
+            <button class="btn-edit" onclick="editMaterial(${m.id})">✏️ Edytuj</button>
+            <button class="btn-danger" onclick="deleteMaterial(${m.id})">🗑️ Usuń</button>
+          </td>
+        </tr>
+      `;
+    }).join("");
   }
 
 
-  // =========================================================
-  // POLA WYMIAROWE - DYNAMICZNE
-  // =========================================================
-
   function updateDimensionFields() {
-
     const type = document.getElementById("materialType").value;
     const dynamicFields = document.getElementById("dynamicFields");
-    
     dynamicFields.innerHTML = "";
-
     const dims = materialDimensions[type];
+    if (!dims) return;
 
-    if (!dims) {
-      return;
-    }
-
-    // Rozmieszczenie pól w zależności od liczby
     if (dims.fields.length === 2) {
       const row = document.createElement("div");
       row.className = "form-row";
-
       dims.fields.forEach(field => {
         const group = document.createElement("div");
         group.className = "form-group";
-        group.innerHTML = `
-          <label>${field.label}</label>
-          <input 
-            type="number" 
-            id="${field.id}" 
-            data-field="${field.name}"
-            min="0" 
-            step="0.01" 
-            placeholder="np. 100"
-            onchange="updateWeightDisplay()"
-          >
-        `;
+        group.innerHTML = `<label>${field.label}</label><input type="number" id="${field.id}" min="0" step="0.01" placeholder="np. 100" onchange="updateWeightDisplay()">`;
         row.appendChild(group);
       });
-
       dynamicFields.appendChild(row);
     } else if (dims.fields.length === 3) {
       const row = document.createElement("div");
       row.className = "form-row-3";
-
       dims.fields.forEach(field => {
         const group = document.createElement("div");
         group.className = "form-group";
-        group.innerHTML = `
-          <label>${field.label}</label>
-          <input 
-            type="number" 
-            id="${field.id}" 
-            data-field="${field.name}"
-            min="0" 
-            step="0.01" 
-            placeholder="np. 100"
-            onchange="updateWeightDisplay()"
-          >
-        `;
+        group.innerHTML = `<label>${field.label}</label><input type="number" id="${field.id}" min="0" step="0.01" placeholder="np. 100" onchange="updateWeightDisplay()">`;
         row.appendChild(group);
       });
-
       dynamicFields.appendChild(row);
     } else if (dims.fields.length === 4) {
-      // Kątownik - 4 pola (2x2)
-      const row1 = document.createElement("div");
-      row1.className = "form-row";
-
-      const row2 = document.createElement("div");
-      row2.className = "form-row";
-
-      dims.fields.forEach((field, index) => {
-        const group = document.createElement("div");
-        group.className = "form-group";
-        group.innerHTML = `
-          <label>${field.label}</label>
-          <input 
-            type="number" 
-            id="${field.id}" 
-            data-field="${field.name}"
-            min="0" 
-            step="0.01" 
-            placeholder="np. 100"
-            onchange="updateWeightDisplay()"
-          >
-        `;
-        if (index < 2) {
-          row1.appendChild(group);
-        } else {
-          row2.appendChild(group);
+      for (let i = 0; i < dims.fields.length; i += 2) {
+        const row = document.createElement("div");
+        row.className = "form-row";
+        for (let j = i; j < i + 2 && j < dims.fields.length; j++) {
+          const field = dims.fields[j];
+          const group = document.createElement("div");
+          group.className = "form-group";
+          group.innerHTML = `<label>${field.label}</label><input type="number" id="${field.id}" min="0" step="0.01" placeholder="np. 100" onchange="updateWeightDisplay()">`;
+          row.appendChild(group);
         }
-      });
-
-      dynamicFields.appendChild(row1);
-      dynamicFields.appendChild(row2);
+        dynamicFields.appendChild(row);
+      }
     } else {
       dims.fields.forEach(field => {
         const group = document.createElement("div");
         group.className = "form-group";
-        group.innerHTML = `
-          <label>${field.label}</label>
-          <input 
-            type="number" 
-            id="${field.id}" 
-            data-field="${field.name}"
-            min="0" 
-            step="0.01" 
-            placeholder="np. 100"
-            onchange="updateWeightDisplay()"
-          >
-        `;
+        group.innerHTML = `<label>${field.label}</label><input type="number" id="${field.id}" min="0" step="0.01" placeholder="np. 100" onchange="updateWeightDisplay()">`;
         dynamicFields.appendChild(group);
       });
     }
-
-    updateWeightDisplay();
   }
 
-
-  // =========================================================
-  // WYŚWIETLANIE WAGI
-  // =========================================================
 
   function updateWeightDisplay() {
     const type = document.getElementById("materialType").value;
@@ -1536,9 +1110,9 @@
       fieldData[field.name] = input ? parseFloat(input.value) || 0 : 0;
     });
 
-    const volume = dims.calcWeight(fieldData) || 0; // m³
-    const density = materialDensity[steel] || 7850; // kg/m³
-    const weight = volume * density; // kg
+    const volume = dims.calcWeight(fieldData) || 0;
+    const density = materialDensity[steel] || 7850;
+    const weight = volume * density;
     const totalWeight = weight * quantity;
 
     const weightDisplay = document.getElementById("weightDisplay");
@@ -1547,12 +1121,7 @@
   }
 
 
-  // =========================================================
-  // MODAL - DODAWANIE MATERIAŁU
-  // =========================================================
-
   function openAddModal() {
-
     document.getElementById("materialId").value = "";
     document.getElementById("modalTitle").innerText = "Dodaj materiał";
     document.getElementById("materialType").value = "Blacha";
@@ -1561,35 +1130,14 @@
     document.getElementById("materialLocation").value = "";
     document.getElementById("materialDepartment").value = departments[0]?.id || "";
     document.getElementById("modalMessage").innerHTML = "";
-
     updateDimensionFields();
-
-    document
-      .getElementById("materialModal")
-      .classList
-      .remove("hidden");
-
+    document.getElementById("materialModal").classList.remove("hidden");
   }
 
 
-  // =========================================================
-  // MODAL - EDYCJA MATERIAŁU
-  // =========================================================
-
   function editMaterial(id) {
-
-    const material =
-      materials.find(
-        m => m.id === id
-      );
-
-
-    if (!material) {
-
-      return;
-
-    }
-
+    const material = materials.find(m => m.id === id);
+    if (!material) return;
 
     document.getElementById("materialId").value = material.id;
     document.getElementById("modalTitle").innerText = "Edytuj materiał";
@@ -1599,7 +1147,6 @@
     document.getElementById("materialLocation").value = material.lokalizacja;
     document.getElementById("materialDepartment").value = material.dzial_id;
     document.getElementById("modalMessage").innerHTML = "";
-
     updateDimensionFields();
 
     setTimeout(() => {
@@ -1615,85 +1162,33 @@
       updateWeightDisplay();
     }, 0);
 
-    document
-      .getElementById("materialModal")
-      .classList
-      .remove("hidden");
-
+    document.getElementById("materialModal").classList.remove("hidden");
   }
 
-
-  // =========================================================
-  // MODAL - ZAMKNIĘCIE
-  // =========================================================
 
   function closeModal() {
-
-    document
-      .getElementById("materialModal")
-      .classList
-      .add("hidden");
-
+    document.getElementById("materialModal").classList.add("hidden");
   }
 
 
-  // =========================================================
-  // ZAPIS MATERIAŁU
-  // =========================================================
-
   async function saveMaterial() {
+    const materialId = document.getElementById("materialId").value;
+    const type = document.getElementById("materialType").value;
+    const steel = document.getElementById("materialSteel").value;
+    
+    const quantityValue = document.getElementById("materialQuantity").value.trim();
+    const quantity = quantityValue === "" ? null : parseFloat(quantityValue);
 
-    const materialId =
-      document
-        .getElementById("materialId")
-        .value;
+    const location = document.getElementById("materialLocation").value;
+    const departmentId = document.getElementById("materialDepartment").value;
+    const messageDiv = document.getElementById("modalMessage");
 
-
-    const type =
-      document
-        .getElementById("materialType")
-        .value;
-
-
-    const steel =
-      document
-        .getElementById("materialSteel")
-        .value;
-
-
-    const quantity =
-      parseFloat(
-        document
-          .getElementById("materialQuantity")
-          .value
-      );
-
-
-    const location =
-      document
-        .getElementById("materialLocation")
-        .value;
-
-
-    const departmentId =
-      document
-        .getElementById("materialDepartment")
-        .value;
-
-
-    const messageDiv =
-      document.getElementById("modalMessage");
-
-
-    if (!type || !steel || !quantity || !location || !departmentId) {
-
+    // FIXED: Proper validation that catches all invalid cases
+    if (!type || !steel || quantity === null || isNaN(quantity) || quantity < 0 || !location || !departmentId) {
       messageDiv.className = "error";
-      messageDiv.innerText = "Wypełnij wszystkie pola";
-
+      messageDiv.innerText = "Wypełnij wszystkie pola prawidłowo";
       return;
-
     }
-
 
     const dims = materialDimensions[type];
     let wymiarSummary = [];
@@ -1716,142 +1211,74 @@
 
     materialData.wymiar = wymiarSummary.join(" x ") || "-";
 
-
     messageDiv.className = "";
     messageDiv.innerText = "Zapisywanie...";
-
 
     let error;
 
     if (materialId) {
-
-      const { error: updateError } =
-        await supabaseClient
-          .from("materialy")
-          .update(materialData)
-          .eq("id", materialId);
-
+      const { error: updateError } = await supabaseClient
+        .from("materialy")
+        .update(materialData)
+        .eq("id", materialId);
       error = updateError;
-
     } else {
-
-      const { error: insertError } =
-        await supabaseClient
-          .from("materialy")
-          .insert([materialData]);
-
+      const { error: insertError } = await supabaseClient
+        .from("materialy")
+        .insert([materialData]);
       error = insertError;
-
     }
-
 
     if (error) {
-
       messageDiv.className = "error";
       messageDiv.innerText = "Błąd: " + error.message;
-
       return;
-
     }
-
 
     messageDiv.className = "success";
     messageDiv.innerText = "Materiał zapisany!";
 
-    setTimeout(
-      () => {
-
-        closeModal();
-        loadMaterials();
-
-      },
-      1000
-    );
-
+    setTimeout(() => {
+      closeModal();
+      loadMaterials();
+    }, 1000);
   }
 
-
-  // =========================================================
-  // USUWANIE MATERIAŁU
-  // =========================================================
 
   async function deleteMaterial(id) {
+    if (!confirm("Czy na pewno chcesz usunąć ten materiał?")) return;
 
-    if (!confirm("Czy na pewno chcesz usunąć ten materiał?")) {
-
-      return;
-
-    }
-
-
-    const { error } =
-      await supabaseClient
-        .from("materialy")
-        .delete()
-        .eq("id", id);
-
+    const { error } = await supabaseClient.from("materialy").delete().eq("id", id);
 
     if (error) {
-
-      alert(
-        "Błąd usuwania: " +
-        error.message
-      );
-
+      alert("Błąd usuwania: " + error.message);
       return;
-
     }
 
-
     loadMaterials();
-
   }
 
-
-  // =========================================================
-  // EXCEL - OTWARCIE MODALU
-  // =========================================================
 
   function openExcelExportModal() {
     const steels = [...new Set(materials.map(m => m.gatunek).filter(Boolean))].sort();
-    
     const priceInputs = document.getElementById("priceInputs");
     priceInputs.innerHTML = "";
 
     steels.forEach(steel => {
       const group = document.createElement("div");
       group.className = "form-group";
-      group.innerHTML = `
-        <label>${steel} (PLN/kg)</label>
-        <input 
-          type="number" 
-          id="price_${steel}" 
-          min="0" 
-          step="0.01"
-          placeholder="Cena za kg"
-          value="0"
-        >
-      `;
+      group.innerHTML = `<label>Cena za kg - ${steel}</label><input type="number" id="price_${steel}" min="0" step="0.01" placeholder="0.00">`;
       priceInputs.appendChild(group);
     });
 
-    document.getElementById("exportMessage").innerHTML = "";
     document.getElementById("exportModal").classList.remove("hidden");
   }
 
-
-  // =========================================================
-  // EXCEL - ZAMKNIĘCIE MODALU
-  // =========================================================
 
   function closeExcelExportModal() {
     document.getElementById("exportModal").classList.add("hidden");
   }
 
-
-  // =========================================================
-  // EXCEL - GENEROWANIE RAPORTU
-  // =========================================================
 
   function generateExcelReport() {
     const steels = [...new Set(materials.map(m => m.gatunek).filter(Boolean))].sort();
@@ -1881,51 +1308,16 @@
       };
     });
 
-    // Sumowanie
-    const totalWeight = reportData.reduce((sum, row) => sum + parseFloat(row["Waga całkowita (kg)"]), 0);
-    const totalValue = reportData.reduce((sum, row) => sum + parseFloat(row["Wartość (PLN)"]), 0);
-
-    reportData.push({
-      "Typ": "RAZEM",
-      "Gatunek": "",
-      "Wymiar": "",
-      "Ilość (szt)": "",
-      "Waga jednostkowa (kg)": "",
-      "Waga całkowita (kg)": totalWeight.toFixed(2),
-      "Cena/kg (PLN)": "",
-      "Wartość (PLN)": totalValue.toFixed(2),
-      "Lokalizacja": ""
-    });
-
     const ws = XLSX.utils.json_to_sheet(reportData);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Magazyn Stali");
-
-    ws['!cols'] = [
-      { wch: 12 },
-      { wch: 20 },
-      { wch: 15 },
-      { wch: 12 },
-      { wch: 18 },
-      { wch: 18 },
-      { wch: 14 },
-      { wch: 14 },
-      { wch: 20 }
-    ];
-
-    const now = new Date();
-    const dateStr = now.toISOString().slice(0, 10);
-    XLSX.writeFile(wb, `Magazyn_Stali_${dateStr}.xlsx`);
+    XLSX.utils.book_append_sheet(wb, ws, "Raport");
+    XLSX.writeFile(wb, "Raport_Materialy.xlsx");
 
     closeExcelExportModal();
   }
 
 
-  // =========================================================
-  // INICJALIZACJA
-  // =========================================================
-
-  startApp();
+  window.addEventListener("load", startApp);
 
 </script>
 
