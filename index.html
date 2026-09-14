@@ -904,6 +904,12 @@
     return null;
   }
 
+  function shouldRetryWithAliasColumns(error) {
+    if (!error) return false;
+    const details = (error.details || "").toString();
+    return error.code === "PGRST204" || details.includes("Could not find") || details.includes("column of 'materialy'");
+  }
+
 
   const SUPABASE_URL = "https://ynmcfagoxshigqbcgvkb.supabase.co";
   const SUPABASE_KEY = "sb_publishable_PCfv8KZPMsfqNwuZkBXj0A_zPxIcPZi";
@@ -1292,7 +1298,7 @@
     messageDiv.innerText = "Zapisywanie...";
 
     let { error } = await saveToDatabase(buildMaterialData(false));
-    if (error && error.message && error.message.includes("Could not find") && error.message.includes("column of 'materialy'")) {
+    if (shouldRetryWithAliasColumns(error)) {
       ({ error } = await saveToDatabase(buildMaterialData(true)));
     }
 
