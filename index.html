@@ -1846,26 +1846,33 @@
     const finalDimension =
       buildDimension(type);
 
+    const steel =
+      document.getElementById(
+        "materialSteel"
+      ).value.trim();
+
+    const quantityValue =
+      document.getElementById(
+        "materialQuantity"
+      ).value.trim();
+
+    const location =
+      document.getElementById(
+        "materialLocation"
+      ).value.trim();
+
+    const departmentId =
+      document.getElementById(
+        "materialDepartment"
+      ).value || null;
+
     const material = {
       typ: type,
-      gatunek:
-        document.getElementById(
-          "materialSteel"
-        ).value.trim(),
+      gatunek: steel,
       wymiar: finalDimension,
-      ilosc: Number(
-        document.getElementById(
-          "materialQuantity"
-        ).value
-      ),
-      lokalizacja:
-        document.getElementById(
-          "materialLocation"
-        ).value.trim(),
-      dzial_id:
-        document.getElementById(
-          "materialDepartment"
-        ).value || null
+      ilosc: Number(quantityValue),
+      lokalizacja: location,
+      dzial_id: departmentId
     };
 
     // -------------------------------------------------------
@@ -1873,10 +1880,11 @@
     // -------------------------------------------------------
 
     if (
-      !material.gatunek ||
-      !material.wymiar ||
-      !material.lokalizacja ||
-      isNaN(material.ilosc)
+      !steel ||
+      !finalDimension ||
+      !location ||
+      quantityValue === "" ||
+      Number.isNaN(material.ilosc)
     ) {
 
       document.getElementById(
