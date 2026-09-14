@@ -1312,7 +1312,10 @@
     messageDiv.innerText = "Zapisywanie...";
 
     let { error } = await saveToDatabase(buildMaterialData(false));
-    if (materialId && shouldRetryWithAliasColumns(error)) {
+    const isSchemaColumnError = shouldRetryWithAliasColumns(error);
+    const canRetryUpdate = !!materialId && isSchemaColumnError;
+    const canRetryInsert = !materialId && error && error.code === "PGRST204";
+    if (canRetryUpdate || canRetryInsert) {
       ({ error } = await saveToDatabase(buildMaterialData(true)));
     }
 
