@@ -1469,7 +1469,7 @@
   }
 
 
-  function hasRequiredDimensionFields(type) {
+  function hasStructuredDimensionFields(type) {
 
     switch (type) {
 
@@ -1518,9 +1518,7 @@
         );
 
       default:
-        return Boolean(
-          getFieldValue("materialDimension")
-        );
+        return false;
 
     }
 
@@ -1923,11 +1921,28 @@
         "materialType"
       ).value;
 
+    const isFreeTextType =
+      ![
+        "Blacha",
+        "Wałek",
+        "Pręt",
+        "Rura",
+        "Profil",
+        "Płaskownik",
+        "Kątownik"
+      ].includes(type);
+
     const hasDimensionFields =
-      hasRequiredDimensionFields(type);
+      isFreeTextType ?
+        Boolean(
+          getFieldValue("materialDimension")
+        ) :
+        hasStructuredDimensionFields(type);
 
     const finalDimension =
-      hasDimensionFields ?
+      isFreeTextType ?
+        getFieldValue("materialDimension") :
+        hasDimensionFields ?
         buildDimension(type) :
         "";
 
