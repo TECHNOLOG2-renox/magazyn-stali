@@ -1207,77 +1207,174 @@
   }
 
 
-  // =========================================================
-  // OBSŁUGA POLA GRUBOŚCI
-  // =========================================================
-
   function updateThicknessField() {
 
     const type =
-      document.getElementById(
-        "materialType"
-      ).value;
+        document.getElementById("materialType").value;
 
+    const dynamicFields =
+        document.getElementById("dynamicFields");
 
     const group =
-      document.getElementById(
-        "thicknessGroup"
-      );
-
+        document.getElementById("thicknessGroup");
 
     const label =
-      document.getElementById(
-        "thicknessLabel"
-      );
+        document.getElementById("thicknessLabel");
+
+    let html = "";
+
+    switch(type) {
+
+        case "Blacha":
+
+            html = `
+                <div class="form-group">
+                    <label>Szerokość (mm)</label>
+                    <input type="number" id="materialWidth">
+                </div>
+
+                <div class="form-group">
+                    <label>Długość (mm)</label>
+                    <input type="number" id="materialLength">
+                </div>
+            `;
+
+            group.classList.remove("hidden");
+            label.innerText = "Grubość (mm)";
+
+            break;
 
 
-    const input =
-      document.getElementById(
-        "materialThickness"
-      );
+        case "Wałek":
+
+            html = `
+                <div class="form-group">
+                    <label>Średnica (mm)</label>
+                    <input type="number" id="materialDiameter">
+                </div>
+
+                <div class="form-group">
+                    <label>Długość (mm)</label>
+                    <input type="number" id="materialLength">
+                </div>
+            `;
+
+            group.classList.add("hidden");
+
+            break;
 
 
-    if (type === "Blacha") {
+        case "Pręt":
 
-      group.classList.remove(
-        "hidden"
-      );
+            html = `
+                <div class="form-group">
+                    <label>Średnica (mm)</label>
+                    <input type="number" id="materialDiameter">
+                </div>
 
-      label.innerText =
-        "Grubość";
+                <div class="form-group">
+                    <label>Długość (mm)</label>
+                    <input type="number" id="materialLength">
+                </div>
+            `;
 
-      input.placeholder =
-        "np. 3.0";
+            group.classList.add("hidden");
 
-
-    } else if (
-      type === "Profil" ||
-      type === "Rura"
-    ) {
-
-      group.classList.remove(
-        "hidden"
-      );
-
-      label.innerText =
-        "Grubość ścianki";
-
-      input.placeholder =
-        "np. 3.0";
+            break;
 
 
-    } else {
+        case "Rura":
 
-      group.classList.add(
-        "hidden"
-      );
+            html = `
+                <div class="form-group">
+                    <label>Średnica zewnętrzna (mm)</label>
+                    <input type="number" id="materialDiameter">
+                </div>
 
-      input.value = "";
+                <div class="form-group">
+                    <label>Długość (mm)</label>
+                    <input type="number" id="materialLength">
+                </div>
+            `;
 
+            group.classList.remove("hidden");
+            label.innerText = "Grubość ścianki (mm)";
+
+            break;
+
+
+        case "Profil":
+
+            html = `
+                <div class="form-group">
+                    <label>Wysokość (mm)</label>
+                    <input type="number" id="materialHeight">
+                </div>
+
+                <div class="form-group">
+                    <label>Szerokość (mm)</label>
+                    <input type="number" id="materialWidth">
+                </div>
+
+                <div class="form-group">
+                    <label>Długość (mm)</label>
+                    <input type="number" id="materialLength">
+                </div>
+            `;
+
+            group.classList.remove("hidden");
+            label.innerText = "Grubość ścianki (mm)";
+
+            break;
+
+
+        case "Płaskownik":
+
+            html = `
+                <div class="form-group">
+                    <label>Szerokość (mm)</label>
+                    <input type="number" id="materialWidth">
+                </div>
+
+                <div class="form-group">
+                    <label>Długość (mm)</label>
+                    <input type="number" id="materialLength">
+                </div>
+            `;
+
+            group.classList.remove("hidden");
+            label.innerText = "Grubość (mm)";
+
+            break;
+
+
+        case "Kątownik":
+
+            html = `
+                <div class="form-group">
+                    <label>Ramię A (mm)</label>
+                    <input type="number" id="materialWidth">
+                </div>
+
+                <div class="form-group">
+                    <label>Ramię B (mm)</label>
+                    <input type="number" id="materialHeight">
+                </div>
+
+                <div class="form-group">
+                    <label>Długość (mm)</label>
+                    <input type="number" id="materialLength">
+                </div>
+            `;
+
+            group.classList.remove("hidden");
+            label.innerText = "Grubość (mm)";
+
+            break;
     }
 
-  }
-
+    dynamicFields.innerHTML = html;
+}
 
   // =========================================================
   // DODAWANIE
