@@ -869,7 +869,6 @@
   let materialColumnNames = new Set();
 
   function registerMaterialColumns(rows) {
-    materialColumnNames = new Set();
     rows.forEach(row => {
       Object.keys(row || {}).forEach(key => materialColumnNames.add(key));
     });
@@ -891,6 +890,23 @@
     }
 
     return fieldName;
+  }
+
+  function setMaterialFieldValue(materialData, fieldName, value, useAliasFallback = false) {
+    const aliases = materialColumnAliases[fieldName] || [];
+    const resolvedFieldName = resolveMaterialColumnName(fieldName, useAliasFallback);
+    materialData[resolvedFieldName] = value;
+
+    if (materialColumnNames.size > 0) {
+      if (materialColumnNames.has(fieldName)) {
+        materialData[fieldName] = value;
+      }
+      aliases.forEach(alias => {
+        if (materialColumnNames.has(alias)) {
+          materialData[alias] = value;
+        }
+      });
+    }
   }
 
   function getMaterialFieldValue(material, fieldName) {
@@ -1269,15 +1285,13 @@
       dims.fields.forEach(field => {
         const input = document.getElementById(field.id);
         const value = input ? parseFloat(input.value) || 0 : 0;
-        const dbFieldName = resolveMaterialColumnName(field.name, useAliasFallback);
-        materialData[dbFieldName] = value;
+        setMaterialFieldValue(materialData, field.name, value, useAliasFallback);
         if (value > 0) {
           wymiarSummary.push(value);
         }
       });
 
-      const dimensionSummaryColumn = resolveMaterialColumnName("wymiar", useAliasFallback);
-      materialData[dimensionSummaryColumn] = wymiarSummary.join(" x ") || "-";
+      setMaterialFieldValue(materialData, "wymiar", wymiarSummary.join(" x ") || "-", useAliasFallback);
       return materialData;
     };
 
