@@ -13,6 +13,11 @@
 
         body {
             font-family: Arial, sans-serif;
+            background: #f5f5f5;
+        }
+
+        /* STYLE LOGOWANIA */
+        .login-page {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
@@ -83,23 +88,245 @@
             margin-top: 10px;
             display: none;
         }
+
+        /* STYLE GŁÓWNEJ APLIKACJI */
+        .main-app {
+            display: none;
+        }
+
+        .header {
+            background-color: #333;
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn-logout {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-logout:hover {
+            background-color: #c0392b;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .tab-button {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab-button.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-section {
+            margin-bottom: 20px;
+        }
+
+        .form-section label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-section input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .btn-add {
+            background-color: #27ae60;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-add:hover {
+            background-color: #229954;
+        }
+
+        .inventory-list {
+            margin-top: 20px;
+        }
+
+        .inventory-item {
+            background: #f9f9f9;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .inventory-item-info {
+            flex: 1;
+        }
+
+        .inventory-item-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-delete {
+            background-color: #e74c3c;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .btn-delete:hover {
+            background-color: #c0392b;
+        }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <h1>Magazyn Stali</h1>
-        <form id="loginForm">
-            <div class="form-group">
-                <label for="username">Login:</label>
-                <input type="text" id="username" name="username" required>
+    <!-- STRONA LOGOWANIA -->
+    <div id="loginPage" class="login-page">
+        <div class="login-container">
+            <h1>Magazyn Stali</h1>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Login:</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Hasło:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn-login">Zaloguj się</button>
+                <div class="error-message" id="errorMessage">Login lub hasło nieprawidłowe</div>
+            </form>
+        </div>
+    </div>
+
+    <!-- GŁÓWNA APLIKACJA -->
+    <div id="mainApp" class="main-app">
+        <div class="header">
+            <h1>📦 Magazyn Stali</h1>
+            <div class="user-info">
+                <span id="usernameDisplay">Użytkownik</span>
+                <button class="btn-logout" id="logoutBtn">Wyloguj się</button>
             </div>
-            <div class="form-group">
-                <label for="password">Hasło:</label>
-                <input type="password" id="password" name="password" required>
+        </div>
+
+        <div class="container">
+            <div class="tabs">
+                <button class="tab-button active" data-tab="blacha">Blacha</button>
+                <button class="tab-button" data-tab="rura">Rura</button>
+                <button class="tab-button" data-tab="inventory">Magazyn</button>
             </div>
-            <button type="submit" class="btn-login">Zaloguj się</button>
-            <div class="error-message" id="errorMessage">Login lub hasło nieprawidłowe</div>
-        </form>
+
+            <!-- TAB: BLACHA -->
+            <div id="blacha" class="tab-content active">
+                <h2>Dodaj Blachę</h2>
+                <div class="form-section">
+                    <label>Długość (mm)</label>
+                    <input type="number" id="blacha_length" placeholder="np. 2000">
+                </div>
+                <div class="form-section">
+                    <label>Szerokość (mm)</label>
+                    <input type="number" id="blacha_width" placeholder="np. 1000">
+                </div>
+                <div class="form-section">
+                    <label>Grubość (mm)</label>
+                    <input type="number" id="blacha_thickness" placeholder="np. 5">
+                </div>
+                <div class="form-section">
+                    <label>Ilość</label>
+                    <input type="number" id="blacha_quantity" placeholder="np. 10" value="1">
+                </div>
+                <button class="btn-add" onclick="addProduct('Blacha')">Dodaj Blachę</button>
+            </div>
+
+            <!-- TAB: RURA -->
+            <div id="rura" class="tab-content">
+                <h2>Dodaj Rurę</h2>
+                <div class="form-section">
+                    <label>Średnica zewnętrzna (mm)</label>
+                    <input type="number" id="rura_outer" placeholder="np. 50">
+                </div>
+                <div class="form-section">
+                    <label>Średnica wewnętrzna (mm)</label>
+                    <input type="number" id="rura_inner" placeholder="np. 40">
+                </div>
+                <div class="form-section">
+                    <label>Długość (mm)</label>
+                    <input type="number" id="rura_length" placeholder="np. 6000">
+                </div>
+                <div class="form-section">
+                    <label>Ilość</label>
+                    <input type="number" id="rura_quantity" placeholder="np. 5" value="1">
+                </div>
+                <button class="btn-add" onclick="addProduct('Rura')">Dodaj Rurę</button>
+            </div>
+
+            <!-- TAB: MAGAZYN -->
+            <div id="inventory" class="tab-content">
+                <h2>Zawartość Magazynu</h2>
+                <div id="inventoryList" class="inventory-list"></div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -116,7 +343,7 @@
                     const length = (fields.wymiar_dlugosc || 0) / 1000;
                     const width = (fields.wymiar_szerokosc || 0) / 1000;
                     const thickness = (fields.wymiar_grubosc || 0) / 1000;
-                    return length * width * thickness;
+                    return length * width * thickness * 7850; // gęstość stali
                 }
             },
             "Rura": {
@@ -130,34 +357,143 @@
                     const outerD = (fields.srednica_zewnetrzna || 0) / 1000;
                     const innerD = (fields.srednica_wewnetrzna || 0) / 1000;
                     const len = (fields.dlugosc || 0) / 1000;
-                    return ((outerD * outerD - innerD * innerD) * 3.14159 / 4) * len;
+                    return ((outerD * outerD - innerD * innerD) * 3.14159 / 4) * len * 7850;
                 }
             }
         };
 
-        // Obsługa logowania
+        // OBSŁUGA LOGOWANIA
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
-            // Prosta walidacja (w produkcji należy wysłać na serwer)
             if (username === 'admin' && password === 'admin123') {
-                // Zalogowanie udane - zapisz sesję
                 localStorage.setItem('isLoggedIn', 'true');
                 localStorage.setItem('username', username);
-                alert('Zalogowano pomyślnie!');
-                // Tutaj można dodać redirekcję do głównego widoku aplikacji
+                showMainApp(username);
             } else {
                 document.getElementById('errorMessage').style.display = 'block';
             }
         });
 
-        // Sprawdzanie czy użytkownik jest zalogowany
+        // POKAŻ APLIKACJĘ
+        function showMainApp(username) {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            document.getElementById('usernameDisplay').textContent = `Zalogowany: ${username}`;
+            loadInventory();
+        }
+
+        // WYLOGOWANIE
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('username');
+            document.getElementById('loginPage').style.display = 'flex';
+            document.getElementById('mainApp').style.display = 'none';
+            document.getElementById('loginForm').reset();
+            document.getElementById('errorMessage').style.display = 'none';
+        });
+
+        // OBSŁUGA ZAKŁADEK
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', function() {
+                const tabName = this.getAttribute('data-tab');
+                document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                document.getElementById(tabName).classList.add('active');
+                this.classList.add('active');
+            });
+        });
+
+        // DODAJ PRODUKT
+        function addProduct(type) {
+            const inventory = JSON.parse(localStorage.getItem('inventory') || '[]');
+            let fields = {};
+
+            if (type === 'Blacha') {
+                fields = {
+                    wymiar_dlugosc: parseInt(document.getElementById('blacha_length').value) || 0,
+                    wymiar_szerokosc: parseInt(document.getElementById('blacha_width').value) || 0,
+                    wymiar_grubosc: parseInt(document.getElementById('blacha_thickness').value) || 0
+                };
+            } else if (type === 'Rura') {
+                fields = {
+                    srednica_zewnetrzna: parseInt(document.getElementById('rura_outer').value) || 0,
+                    srednica_wewnetrzna: parseInt(document.getElementById('rura_inner').value) || 0,
+                    dlugosc: parseInt(document.getElementById('rura_length').value) || 0
+                };
+            }
+
+            const quantity = parseInt(document.getElementById(type === 'Blacha' ? 'blacha_quantity' : 'rura_quantity').value) || 1;
+            const weight = productConfig[type].calcWeight(fields);
+
+            const item = {
+                id: Date.now(),
+                type: type,
+                fields: fields,
+                quantity: quantity,
+                weight: weight,
+                format: productConfig[type].format(fields),
+                addedAt: new Date().toLocaleString('pl-PL')
+            };
+
+            inventory.push(item);
+            localStorage.setItem('inventory', JSON.stringify(inventory));
+
+            // Wyczyść formularz
+            if (type === 'Blacha') {
+                document.getElementById('blacha_length').value = '';
+                document.getElementById('blacha_width').value = '';
+                document.getElementById('blacha_thickness').value = '';
+                document.getElementById('blacha_quantity').value = '1';
+            } else {
+                document.getElementById('rura_outer').value = '';
+                document.getElementById('rura_inner').value = '';
+                document.getElementById('rura_length').value = '';
+                document.getElementById('rura_quantity').value = '1';
+            }
+
+            loadInventory();
+            alert('Dodano ' + type + ' do magazynu!');
+        }
+
+        // WCZYTAJ MAGAZYN
+        function loadInventory() {
+            const inventory = JSON.parse(localStorage.getItem('inventory') || '[]');
+            const list = document.getElementById('inventoryList');
+            
+            if (inventory.length === 0) {
+                list.innerHTML = '<p>Magazyn jest pusty</p>';
+                return;
+            }
+
+            list.innerHTML = inventory.map(item => `
+                <div class="inventory-item">
+                    <div class="inventory-item-info">
+                        <strong>${item.type}</strong>: ${item.format}<br>
+                        Ilość: ${item.quantity} | Waga: ${(item.weight * item.quantity).toFixed(2)} kg<br>
+                        <small>Dodano: ${item.addedAt}</small>
+                    </div>
+                    <div class="inventory-item-actions">
+                        <button class="btn-delete" onclick="deleteItem(${item.id})">Usuń</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // USUŃ PRODUKT
+        function deleteItem(id) {
+            let inventory = JSON.parse(localStorage.getItem('inventory') || '[]');
+            inventory = inventory.filter(item => item.id !== id);
+            localStorage.setItem('inventory', JSON.stringify(inventory));
+            loadInventory();
+        }
+
+        // SPRAWDŹ LOGOWANIE PRZY WCZYTANIU
         window.addEventListener('load', function() {
             if (localStorage.getItem('isLoggedIn') === 'true') {
-                console.log('Użytkownik zalogowany:', localStorage.getItem('username'));
-                // Tutaj można dodać redirekcję do głównego widoku aplikacji
+                showMainApp(localStorage.getItem('username'));
             }
         });
     </script>
