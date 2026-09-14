@@ -6,6 +6,7 @@
   <title>Magazyn Stali RENOX</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
 
   <style>
     * {
@@ -97,6 +98,11 @@
       color: white;
     }
 
+    .btn-success {
+      background: #16a34a;
+      color: white;
+    }
+
     .hidden {
       display: none !important;
     }
@@ -135,10 +141,16 @@
       align-items: center;
       margin-bottom: 20px;
       gap: 15px;
+      flex-wrap: wrap;
     }
 
     .top-bar h2 {
       margin: 0;
+    }
+
+    .top-bar-buttons {
+      display: flex;
+      gap: 10px;
     }
 
     .filters {
@@ -208,7 +220,7 @@
     .modal-content {
       background: white;
       width: 100%;
-      max-width: 500px;
+      max-width: 600px;
       padding: 25px;
       border-radius: 12px;
       max-height: 90vh;
@@ -250,6 +262,15 @@
       gap: 10px;
     }
 
+    .weight-info {
+      background: #e0f2fe;
+      border-left: 4px solid #0284c7;
+      padding: 12px;
+      border-radius: 5px;
+      margin-top: 10px;
+      font-size: 13px;
+    }
+
     @media (max-width: 800px) {
       .filter-grid {
         grid-template-columns: 1fr;
@@ -263,6 +284,15 @@
       .top-bar {
         flex-direction: column;
         align-items: flex-start;
+      }
+
+      .top-bar-buttons {
+        width: 100%;
+        flex-direction: column;
+      }
+
+      .top-bar-buttons button {
+        width: 100%;
       }
 
       .app {
@@ -361,12 +391,23 @@
 
       <h2>Materiały</h2>
 
-      <button
-        class="btn-primary"
-        onclick="openAddModal()"
-      >
-        + DODAJ MATERIAŁ
-      </button>
+      <div class="top-bar-buttons">
+
+        <button
+          class="btn-primary"
+          onclick="openAddModal()"
+        >
+          ➕ DODAJ MATERIAŁ
+        </button>
+
+        <button
+          class="btn-success"
+          onclick="openExcelExportModal()"
+        >
+          📊 EKSPORTUJ RAPORT
+        </button>
+
+      </div>
 
     </div>
 
@@ -467,6 +508,7 @@
             <th>Gatunek stali</th>
             <th>Wymiar</th>
             <th>Ilość</th>
+            <th>Waga (kg)</th>
             <th>Lokalizacja</th>
             <th>Akcje</th>
 
@@ -538,7 +580,7 @@
 
       <label>Gatunek materiału</label>
 
-      <select id="materialSteel">
+      <select id="materialSteel" onchange="updateWeightDisplay()">
         <option value="">-- Wybierz gatunek --</option>
         <option value="S235">S235</option>
         <option value="S355">S355</option>
@@ -555,19 +597,25 @@
     <div id="dynamicFields">
     </div>
 
+    <!-- INFO O WADZE -->
+    <div id="weightDisplay" class="weight-info hidden">
+      Waga: <strong id="weightValue">0.00 kg</strong>
+    </div>
+
 
     <!-- ILOŚĆ -->
 
     <div class="form-group">
 
-      <label>Ilość</label>
+      <label>Ilość (szt.)</label>
 
       <input
         type="number"
         id="materialQuantity"
         min="0"
         step="0.01"
-        placeholder="np. 12"
+        placeholder="np. 5"
+        onchange="updateWeightDisplay()"
       >
 
     </div>
@@ -626,7 +674,171 @@
 </div>
 
 
+<!-- =========================================================
+     MODAL EKSPORTU EXCEL
+========================================================= -->
+
+<div
+  id="exportModal"
+  class="modal hidden"
+>
+
+  <div class="modal-content">
+
+    <h2>Eksport Raportu - Ustal ceny za kg</h2>
+
+    <p style="color: #6b7280; font-size: 14px;">Podaj ceny za kilogram dla każdego gatunku stali:</p>
+
+    <div id="priceInputs">
+    </div>
+
+    <div id="exportMessage"></div>
+
+    <div class="modal-buttons">
+
+      <button
+        class="btn-secondary"
+        onclick="closeExcelExportModal()"
+      >
+        Anuluj
+      </button>
+
+      <button
+        class="btn-success"
+        onclick="generateExcelReport()"
+      >
+        Generuj Excel
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
 <script>
+
+  // =========================================================
+  // GĘSTOŚĆ MATERIAŁÓW (kg/dm³)
+  // =========================================================
+
+  const materialDensity = {
+    "S235": 7.85,
+    "S355": 7.85,
+    "Aluminium": 2.70,
+    "Stal nierdzewna 304": 8.00,
+    "Stal nierdzewna 316": 8.00,
+    "Corten": 7.85
+  };
+
+
+  // =========================================================
+  // WYMIARY MATERIAŁÓW - DEFINICJA
+  // =========================================================
+
+  const materialDimensions = {
+    "Blacha": {
+      fields: [
+        { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc" },
+        { id: "dim_width", label: "Szerokość (mm)", name: "wymiar_szerokosc" },
+        { id: "dim_thickness", label: "Grubość (mm)", name: "wymiar_grubosc" }
+      ],
+      calcWeight: (fields) => {
+        const length = (fields.wymiar_dlugosc || 0) / 1000;
+        const width = (fields.wymiar_szerokosc || 0) / 1000;
+        const thickness = (fields.wymiar_grubosc || 0) / 1000;
+        return length * width * thickness; // dm³
+      }
+    },
+    "Profil": {
+      fields: [
+        { id: "dim_height", label: "Wysokość (mm)", name: "wymiar_wysokosc" },
+        { id: "dim_width", label: "Szerokość (mm)", name: "wymiar_szerokosc" },
+        { id: "dim_thickness", label: "Grubość (mm)", name: "wymiar_grubosc" }
+      ],
+      calcWeight: (fields) => {
+        const height = (fields.wymiar_wysokosc || 0) / 1000;
+        const width = (fields.wymiar_szerokosc || 0) / 1000;
+        const thickness = (fields.wymiar_grubosc || 0) / 1000;
+        return height * width * thickness;
+      }
+    },
+    "Pręt": {
+      fields: [
+        { id: "dim_diameter", label: "Średnica (mm)", name: "wymiar_srednica" },
+        { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc" }
+      ],
+      calcWeight: (fields) => {
+        const diameter = ((fields.wymiar_srednica || 0) / 1000) / 2;
+        const length = (fields.wymiar_dlugosc || 0) / 1000;
+        const radius = diameter / 2;
+        return Math.PI * radius * radius * length;
+      }
+    },
+    "Wałek": {
+      fields: [
+        { id: "dim_diameter", label: "Średnica (mm)", name: "wymiar_srednica" },
+        { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc" }
+      ],
+      calcWeight: (fields) => {
+        const diameter = ((fields.wymiar_srednica || 0) / 1000) / 2;
+        const length = (fields.wymiar_dlugosc || 0) / 1000;
+        const radius = diameter / 2;
+        return Math.PI * radius * radius * length;
+      }
+    },
+    "Rura": {
+      fields: [
+        { id: "dim_outer_diameter", label: "Średnica zewnętrzna (mm)", name: "wymiar_srednicy_zew" },
+        { id: "dim_inner_diameter", label: "Średnica wewnętrzna (mm)", name: "wymiar_srednicy_wew" },
+        { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc" }
+      ],
+      calcWeight: (fields) => {
+        const outerDiam = (fields.wymiar_srednicy_zew || 0) / 1000;
+        const innerDiam = (fields.wymiar_srednicy_wew || 0) / 1000;
+        const length = (fields.wymiar_dlugosc || 0) / 1000;
+        const outerRadius = outerDiam / 2;
+        const innerRadius = innerDiam / 2;
+        return Math.PI * (outerRadius * outerRadius - innerRadius * innerRadius) * length;
+      }
+    },
+    "Płaskownik": {
+      fields: [
+        { id: "dim_width", label: "Szerokość (mm)", name: "wymiar_szerokosc" },
+        { id: "dim_thickness", label: "Grubość (mm)", name: "wymiar_grubosc" },
+        { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc" }
+      ],
+      calcWeight: (fields) => {
+        const width = (fields.wymiar_szerokosc || 0) / 1000;
+        const thickness = (fields.wymiar_grubosc || 0) / 1000;
+        const length = (fields.wymiar_dlugosc || 0) / 1000;
+        return width * thickness * length;
+      }
+    },
+    "Kątownik": {
+      fields: [
+        { id: "dim_width", label: "Ramię (mm)", name: "wymiar_ramie" },
+        { id: "dim_thickness", label: "Grubość (mm)", name: "wymiar_grubosc" },
+        { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc" }
+      ],
+      calcWeight: (fields) => {
+        const width = (fields.wymiar_ramie || 0) / 1000;
+        const thickness = (fields.wymiar_grubosc || 0) / 1000;
+        const length = (fields.wymiar_dlugosc || 0) / 1000;
+        return width * thickness * 2 * length;
+      }
+    },
+    "Inne": {
+      fields: [
+        { id: "dim_custom", label: "Waga (kg)", name: "waga_kg" }
+      ],
+      calcWeight: (fields) => {
+        return fields.waga_kg || 0;
+      }
+    }
+  };
+
 
   // =========================================================
   // KONFIGURACJA SUPABASE
@@ -651,66 +863,6 @@
   let departments = [];
 
   let currentUser = null;
-
-
-  // =========================================================
-  // WYMIARY MATERIAŁÓW - DEFINICJA
-  // =========================================================
-
-  const materialDimensions = {
-    "Blacha": {
-      fields: [
-        { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc" },
-        { id: "dim_width", label: "Szerokość (mm)", name: "wymiar_szerokosc" },
-        { id: "dim_thickness", label: "Grubość (mm)", name: "wymiar_grubosc" }
-      ]
-    },
-    "Profil": {
-      fields: [
-        { id: "dim_height", label: "Wysokość (mm)", name: "wymiar_wysokosc" },
-        { id: "dim_width", label: "Szerokość (mm)", name: "wymiar_szerokosc" },
-        { id: "dim_thickness", label: "Grubość (mm)", name: "wymiar_grubosc" }
-      ]
-    },
-    "Pręt": {
-      fields: [
-        { id: "dim_diameter", label: "Średnica (mm)", name: "wymiar_srednica" },
-        { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc" }
-      ]
-    },
-    "Wałek": {
-      fields: [
-        { id: "dim_diameter", label: "Średnica (mm)", name: "wymiar_srednica" },
-        { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc" }
-      ]
-    },
-    "Rura": {
-      fields: [
-        { id: "dim_outer_diameter", label: "Średnica zewnętrzna (mm)", name: "wymiar_srednicy_zew" },
-        { id: "dim_inner_diameter", label: "Średnica wewnętrzna (mm)", name: "wymiar_srednicy_wew" },
-        { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc" }
-      ]
-    },
-    "Płaskownik": {
-      fields: [
-        { id: "dim_width", label: "Szerokość (mm)", name: "wymiar_szerokosc" },
-        { id: "dim_thickness", label: "Grubość (mm)", name: "wymiar_grubosc" },
-        { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc" }
-      ]
-    },
-    "Kątownik": {
-      fields: [
-        { id: "dim_width", label: "Ramię (mm)", name: "wymiar_ramie" },
-        { id: "dim_thickness", label: "Grubość (mm)", name: "wymiar_grubosc" },
-        { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc" }
-      ]
-    },
-    "Inne": {
-      fields: [
-        { id: "dim_custom", label: "Wymiar niestandardowy", name: "wymiar_niestandardowy" }
-      ]
-    }
-  };
 
 
   // =========================================================
@@ -973,6 +1125,26 @@
 
 
   // =========================================================
+  // OBLICZANIE WAGI
+  // =========================================================
+
+  function calculateWeight(material) {
+    const type = material.typ;
+    const steel = material.gatunek;
+    
+    if (!type || !steel || !materialDimensions[type]) {
+      return 0;
+    }
+
+    const dimConfig = materialDimensions[type];
+    const volume = dimConfig.calcWeight(material) || 0;
+    const density = materialDensity[steel] || 7.85;
+
+    return volume * density;
+  }
+
+
+  // =========================================================
   // FILTRY
   // =========================================================
 
@@ -1170,7 +1342,7 @@
     if (filtered.length === 0) {
 
       tbody.innerHTML =
-        '<tr><td colspan="6" class="empty">Brak materiałów spełniających kryteria</td></tr>';
+        '<tr><td colspan="7" class="empty">Brak materiałów spełniających kryteria</td></tr>';
 
       return;
 
@@ -1180,19 +1352,24 @@
     tbody.innerHTML =
       filtered
         .map(
-          m => `
-            <tr>
-              <td>${m.typ}</td>
-              <td>${m.gatunek}</td>
-              <td>${m.wymiar || '-'}</td>
-              <td>${m.ilosc}</td>
-              <td>${m.lokalizacja}</td>
-              <td class="actions">
-                <button class="btn-edit" onclick="editMaterial(${m.id})">✏️ Edytuj</button>
-                <button class="btn-danger" onclick="deleteMaterial(${m.id})">🗑️ Usuń</button>
-              </td>
-            </tr>
-          `
+          m => {
+            const weight = calculateWeight(m);
+            const totalWeight = weight * (m.ilosc || 1);
+            return `
+              <tr>
+                <td>${m.typ}</td>
+                <td>${m.gatunek}</td>
+                <td>${m.wymiar || '-'}</td>
+                <td>${m.ilosc}</td>
+                <td>${totalWeight.toFixed(2)}</td>
+                <td>${m.lokalizacja}</td>
+                <td class="actions">
+                  <button class="btn-edit" onclick="editMaterial(${m.id})">✏️ Edytuj</button>
+                  <button class="btn-danger" onclick="deleteMaterial(${m.id})">🗑️ Usuń</button>
+                </td>
+              </tr>
+            `;
+          }
         )
         .join("");
 
@@ -1217,22 +1394,23 @@
     }
 
     if (dims.fields.length === 2) {
-      // Dwa pola obok siebie
       const row = document.createElement("div");
       row.className = "form-row";
 
       dims.fields.forEach(field => {
         const group = document.createElement("div");
         group.className = "form-group";
+        const inputType = type === "Inne" ? "number" : "number";
         group.innerHTML = `
           <label>${field.label}</label>
           <input 
-            type="number" 
+            type="${inputType}" 
             id="${field.id}" 
             data-field="${field.name}"
             min="0" 
-            step="0.1" 
+            step="0.01" 
             placeholder="np. 100"
+            onchange="updateWeightDisplay()"
           >
         `;
         row.appendChild(group);
@@ -1240,24 +1418,64 @@
 
       dynamicFields.appendChild(row);
     } else {
-      // Wszystkie pola w kolumnie
       dims.fields.forEach(field => {
         const group = document.createElement("div");
         group.className = "form-group";
+        const inputType = type === "Inne" ? "number" : "number";
         group.innerHTML = `
           <label>${field.label}</label>
           <input 
-            type="number" 
+            type="${inputType}" 
             id="${field.id}" 
             data-field="${field.name}"
             min="0" 
-            step="0.1" 
+            step="0.01" 
             placeholder="np. 100"
+            onchange="updateWeightDisplay()"
           >
         `;
         dynamicFields.appendChild(group);
       });
     }
+
+    updateWeightDisplay();
+  }
+
+
+  // =========================================================
+  // WYŚWIETLANIE WAGI
+  // =========================================================
+
+  function updateWeightDisplay() {
+    const type = document.getElementById("materialType").value;
+    const steel = document.getElementById("materialSteel").value;
+    const quantity = parseFloat(document.getElementById("materialQuantity").value) || 1;
+
+    if (!type || !steel) {
+      document.getElementById("weightDisplay").classList.add("hidden");
+      return;
+    }
+
+    const dims = materialDimensions[type];
+    if (!dims) {
+      document.getElementById("weightDisplay").classList.add("hidden");
+      return;
+    }
+
+    const fieldData = {};
+    dims.fields.forEach(field => {
+      const input = document.getElementById(field.id);
+      fieldData[field.name] = input ? parseFloat(input.value) || 0 : 0;
+    });
+
+    const volume = dims.calcWeight(fieldData) || 0;
+    const density = materialDensity[steel] || 7.85;
+    const weight = volume * density;
+    const totalWeight = weight * quantity;
+
+    const weightDisplay = document.getElementById("weightDisplay");
+    weightDisplay.classList.remove("hidden");
+    document.getElementById("weightValue").innerText = totalWeight.toFixed(2) + " kg";
   }
 
 
@@ -1316,15 +1534,17 @@
 
     updateDimensionFields();
 
-    // Załaduj wymiary z bazy
     setTimeout(() => {
-      const fields = document.querySelectorAll("[data-field]");
-      fields.forEach(field => {
-        const fieldName = field.getAttribute("data-field");
-        if (material[fieldName]) {
-          field.value = material[fieldName];
-        }
-      });
+      const dims = materialDimensions[material.typ];
+      if (dims) {
+        dims.fields.forEach(field => {
+          const input = document.getElementById(field.id);
+          if (input && material[field.name]) {
+            input.value = material[field.name];
+          }
+        });
+      }
+      updateWeightDisplay();
     }, 0);
 
     document
@@ -1407,8 +1627,7 @@
     }
 
 
-    // Zbierz wymiary z pól dynamicznych
-    const dimensionFields = document.querySelectorAll("[data-field]");
+    const dims = materialDimensions[type];
     let wymiarSummary = [];
     let materialData = {
       typ: type,
@@ -1418,16 +1637,15 @@
       dzial_id: departmentId
     };
 
-    dimensionFields.forEach(field => {
-      const fieldName = field.getAttribute("data-field");
-      const value = parseFloat(field.value) || 0;
-      materialData[fieldName] = value;
+    dims.fields.forEach(field => {
+      const input = document.getElementById(field.id);
+      const value = input ? parseFloat(input.value) || 0 : 0;
+      materialData[field.name] = value;
       if (value > 0) {
         wymiarSummary.push(value);
       }
     });
 
-    // Wymiar podsumowanie
     materialData.wymiar = wymiarSummary.join(" x ") || "-";
 
 
@@ -1439,7 +1657,6 @@
 
     if (materialId) {
 
-      // Aktualizacja
       const { error: updateError } =
         await supabaseClient
           .from("materialy")
@@ -1450,7 +1667,6 @@
 
     } else {
 
-      // Wstawienie nowego
       const { error: insertError } =
         await supabaseClient
           .from("materialy")
@@ -1521,6 +1737,120 @@
 
     loadMaterials();
 
+  }
+
+
+  // =========================================================
+  // EXCEL - OTWARCIE MODALU
+  // =========================================================
+
+  function openExcelExportModal() {
+    const steels = [...new Set(materials.map(m => m.gatunek).filter(Boolean))].sort();
+    
+    const priceInputs = document.getElementById("priceInputs");
+    priceInputs.innerHTML = "";
+
+    steels.forEach(steel => {
+      const group = document.createElement("div");
+      group.className = "form-group";
+      group.innerHTML = `
+        <label>${steel} (PLN/kg)</label>
+        <input 
+          type="number" 
+          id="price_${steel}" 
+          min="0" 
+          step="0.01"
+          placeholder="Cena za kg"
+          value="0"
+        >
+      `;
+      priceInputs.appendChild(group);
+    });
+
+    document.getElementById("exportMessage").innerHTML = "";
+    document.getElementById("exportModal").classList.remove("hidden");
+  }
+
+
+  // =========================================================
+  // EXCEL - ZAMKNIĘCIE MODALU
+  // =========================================================
+
+  function closeExcelExportModal() {
+    document.getElementById("exportModal").classList.add("hidden");
+  }
+
+
+  // =========================================================
+  // EXCEL - GENEROWANIE RAPORTU
+  // =========================================================
+
+  function generateExcelReport() {
+    const steels = [...new Set(materials.map(m => m.gatunek).filter(Boolean))].sort();
+    const prices = {};
+    
+    steels.forEach(steel => {
+      const input = document.getElementById(`price_${steel}`);
+      prices[steel] = parseFloat(input.value) || 0;
+    });
+
+    const reportData = materials.map(m => {
+      const weight = calculateWeight(m);
+      const totalWeight = weight * (m.ilosc || 1);
+      const price = prices[m.gatunek] || 0;
+      const value = totalWeight * price;
+
+      return {
+        "Typ": m.typ,
+        "Gatunek": m.gatunek,
+        "Wymiar": m.wymiar || "-",
+        "Ilość (szt)": m.ilosc,
+        "Waga jednostkowa (kg)": weight.toFixed(2),
+        "Waga całkowita (kg)": totalWeight.toFixed(2),
+        "Cena/kg (PLN)": price.toFixed(2),
+        "Wartość (PLN)": value.toFixed(2),
+        "Lokalizacja": m.lokalizacja
+      };
+    });
+
+    // Sumowanie
+    const totalWeight = reportData.reduce((sum, row) => sum + parseFloat(row["Waga całkowita (kg)"]), 0);
+    const totalValue = reportData.reduce((sum, row) => sum + parseFloat(row["Wartość (PLN)"]), 0);
+
+    reportData.push({
+      "Typ": "RAZEM",
+      "Gatunek": "",
+      "Wymiar": "",
+      "Ilość (szt)": "",
+      "Waga jednostkowa (kg)": "",
+      "Waga całkowita (kg)": totalWeight.toFixed(2),
+      "Cena/kg (PLN)": "",
+      "Wartość (PLN)": totalValue.toFixed(2),
+      "Lokalizacja": ""
+    });
+
+    const ws = XLSX.utils.json_to_sheet(reportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Magazyn Stali");
+
+    // Formatowanie
+    ws['!cols'] = [
+      { wch: 12 },
+      { wch: 20 },
+      { wch: 15 },
+      { wch: 12 },
+      { wch: 18 },
+      { wch: 18 },
+      { wch: 14 },
+      { wch: 14 },
+      { wch: 20 }
+    ];
+
+    const now = new Date();
+    const dateStr = now.toISOString().slice(0, 10);
+    XLSX.writeFile(wb, `Magazyn_Stali_${dateStr}.xlsx`);
+
+    closeExcelExportModal();
   }
 
 
