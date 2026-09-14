@@ -749,7 +749,8 @@
   // =========================================================
 
   function parseNumericInput(value) {
-    const parsedValue = parseFloat(value);
+    const normalizedValue = typeof value === "string" ? value.replace(",", ".") : value;
+    const parsedValue = parseFloat(normalizedValue);
     return Number.isFinite(parsedValue) ? parsedValue : 0;
   }
 
@@ -1253,12 +1254,13 @@
     const id = document.getElementById("materialId").value;
     const type = document.getElementById("materialType").value;
     const steel = document.getElementById("materialSteel").value;
-    const quantity = parseNumericInput(document.getElementById("materialQuantity").value);
+    const quantityInputValue = document.getElementById("materialQuantity").value;
+    const quantity = parseNumericInput(quantityInputValue);
     const location = document.getElementById("materialLocation").value;
     const departmentId = document.getElementById("materialDepartment").value;
     const message = document.getElementById("modalMessage");
 
-    if (!type || !location || !departmentId || (type !== "Inne" && !steel)) {
+    if (!type || !quantityInputValue?.toString().trim() || !location || !departmentId || (type !== "Inne" && !steel)) {
       message.className = "error";
       message.textContent = "Wypełnij wszystkie pola!";
       return;
