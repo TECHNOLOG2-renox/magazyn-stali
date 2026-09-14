@@ -683,6 +683,8 @@
 
   let currentUser = null;
 
+  let currentDepartmentId = null;
+
 
   // =========================================================
   // START APLIKACJI
@@ -1361,7 +1363,9 @@
     if (
       !material.dzial_id ||
       Array.from(select.options).some(
-        option => option.value === material.dzial_id
+        option =>
+          String(option.value) ===
+          String(material.dzial_id)
       )
     ) {
       return;
@@ -1758,6 +1762,8 @@
       "materialId"
     ).value = "";
 
+    currentDepartmentId = null;
+
     document.getElementById(
       "materialType"
     ).value =
@@ -1848,6 +1854,9 @@
         material.typ,
         material.wymiar
       );
+
+    currentDepartmentId =
+      material.dzial_id ?? null;
 
 
     document.getElementById(
@@ -1984,10 +1993,27 @@
         "materialLocation"
       );
 
-    const departmentId =
+    const departmentValue =
       getFieldValue(
         "materialDepartment"
-      ) || null;
+      );
+
+    const matchedDepartment =
+      departments.find(
+        department =>
+          String(department.id) ===
+          departmentValue
+      );
+
+    const departmentId =
+      departmentValue === "" ?
+        null :
+        matchedDepartment ?
+          matchedDepartment.id :
+          String(currentDepartmentId) ===
+            departmentValue ?
+            currentDepartmentId :
+            departmentValue;
 
     const material = {
       typ: type,
