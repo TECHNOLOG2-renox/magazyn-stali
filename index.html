@@ -1578,6 +1578,10 @@ function fillDimensionFields(type, dimension) {
     ).value = "";
 
     document.getElementById(
+      "materialDimension"
+    ).dataset.originalValue = "";
+
+    document.getElementById(
       "materialDepartment"
     ).value =
       "";
@@ -1662,6 +1666,11 @@ function fillDimensionFields(type, dimension) {
       "modalMessage"
     ).innerText = "";
 
+    document.getElementById(
+      "materialDimension"
+    ).dataset.originalValue =
+      material.wymiar || "";
+
 
     updateThicknessField();
 
@@ -1709,6 +1718,11 @@ function fillDimensionFields(type, dimension) {
       document.getElementById(
         "materialThickness"
       ).value.trim();
+
+    const originalDimension =
+      document.getElementById(
+        "materialDimension"
+      ).dataset.originalValue || "";
 
     const steel =
       document.getElementById(
@@ -1808,7 +1822,9 @@ switch(type) {
     break;
 
   default:
-    finalDimension = dimension.trim();
+    finalDimension =
+      dimension.trim() ||
+      originalDimension;
 }
 
     const material = {
