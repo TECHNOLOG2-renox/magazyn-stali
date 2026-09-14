@@ -262,6 +262,12 @@
       gap: 10px;
     }
 
+    .form-row-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+    }
+
     .weight-info {
       background: #e0f2fe;
       border-left: 4px solid #0284c7;
@@ -300,6 +306,10 @@
       }
 
       .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .form-row-3 {
         grid-template-columns: 1fr;
       }
     }
@@ -748,7 +758,7 @@
         const length = (fields.wymiar_dlugosc || 0) / 1000;
         const width = (fields.wymiar_szerokosc || 0) / 1000;
         const thickness = (fields.wymiar_grubosc || 0) / 1000;
-        return length * width * thickness; // dm³
+        return length * width * thickness;
       }
     },
     "Profil": {
@@ -770,7 +780,7 @@
         { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc" }
       ],
       calcWeight: (fields) => {
-        const diameter = ((fields.wymiar_srednica || 0) / 1000) / 2;
+        const diameter = (fields.wymiar_srednica || 0) / 1000;
         const length = (fields.wymiar_dlugosc || 0) / 1000;
         const radius = diameter / 2;
         return Math.PI * radius * radius * length;
@@ -782,7 +792,7 @@
         { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc" }
       ],
       calcWeight: (fields) => {
-        const diameter = ((fields.wymiar_srednica || 0) / 1000) / 2;
+        const diameter = (fields.wymiar_srednica || 0) / 1000;
         const length = (fields.wymiar_dlugosc || 0) / 1000;
         const radius = diameter / 2;
         return Math.PI * radius * radius * length;
@@ -791,42 +801,45 @@
     "Rura": {
       fields: [
         { id: "dim_outer_diameter", label: "Średnica zewnętrzna (mm)", name: "wymiar_srednicy_zew" },
-        { id: "dim_inner_diameter", label: "Średnica wewnętrzna (mm)", name: "wymiar_srednicy_wew" },
+        { id: "dim_wall_thickness", label: "Grubość ścianki (mm)", name: "wymiar_grubosc_scianki" },
         { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc" }
       ],
       calcWeight: (fields) => {
         const outerDiam = (fields.wymiar_srednicy_zew || 0) / 1000;
-        const innerDiam = (fields.wymiar_srednicy_wew || 0) / 1000;
+        const wallThickness = (fields.wymiar_grubosc_scianki || 0) / 1000;
         const length = (fields.wymiar_dlugosc || 0) / 1000;
         const outerRadius = outerDiam / 2;
-        const innerRadius = innerDiam / 2;
+        const innerRadius = outerRadius - wallThickness;
         return Math.PI * (outerRadius * outerRadius - innerRadius * innerRadius) * length;
       }
     },
     "Płaskownik": {
       fields: [
-        { id: "dim_width", label: "Szerokość (mm)", name: "wymiar_szerokosc" },
-        { id: "dim_thickness", label: "Grubość (mm)", name: "wymiar_grubosc" },
+        { id: "dim_dim_a", label: "Wymiar A (mm)", name: "wymiar_a" },
+        { id: "dim_dim_b", label: "Wymiar B (mm)", name: "wymiar_b" },
         { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc" }
       ],
       calcWeight: (fields) => {
-        const width = (fields.wymiar_szerokosc || 0) / 1000;
-        const thickness = (fields.wymiar_grubosc || 0) / 1000;
+        const dimA = (fields.wymiar_a || 0) / 1000;
+        const dimB = (fields.wymiar_b || 0) / 1000;
         const length = (fields.wymiar_dlugosc || 0) / 1000;
-        return width * thickness * length;
+        return dimA * dimB * length;
       }
     },
     "Kątownik": {
       fields: [
-        { id: "dim_width", label: "Ramię (mm)", name: "wymiar_ramie" },
-        { id: "dim_thickness", label: "Grubość (mm)", name: "wymiar_grubosc" },
+        { id: "dim_dim_a", label: "Wymiar A (mm)", name: "wymiar_a" },
+        { id: "dim_dim_b", label: "Wymiar B (mm)", name: "wymiar_b" },
+        { id: "dim_wall_thickness", label: "Grubość ścianki (mm)", name: "wymiar_grubosc_scianki" },
         { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc" }
       ],
       calcWeight: (fields) => {
-        const width = (fields.wymiar_ramie || 0) / 1000;
-        const thickness = (fields.wymiar_grubosc || 0) / 1000;
+        const dimA = (fields.wymiar_a || 0) / 1000;
+        const dimB = (fields.wymiar_b || 0) / 1000;
+        const wallThickness = (fields.wymiar_grubosc_scianki || 0) / 1000;
         const length = (fields.wymiar_dlugosc || 0) / 1000;
-        return width * thickness * 2 * length;
+        const volume = (dimA + dimB - wallThickness) * wallThickness * length;
+        return volume;
       }
     },
     "Inne": {
@@ -1393,6 +1406,7 @@
       return;
     }
 
+    // Rozmieszczenie pól w zależności od liczby
     if (dims.fields.length === 2) {
       const row = document.createElement("div");
       row.className = "form-row";
@@ -1400,11 +1414,10 @@
       dims.fields.forEach(field => {
         const group = document.createElement("div");
         group.className = "form-group";
-        const inputType = type === "Inne" ? "number" : "number";
         group.innerHTML = `
           <label>${field.label}</label>
           <input 
-            type="${inputType}" 
+            type="number" 
             id="${field.id}" 
             data-field="${field.name}"
             min="0" 
@@ -1417,15 +1430,69 @@
       });
 
       dynamicFields.appendChild(row);
+    } else if (dims.fields.length === 3) {
+      const row = document.createElement("div");
+      row.className = "form-row-3";
+
+      dims.fields.forEach(field => {
+        const group = document.createElement("div");
+        group.className = "form-group";
+        group.innerHTML = `
+          <label>${field.label}</label>
+          <input 
+            type="number" 
+            id="${field.id}" 
+            data-field="${field.name}"
+            min="0" 
+            step="0.01" 
+            placeholder="np. 100"
+            onchange="updateWeightDisplay()"
+          >
+        `;
+        row.appendChild(group);
+      });
+
+      dynamicFields.appendChild(row);
+    } else if (dims.fields.length === 4) {
+      // Kątownik - 4 pola (2x2)
+      const row1 = document.createElement("div");
+      row1.className = "form-row";
+
+      const row2 = document.createElement("div");
+      row2.className = "form-row";
+
+      dims.fields.forEach((field, index) => {
+        const group = document.createElement("div");
+        group.className = "form-group";
+        group.innerHTML = `
+          <label>${field.label}</label>
+          <input 
+            type="number" 
+            id="${field.id}" 
+            data-field="${field.name}"
+            min="0" 
+            step="0.01" 
+            placeholder="np. 100"
+            onchange="updateWeightDisplay()"
+          >
+        `;
+        if (index < 2) {
+          row1.appendChild(group);
+        } else {
+          row2.appendChild(group);
+        }
+      });
+
+      dynamicFields.appendChild(row1);
+      dynamicFields.appendChild(row2);
     } else {
       dims.fields.forEach(field => {
         const group = document.createElement("div");
         group.className = "form-group";
-        const inputType = type === "Inne" ? "number" : "number";
         group.innerHTML = `
           <label>${field.label}</label>
           <input 
-            type="${inputType}" 
+            type="number" 
             id="${field.id}" 
             data-field="${field.name}"
             min="0" 
@@ -1833,7 +1900,6 @@
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Magazyn Stali");
 
-    // Formatowanie
     ws['!cols'] = [
       { wch: 12 },
       { wch: 20 },
