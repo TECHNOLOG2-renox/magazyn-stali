@@ -1312,7 +1312,7 @@
     messageDiv.innerText = "Zapisywanie...";
 
     let { error } = await saveToDatabase(buildMaterialData(false));
-    if (shouldRetryWithAliasColumns(error)) {
+    if (materialId && shouldRetryWithAliasColumns(error)) {
       ({ error } = await saveToDatabase(buildMaterialData(true)));
     }
 
