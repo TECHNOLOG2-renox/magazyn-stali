@@ -919,7 +919,13 @@
       fields: [
         { id: "dim_custom", label: "Waga (kg)", name: "waga_kg", short: "" }
       ],
-      format: (fields) => "Inne",
+      format: (fields) => {
+        const value = fields?.waga_kg;
+        if (value === null || value === undefined || value === "") {
+          return "-";
+        }
+        return `${String(value).trim()} kg`;
+      },
       calcWeight: (fields) => {
         return fields.waga_kg || 0;
       }
@@ -1282,7 +1288,7 @@
     const departmentId = document.getElementById("materialDepartment").value;
     const message = document.getElementById("modalMessage");
 
-    if (!type || !quantityInputValue?.toString().trim() || !location || !departmentId || (type !== "Inne" && !steel)) {
+    if (!type || !steel || !quantityInputValue?.toString().trim() || !location || !departmentId) {
       message.className = "error";
       message.textContent = "Wypełnij wszystkie pola!";
       return;
@@ -1290,7 +1296,14 @@
 
     const config = materialDimensions[type];
 
-    if (type !== "Inne") {
+    if (type === "Inne") {
+      const customWeightInput = document.getElementById("dim_custom");
+      if (!customWeightInput?.value?.toString().trim()) {
+        message.className = "error";
+        message.textContent = "Wypełnij wagę materiału!";
+        return;
+      }
+    } else {
       const missingDimension = config.fields.some(field => {
         const input = document.getElementById(field.id);
         return !input?.value?.toString().trim();
