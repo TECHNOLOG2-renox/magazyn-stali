@@ -1034,7 +1034,8 @@
     const dimConfig = materialDimensions[type];
     const volume = dimConfig.calcWeight(material) || 0;
     const density = materialDensity[steel] || 7850;
-    return volume * density;
+    const quantity = parseNumericInput(material.ilosc);
+    return volume * density * quantity;
   }
 
 
@@ -1077,7 +1078,8 @@
       const matchSearch = search === "" || 
         (m.typ && m.typ.toLowerCase().includes(search)) ||
         (m.gatunek && m.gatunek.toLowerCase().includes(search)) ||
-        (m.lokalizacja && m.lokalizacja.toLowerCase().includes(search));
+        (m.lokalizacja && m.lokalizacja.toLowerCase().includes(search)) ||
+        getMaterialDimensionText(m).toLowerCase().includes(search);
       
       const matchType = typeFilter === "" || m.typ === typeFilter;
       const matchSteel = steelFilter === "" || m.gatunek === steelFilter;
@@ -1239,7 +1241,7 @@
 
     const volume = config.calcWeight(fieldsData) || 0;
     const density = materialDensity[steel] || 7850;
-    const weight = volume * density;
+    const weight = volume * density * quantity;
 
     fieldsData.waga = weight;
 
