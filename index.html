@@ -893,7 +893,8 @@
       );
 
 
-    select.innerHTML = "";
+    select.innerHTML =
+      '<option value="">-- Wybierz dział --</option>';
 
 
     departments.forEach(
@@ -1460,10 +1461,10 @@ function fillDimensionFields(type, dimension) {
     compactDimension.split("x");
 
 
-  document.getElementById(
-    "materialDimension"
-  ).value =
-    rawDimension;
+  setFieldValue(
+    "materialDimension",
+    rawDimension
+  );
 
   [
     "materialThickness",
@@ -1579,7 +1580,7 @@ function fillDimensionFields(type, dimension) {
     document.getElementById(
       "materialDepartment"
     ).value =
-      departments[0]?.id || "";
+      "";
 
 
     document.getElementById(
@@ -1816,7 +1817,7 @@ switch(type) {
       wymiar: finalDimension,
       ilosc: quantity,
       lokalizacja: location,
-      dzial_id: departmentId || null
+      dzial_id: departmentId
     };
 
     // -------------------------------------------------------
@@ -1828,6 +1829,7 @@ switch(type) {
       !material.gatunek ||
       !material.wymiar ||
       !material.lokalizacja ||
+      !material.dzial_id ||
       quantityValue === "" ||
       Number.isNaN(material.ilosc)
     ) {
