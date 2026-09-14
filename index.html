@@ -398,6 +398,8 @@
             <option value="Pręt">Pręt</option>
             <option value="Wałek">Wałek</option>
             <option value="Rura">Rura</option>
+            <option value="Płaskownik">Płaskownik</option>
+            <option value="Kątownik">Kątownik</option>
             <option value="Inne">Inne</option>
 
           </select>
@@ -516,6 +518,7 @@
         <option value="Rura">Rura</option>
         <option value="Płaskownik">Płaskownik</option>
         <option value="Kątownik">Kątownik</option>
+        <option value="Inne">Inne</option>
 
       </select>
 
@@ -542,10 +545,17 @@
 
    <!-- POLA WYMIAROWE -->
 
-<input
-  type="hidden"
-  id="materialDimension"
+<div
+  class="form-group hidden"
+  id="dimensionGroup"
 >
+    <label>Wymiar</label>
+    <input
+      type="text"
+      id="materialDimension"
+      placeholder="np. 40x20x2000"
+    >
+</div>
 
 <div id="dynamicFields">
 
@@ -681,8 +691,17 @@
 
   async function startApp() {
 
-    const { data } =
+    const { data, error } =
       await supabaseClient.auth.getSession();
+
+
+    if (error) {
+
+      showLogin();
+
+      return;
+
+    }
 
 
     if (data.session) {
@@ -755,7 +774,22 @@
 
 
     currentUser =
-      data.user;
+      data.session?.user ||
+      data.user ||
+      null;
+
+
+    if (!currentUser) {
+
+      message.className =
+        "error";
+
+      message.innerText =
+        "Nie udało się pobrać danych użytkownika.";
+
+      return;
+
+    }
 
 
     await showApplication();
@@ -813,7 +847,8 @@
 
 
     document.getElementById("userName").innerText =
-      currentUser.email;
+      currentUser?.email ||
+      "Zalogowany użytkownik";
 
 
     await loadDepartments();
@@ -858,7 +893,8 @@
       );
 
 
-    select.innerHTML = "";
+    select.innerHTML =
+      '<option value="">-- Wybierz dział --</option>';
 
 
     departments.forEach(
@@ -1220,6 +1256,9 @@
     const dynamicFields =
         document.getElementById("dynamicFields");
 
+    const dimensionGroup =
+        document.getElementById("dimensionGroup");
+
     const group =
         document.getElementById("thicknessGroup");
 
@@ -1244,6 +1283,7 @@
                 </div>
             `;
 
+            dimensionGroup.classList.add("hidden");
             group.classList.remove("hidden");
             label.innerText = "Grubość (mm)";
 
@@ -1264,6 +1304,7 @@
                 </div>
             `;
 
+            dimensionGroup.classList.add("hidden");
             group.classList.add("hidden");
 
             break;
@@ -1283,6 +1324,7 @@
                 </div>
             `;
 
+            dimensionGroup.classList.add("hidden");
             group.classList.add("hidden");
 
             break;
@@ -1302,6 +1344,7 @@
                 </div>
             `;
 
+            dimensionGroup.classList.add("hidden");
             group.classList.remove("hidden");
             label.innerText = "Grubość ścianki (mm)";
 
@@ -1327,6 +1370,7 @@
                 </div>
             `;
 
+            dimensionGroup.classList.add("hidden");
             group.classList.remove("hidden");
             label.innerText = "Grubość ścianki (mm)";
 
@@ -1347,6 +1391,7 @@
                 </div>
             `;
 
+            dimensionGroup.classList.add("hidden");
             group.classList.remove("hidden");
             label.innerText = "Grubość (mm)";
 
@@ -1372,13 +1417,247 @@
                 </div>
             `;
 
-            group.classList.remove("hidden");
-            label.innerText = "Grubość (mm)";
+          dimensionGroup.classList.add("hidden");
+          group.classList.remove("hidden");
+          label.innerText = "Grubość (mm)";
 
-            break;
+          break;
+
+
+      default:
+
+          dimensionGroup.classList.remove("hidden");
+          group.classList.add("hidden");
+  }
+
+  dynamicFields.innerHTML = html;
+}
+
+
+const DIMENSION_CONFIG = {
+  Blacha: {
+    parse(compactDimension) {
+      const [thickness, width, length] =
+        compactDimension.split("x");
+
+      return {
+        materialThickness: thickness,
+        materialWidth: width,
+        materialLength: length
+      };
+    },
+    build({ thickness, width, length }) {
+      if (thickness && width && length) {
+        return `${thickness}x${width}x${length}`;
+      }
+
+      return "";
     }
+  },
+  Wałek: {
+    parse(compactDimension) {
+      const [diameter, length] =
+        compactDimension
+          .replace(/^fi/i, "")
+          .split("x");
 
-    dynamicFields.innerHTML = html;
+      return {
+        materialDiameter: diameter,
+        materialLength: length
+      };
+    },
+    build({ diameter, length }) {
+      if (diameter && length) {
+        return `fi${diameter}x${length}`;
+      }
+
+      return "";
+    }
+  },
+  Pręt: {
+    parse(compactDimension) {
+      return DIMENSION_CONFIG.Wałek.parse(
+        compactDimension
+      );
+    },
+    build({ diameter, length }) {
+      return DIMENSION_CONFIG.Wałek.build({
+        diameter,
+        length
+      });
+    }
+  },
+  Rura: {
+    parse(compactDimension) {
+      const [diameter, thickness, length] =
+        compactDimension
+          .replace(/^fi/i, "")
+          .split("x");
+
+      return {
+        materialDiameter: diameter,
+        materialThickness: thickness,
+        materialLength: length
+      };
+    },
+    build({ diameter, thickness, length }) {
+      if (diameter && thickness && length) {
+        return `fi${diameter}x${thickness}x${length}`;
+      }
+
+      return "";
+    }
+  },
+  Profil: {
+    parse(compactDimension) {
+      const [height, width, thickness, length] =
+        compactDimension.split("x");
+
+      return {
+        materialHeight: height,
+        materialWidth: width,
+        materialThickness: thickness,
+        materialLength: length
+      };
+    },
+    build({
+      height,
+      width,
+      thickness,
+      length
+    }) {
+      if (height && width && thickness && length) {
+        return `${height}x${width}x${thickness}x${length}`;
+      }
+
+      return "";
+    }
+  },
+  Płaskownik: {
+    parse(compactDimension) {
+      const [width, thickness, length] =
+        compactDimension.split("x");
+
+      return {
+        materialWidth: width,
+        materialThickness: thickness,
+        materialLength: length
+      };
+    },
+    build({ width, thickness, length }) {
+      if (width && thickness && length) {
+        return `${width}x${thickness}x${length}`;
+      }
+
+      return "";
+    }
+  },
+  Kątownik: {
+    parse(compactDimension) {
+      const [width, height, thickness, length] =
+        compactDimension.split("x");
+
+      return {
+        materialWidth: width,
+        materialHeight: height,
+        materialThickness: thickness,
+        materialLength: length
+      };
+    },
+    build({
+      width,
+      height,
+      thickness,
+      length
+    }) {
+      if (width && height && thickness && length) {
+        return `${width}x${height}x${thickness}x${length}`;
+      }
+
+      return "";
+    }
+  }
+};
+
+
+function setFieldValue(fieldId, value) {
+
+  const field =
+    document.getElementById(fieldId);
+
+
+  if (field) {
+
+    field.value = value ?? "";
+
+  }
+
+}
+
+
+function fillDimensionFields(type, dimension) {
+
+  const rawDimension =
+    String(dimension || "").trim();
+
+  const compactDimension =
+    rawDimension.replace(/\s+/g, "");
+
+
+  setFieldValue(
+    "materialDimension",
+    rawDimension
+  );
+
+  [
+    "materialThickness",
+    "materialWidth",
+    "materialLength",
+    "materialHeight",
+    "materialDiameter"
+  ].forEach(
+    fieldId => setFieldValue(fieldId, "")
+  );
+
+
+  const config =
+    DIMENSION_CONFIG[type];
+
+
+  if (!config) {
+    return;
+  }
+
+
+  Object.entries(
+    config.parse(compactDimension)
+  ).forEach(
+    ([fieldId, value]) =>
+      setFieldValue(fieldId, value)
+  );
+
+}
+
+
+function buildDimensionForType(
+  type,
+  values,
+  rawDimension,
+  fallbackDimension
+) {
+
+  const config =
+    DIMENSION_CONFIG[type];
+
+
+  if (!config) {
+    return rawDimension.trim() ||
+      fallbackDimension;
+  }
+
+
+  return config.build(values);
+
 }
 
   // =========================================================
@@ -1421,6 +1700,23 @@
     document.getElementById(
       "materialLocation"
     ).value = "";
+
+    document.getElementById(
+      "materialDimension"
+    ).value = "";
+
+    document.getElementById(
+      "materialDimension"
+    ).dataset.originalValue = "";
+
+    document.getElementById(
+      "materialDimension"
+    ).dataset.originalType = "";
+
+    document.getElementById(
+      "materialDepartment"
+    ).value =
+      "";
 
 
     document.getElementById(
@@ -1474,60 +1770,10 @@
       material.typ;
 
 
-    // -------------------------------------------------------
-    // ODCZYT GRUBOŚCI Z WYMIARU
-    // -------------------------------------------------------
-
-    let savedDimension =
-      material.wymiar || "";
-
-
-    let savedThickness =
-      "";
-
-
-    if (
-      material.typ === "Blacha" ||
-      material.typ === "Profil" ||
-      material.typ === "Rura"
-    ) {
-
-      const match =
-        savedDimension.match(
-          /^#([0-9.,]+)\s+(.*)$/
-        );
-
-
-      if (match) {
-
-        savedThickness =
-          match[1];
-
-
-        savedDimension =
-          match[2];
-
-      }
-
-    }
-
-
     document.getElementById(
       "materialSteel"
     ).value =
       material.gatunek || "";
-
-
-    document.getElementById(
-      "materialDimension"
-    ).value =
-      savedDimension;
-
-
-    document.getElementById(
-      "materialThickness"
-    ).value =
-      savedThickness;
 
 
     document.getElementById(
@@ -1552,8 +1798,23 @@
       "modalMessage"
     ).innerText = "";
 
+    document.getElementById(
+      "materialDimension"
+    ).dataset.originalValue =
+      material.wymiar || "";
+
+    document.getElementById(
+      "materialDimension"
+    ).dataset.originalType =
+      material.typ || "";
+
 
     updateThicknessField();
+
+    fillDimensionFields(
+      material.typ,
+      material.wymiar
+    );
 
 
     document
@@ -1595,6 +1856,43 @@
         "materialThickness"
       ).value.trim();
 
+    const originalDimension =
+      document.getElementById(
+        "materialDimension"
+      ).dataset.originalValue || "";
+
+    const originalType =
+      document.getElementById(
+        "materialDimension"
+      ).dataset.originalType || "";
+
+    const steel =
+      document.getElementById(
+        "materialSteel"
+      ).value.trim();
+
+    const quantity =
+      Number(
+        document.getElementById(
+          "materialQuantity"
+        ).value
+      );
+
+    const quantityValue =
+      document.getElementById(
+        "materialQuantity"
+      ).value.trim();
+
+    const location =
+      document.getElementById(
+        "materialLocation"
+      ).value.trim();
+
+    const departmentId =
+      document.getElementById(
+        "materialDepartment"
+      ).value;
+
 
     // -------------------------------------------------------
 // TWORZENIE KOŃCOWEGO WYMIARU
@@ -1612,58 +1910,43 @@ const height =
 const diameter =
   document.getElementById("materialDiameter")?.value || "";
 
-let finalDimension = "";
+const finalDimension =
+  buildDimensionForType(
+    type,
+    {
+      thickness,
+      width,
+      height,
+      diameter,
+      length
+    },
+    dimension,
+    id && type === originalType
+      ? originalDimension
+      : ""
+  );
 
-switch(type) {
-
-  case "Blacha":
-    finalDimension =
-      `${thickness}x${width}x${length}`;
-    break;
-
-  case "Wałek":
-    finalDimension =
-      `fi${diameter}x${length}`;
-    break;
-
-  case "Pręt":
-    finalDimension =
-      `fi${diameter}x${length}`;
-    break;
-
-  case "Rura":
-    finalDimension =
-      `fi${diameter}x${thickness}x${length}`;
-    break;
-
-  case "Profil":
-    finalDimension =
-      `${height}x${width}x${thickness}x${length}`;
-    break;
-
-  case "Płaskownik":
-    finalDimension =
-      `${width}x${thickness}x${length}`;
-    break;
-
-  case "Kątownik":
-    finalDimension =
-      `${width}x${height}x${thickness}x${length}`;
-    break;
-
-  default:
-    finalDimension = "";
-}
+    const material = {
+      typ: type,
+      gatunek: steel,
+      wymiar: finalDimension,
+      ilosc: quantity,
+      lokalizacja: location,
+      dzial_id: departmentId
+    };
 
     // -------------------------------------------------------
     // WALIDACJA
     // -------------------------------------------------------
 
     if (
+      !material.typ ||
       !material.gatunek ||
       !material.wymiar ||
       !material.lokalizacja ||
-      isNaN(material.ilosc)
+      !material.dzial_id ||
+      quantityValue === "" ||
+      Number.isNaN(material.ilosc)
     ) {
 
       document.getElementById(
@@ -1849,13 +2132,6 @@ switch(type) {
   // =========================================================
   // URUCHOMIENIE
   // =========================================================
-
-  startApp();
-
-</script>
-
-</body>
-</html>
 
   startApp();
 
