@@ -1465,6 +1465,16 @@ function fillDimensionFields(type, dimension) {
   ).value =
     rawDimension;
 
+  [
+    "materialThickness",
+    "materialWidth",
+    "materialLength",
+    "materialHeight",
+    "materialDiameter"
+  ].forEach(
+    fieldId => setFieldValue(fieldId, "")
+  );
+
 
   switch (type) {
 
