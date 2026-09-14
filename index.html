@@ -897,6 +897,10 @@
     const resolvedFieldName = resolveMaterialColumnName(fieldName, useAliasFallback);
     materialData[resolvedFieldName] = value;
 
+    if (useAliasFallback) {
+      return;
+    }
+
     if (materialColumnNames.size > 0) {
       if (materialColumnNames.has(fieldName)) {
         materialData[fieldName] = value;
