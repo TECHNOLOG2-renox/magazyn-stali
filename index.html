@@ -398,6 +398,8 @@
             <option value="Pręt">Pręt</option>
             <option value="Wałek">Wałek</option>
             <option value="Rura">Rura</option>
+            <option value="Płaskownik">Płaskownik</option>
+            <option value="Kątownik">Kątownik</option>
             <option value="Inne">Inne</option>
 
           </select>
@@ -516,6 +518,7 @@
         <option value="Rura">Rura</option>
         <option value="Płaskownik">Płaskownik</option>
         <option value="Kątownik">Kątownik</option>
+        <option value="Inne">Inne</option>
 
       </select>
 
@@ -542,10 +545,17 @@
 
    <!-- POLA WYMIAROWE -->
 
-<input
-  type="hidden"
-  id="materialDimension"
+<div
+  class="form-group hidden"
+  id="dimensionGroup"
 >
+    <label>Wymiar</label>
+    <input
+      type="text"
+      id="materialDimension"
+      placeholder="np. 40x20x2000"
+    >
+</div>
 
 <div id="dynamicFields">
 
@@ -681,8 +691,17 @@
 
   async function startApp() {
 
-    const { data } =
+    const { data, error } =
       await supabaseClient.auth.getSession();
+
+
+    if (error) {
+
+      showLogin();
+
+      return;
+
+    }
 
 
     if (data.session) {
@@ -755,7 +774,22 @@
 
 
     currentUser =
-      data.user;
+      data.session?.user ||
+      data.user ||
+      null;
+
+
+    if (!currentUser) {
+
+      message.className =
+        "error";
+
+      message.innerText =
+        "Nie udało się pobrać danych użytkownika.";
+
+      return;
+
+    }
 
 
     await showApplication();
@@ -813,7 +847,8 @@
 
 
     document.getElementById("userName").innerText =
-      currentUser.email;
+      currentUser?.email ||
+      "Zalogowany użytkownik";
 
 
     await loadDepartments();
@@ -1220,6 +1255,9 @@
     const dynamicFields =
         document.getElementById("dynamicFields");
 
+    const dimensionGroup =
+        document.getElementById("dimensionGroup");
+
     const group =
         document.getElementById("thicknessGroup");
 
@@ -1244,6 +1282,7 @@
                 </div>
             `;
 
+            dimensionGroup.classList.add("hidden");
             group.classList.remove("hidden");
             label.innerText = "Grubość (mm)";
 
@@ -1264,6 +1303,7 @@
                 </div>
             `;
 
+            dimensionGroup.classList.add("hidden");
             group.classList.add("hidden");
 
             break;
@@ -1283,6 +1323,7 @@
                 </div>
             `;
 
+            dimensionGroup.classList.add("hidden");
             group.classList.add("hidden");
 
             break;
@@ -1302,6 +1343,7 @@
                 </div>
             `;
 
+            dimensionGroup.classList.add("hidden");
             group.classList.remove("hidden");
             label.innerText = "Grubość ścianki (mm)";
 
@@ -1327,6 +1369,7 @@
                 </div>
             `;
 
+            dimensionGroup.classList.add("hidden");
             group.classList.remove("hidden");
             label.innerText = "Grubość ścianki (mm)";
 
@@ -1347,6 +1390,7 @@
                 </div>
             `;
 
+            dimensionGroup.classList.add("hidden");
             group.classList.remove("hidden");
             label.innerText = "Grubość (mm)";
 
@@ -1372,13 +1416,109 @@
                 </div>
             `;
 
-            group.classList.remove("hidden");
-            label.innerText = "Grubość (mm)";
+          dimensionGroup.classList.add("hidden");
+          group.classList.remove("hidden");
+          label.innerText = "Grubość (mm)";
 
-            break;
+          break;
+
+
+      default:
+
+          dimensionGroup.classList.remove("hidden");
+          group.classList.add("hidden");
+  }
+
+  dynamicFields.innerHTML = html;
+}
+
+
+function setFieldValue(fieldId, value) {
+
+  const field =
+    document.getElementById(fieldId);
+
+
+  if (field) {
+
+    field.value = value || "";
+
+  }
+
+}
+
+
+function fillDimensionFields(type, dimension) {
+
+  const rawDimension =
+    String(dimension || "").trim();
+
+  const compactDimension =
+    rawDimension.replace(/\s+/g, "");
+
+  const parts =
+    compactDimension.split("x");
+
+
+  document.getElementById(
+    "materialDimension"
+  ).value =
+    rawDimension;
+
+
+  switch (type) {
+
+    case "Blacha":
+      setFieldValue("materialThickness", parts[0]);
+      setFieldValue("materialWidth", parts[1]);
+      setFieldValue("materialLength", parts[2]);
+      break;
+
+    case "Wałek":
+    case "Pręt": {
+      const roundParts =
+        compactDimension
+          .replace(/^fi/i, "")
+          .split("x");
+
+      setFieldValue("materialDiameter", roundParts[0]);
+      setFieldValue("materialLength", roundParts[1]);
+      break;
     }
 
-    dynamicFields.innerHTML = html;
+    case "Rura": {
+      const pipeParts =
+        compactDimension
+          .replace(/^fi/i, "")
+          .split("x");
+
+      setFieldValue("materialDiameter", pipeParts[0]);
+      setFieldValue("materialThickness", pipeParts[1]);
+      setFieldValue("materialLength", pipeParts[2]);
+      break;
+    }
+
+    case "Profil":
+      setFieldValue("materialHeight", parts[0]);
+      setFieldValue("materialWidth", parts[1]);
+      setFieldValue("materialThickness", parts[2]);
+      setFieldValue("materialLength", parts[3]);
+      break;
+
+    case "Płaskownik":
+      setFieldValue("materialWidth", parts[0]);
+      setFieldValue("materialThickness", parts[1]);
+      setFieldValue("materialLength", parts[2]);
+      break;
+
+    case "Kątownik":
+      setFieldValue("materialWidth", parts[0]);
+      setFieldValue("materialHeight", parts[1]);
+      setFieldValue("materialThickness", parts[2]);
+      setFieldValue("materialLength", parts[3]);
+      break;
+  }
+
 }
 
   // =========================================================
@@ -1421,6 +1561,15 @@
     document.getElementById(
       "materialLocation"
     ).value = "";
+
+    document.getElementById(
+      "materialDimension"
+    ).value = "";
+
+    document.getElementById(
+      "materialDepartment"
+    ).value =
+      departments[0]?.id || "";
 
 
     document.getElementById(
@@ -1474,60 +1623,10 @@
       material.typ;
 
 
-    // -------------------------------------------------------
-    // ODCZYT GRUBOŚCI Z WYMIARU
-    // -------------------------------------------------------
-
-    let savedDimension =
-      material.wymiar || "";
-
-
-    let savedThickness =
-      "";
-
-
-    if (
-      material.typ === "Blacha" ||
-      material.typ === "Profil" ||
-      material.typ === "Rura"
-    ) {
-
-      const match =
-        savedDimension.match(
-          /^#([0-9.,]+)\s+(.*)$/
-        );
-
-
-      if (match) {
-
-        savedThickness =
-          match[1];
-
-
-        savedDimension =
-          match[2];
-
-      }
-
-    }
-
-
     document.getElementById(
       "materialSteel"
     ).value =
       material.gatunek || "";
-
-
-    document.getElementById(
-      "materialDimension"
-    ).value =
-      savedDimension;
-
-
-    document.getElementById(
-      "materialThickness"
-    ).value =
-      savedThickness;
 
 
     document.getElementById(
@@ -1554,6 +1653,11 @@
 
 
     updateThicknessField();
+
+    fillDimensionFields(
+      material.typ,
+      material.wymiar
+    );
 
 
     document
@@ -1595,6 +1699,33 @@
         "materialThickness"
       ).value.trim();
 
+    const steel =
+      document.getElementById(
+        "materialSteel"
+      ).value.trim();
+
+    const quantity =
+      Number(
+        document.getElementById(
+          "materialQuantity"
+        ).value
+      );
+
+    const quantityValue =
+      document.getElementById(
+        "materialQuantity"
+      ).value.trim();
+
+    const location =
+      document.getElementById(
+        "materialLocation"
+      ).value.trim();
+
+    const departmentId =
+      document.getElementById(
+        "materialDepartment"
+      ).value;
+
 
     // -------------------------------------------------------
 // TWORZENIE KOŃCOWEGO WYMIARU
@@ -1617,53 +1748,78 @@ let finalDimension = "";
 switch(type) {
 
   case "Blacha":
-    finalDimension =
-      `${thickness}x${width}x${length}`;
+    if (thickness && width && length) {
+      finalDimension =
+        `${thickness}x${width}x${length}`;
+    }
     break;
 
   case "Wałek":
-    finalDimension =
-      `fi${diameter}x${length}`;
+    if (diameter && length) {
+      finalDimension =
+        `fi${diameter}x${length}`;
+    }
     break;
 
   case "Pręt":
-    finalDimension =
-      `fi${diameter}x${length}`;
+    if (diameter && length) {
+      finalDimension =
+        `fi${diameter}x${length}`;
+    }
     break;
 
   case "Rura":
-    finalDimension =
-      `fi${diameter}x${thickness}x${length}`;
+    if (diameter && thickness && length) {
+      finalDimension =
+        `fi${diameter}x${thickness}x${length}`;
+    }
     break;
 
   case "Profil":
-    finalDimension =
-      `${height}x${width}x${thickness}x${length}`;
+    if (height && width && thickness && length) {
+      finalDimension =
+        `${height}x${width}x${thickness}x${length}`;
+    }
     break;
 
   case "Płaskownik":
-    finalDimension =
-      `${width}x${thickness}x${length}`;
+    if (width && thickness && length) {
+      finalDimension =
+        `${width}x${thickness}x${length}`;
+    }
     break;
 
   case "Kątownik":
-    finalDimension =
-      `${width}x${height}x${thickness}x${length}`;
+    if (width && height && thickness && length) {
+      finalDimension =
+        `${width}x${height}x${thickness}x${length}`;
+    }
     break;
 
   default:
-    finalDimension = "";
+    finalDimension = dimension;
 }
+
+    const material = {
+      typ: type,
+      gatunek: steel,
+      wymiar: finalDimension,
+      ilosc: quantity,
+      lokalizacja: location,
+      dzial_id: departmentId || null
+    };
 
     // -------------------------------------------------------
     // WALIDACJA
     // -------------------------------------------------------
 
     if (
+      !material.typ ||
       !material.gatunek ||
       !material.wymiar ||
       !material.lokalizacja ||
-      isNaN(material.ilosc)
+      quantityValue === "" ||
+      Number.isNaN(material.ilosc)
     ) {
 
       document.getElementById(
@@ -1849,13 +2005,6 @@ switch(type) {
   // =========================================================
   // URUCHOMIENIE
   // =========================================================
-
-  startApp();
-
-</script>
-
-</body>
-</html>
 
   startApp();
 
