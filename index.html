@@ -768,6 +768,11 @@
   }
 
 
+  function roundToTwoDecimals(value) {
+    return Math.round((Number(value) || 0) * 100) / 100;
+  }
+
+
   const materialDimensions = {
     "Blacha": {
       fields: [
@@ -1031,17 +1036,25 @@
   }
 
 
-  function calculateWeight(material) {
-    const type = material.typ;
-    const steel = material.gatunek;
-    if (!type || !steel || !materialDimensions[type]) {
+  function calculateMaterialWeight(type, steel, material, quantity = 1) {
+    if (!type || !materialDimensions[type]) {
       return 0;
     }
     const dimConfig = materialDimensions[type];
-    const volume = dimConfig.calcWeight(material) || 0;
+    const baseWeight = dimConfig.calcWeight(material) || 0;
+    if (type === "Inne") {
+      return baseWeight * quantity;
+    }
     const density = materialDensity[steel] || 7850;
+    return baseWeight * density * quantity;
+  }
+
+
+  function calculateWeight(material) {
+    const type = material.typ;
+    const steel = material.gatunek;
     const quantity = parseNumericInput(material.ilosc);
-    return volume * density * quantity;
+    return calculateMaterialWeight(type, steel, material, quantity);
   }
 
 
@@ -1192,7 +1205,7 @@
 
     container.innerHTML = config.fields.map(field => `
       <div class="form-group">
-        <label>${field.label}</label>
+        <label for="${field.id}">${field.label}</label>
         <input
           type="number"
           id="${field.id}"
@@ -1228,9 +1241,7 @@
       fieldsData[field.name] = parseNumericInput(input?.value);
     });
 
-    const volume = config.calcWeight(fieldsData) || 0;
-    const density = materialDensity[steel] || 7850;
-    const weight = volume * density * quantity;
+    const weight = calculateMaterialWeight(type, steel, fieldsData, quantity);
 
     document.getElementById("weightValue").textContent = weight.toFixed(2) + " kg";
     document.getElementById("weightDisplay").classList.remove("hidden");
@@ -1253,6 +1264,19 @@
     }
 
     const config = materialDimensions[type];
+
+    if (type !== "Inne") {
+      const missingDimension = config.fields.some(field => {
+        const input = document.getElementById(field.id);
+        return !input?.value?.toString().trim();
+      });
+      if (missingDimension) {
+        message.className = "error";
+        message.textContent = "Wypełnij wszystkie wymiary materiału!";
+        return;
+      }
+    }
+
     const fieldsData = { typ: type, gatunek: steel, ilosc: quantity, lokalizacja: location, dział_id: departmentId };
 
     allDimensionFieldNames.forEach(fieldName => {
@@ -1268,9 +1292,7 @@
     const wymiarText = getMaterialDimensionText(fieldsData);
     fieldsData.wymiar = wymiarText;
 
-    const volume = config.calcWeight(fieldsData) || 0;
-    const density = materialDensity[steel] || 7850;
-    const weight = volume * density * quantity;
+    const weight = calculateMaterialWeight(type, steel, fieldsData, quantity);
 
     fieldsData.waga = weight;
 
@@ -1367,14 +1389,15 @@
     const data = materials.map(m => {
       const weight = calculateWeight(m);
       const pricePerKg = prices[m.gatunek] || 0;
+      const totalValue = roundToTwoDecimals(weight * pricePerKg);
       return {
         Typ: m.typ,
         "Gatunek stali": m.gatunek,
         Ilość: m.ilosc,
         Wymiar: getMaterialDimensionText(m),
-        "Waga (kg)": weight.toFixed(2),
+        "Waga (kg)": roundToTwoDecimals(weight),
         "Cena za kg": pricePerKg,
-        "Wartość": (weight * pricePerKg).toFixed(2),
+        "Wartość": totalValue,
         Lokalizacja: m.lokalizacja
       };
     });
