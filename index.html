@@ -750,10 +750,11 @@
   const materialDimensions = {
     "Blacha": {
       fields: [
-        { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc" },
-        { id: "dim_width", label: "Szerokość (mm)", name: "wymiar_szerokosc" },
-        { id: "dim_thickness", label: "# Grubość (mm)", name: "wymiar_grubosc" }
+        { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc", short: "" },
+        { id: "dim_width", label: "Szerokość (mm)", name: "wymiar_szerokosc", short: "" },
+        { id: "dim_thickness", label: "# Grubość (mm)", name: "wymiar_grubosc", short: "#" }
       ],
+      format: (fields) => `${fields.wymiar_dlugosc}x${fields.wymiar_szerokosc}x${fields.wymiar_grubosc}`,
       calcWeight: (fields) => {
         const length = (fields.wymiar_dlugosc || 0) / 1000;
         const width = (fields.wymiar_szerokosc || 0) / 1000;
@@ -763,35 +764,32 @@
     },
     "Profil": {
       fields: [
-        { id: "dim_height", label: "Wysokość (mm)", name: "wymiar_wysokosc" },
-        { id: "dim_width", label: "Szerokość (mm)", name: "wymiar_szerokosc" },
-        { id: "dim_thickness", label: "# Grubość ścianki (mm)", name: "wymiar_grubosc" },
-        { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc" }
+        { id: "dim_height", label: "Wysokość (mm)", name: "wymiar_wysokosc", short: "" },
+        { id: "dim_width", label: "Szerokość (mm)", name: "wymiar_szerokosc", short: "" },
+        { id: "dim_thickness", label: "# Grubość ścianki (mm)", name: "wymiar_grubosc", short: "#" },
+        { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc", short: "" }
       ],
+      format: (fields) => `${fields.wymiar_wysokosc}x${fields.wymiar_szerokosc}x#${fields.wymiar_grubosc}x${fields.wymiar_dlugosc}`,
       calcWeight: (fields) => {
-        // POPRAWKA: Profil to pusty profil, obliczamy ilość materiału (ścianek)
         const height = (fields.wymiar_wysokosc || 0) / 1000;
         const width = (fields.wymiar_szerokosc || 0) / 1000;
         const thickness = (fields.wymiar_grubosc || 0) / 1000;
         const length = (fields.wymiar_dlugosc || 0) / 1000;
         
-        // Pełna objętość
         const fullVolume = height * width * length;
-        
-        // Wewnętrzna objętość (odejmujemy grubość ścianek)
         const innerHeight = Math.max(0, height - 2 * thickness);
         const innerWidth = Math.max(0, width - 2 * thickness);
         const innerVolume = innerHeight * innerWidth * length;
         
-        // Ilość materiału = pełna objętość - wewnętrzna objętość
         return fullVolume - innerVolume;
       }
     },
     "Pręt": {
       fields: [
-        { id: "dim_diameter", label: "ø Średnica (mm)", name: "wymiar_srednica" },
-        { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc" }
+        { id: "dim_diameter", label: "ø Średnica (mm)", name: "wymiar_srednica", short: "ø" },
+        { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc", short: "" }
       ],
+      format: (fields) => `ø${fields.wymiar_srednica}x${fields.wymiar_dlugosc}`,
       calcWeight: (fields) => {
         const diameter = (fields.wymiar_srednica || 0) / 1000;
         const length = (fields.wymiar_dlugosc || 0) / 1000;
@@ -801,9 +799,10 @@
     },
     "Wałek": {
       fields: [
-        { id: "dim_diameter", label: "ø Średnica (mm)", name: "wymiar_srednica" },
-        { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc" }
+        { id: "dim_diameter", label: "ø Średnica (mm)", name: "wymiar_srednica", short: "ø" },
+        { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc", short: "" }
       ],
+      format: (fields) => `ø${fields.wymiar_srednica}x${fields.wymiar_dlugosc}`,
       calcWeight: (fields) => {
         const diameter = (fields.wymiar_srednica || 0) / 1000;
         const length = (fields.wymiar_dlugosc || 0) / 1000;
@@ -813,10 +812,11 @@
     },
     "Rura": {
       fields: [
-        { id: "dim_outer_diameter", label: "ø Średnica zewnętrzna (mm)", name: "wymiar_srednicy_zew" },
-        { id: "dim_wall_thickness", label: "# Grubość ścianki (mm)", name: "wymiar_grubosc_scianki" },
-        { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc" }
+        { id: "dim_outer_diameter", label: "ø Średnica zewnętrzna (mm)", name: "wymiar_srednicy_zew", short: "ø" },
+        { id: "dim_wall_thickness", label: "# Grubość ścianki (mm)", name: "wymiar_grubosc_scianki", short: "#" },
+        { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc", short: "" }
       ],
+      format: (fields) => `ø${fields.wymiar_srednicy_zew}x#${fields.wymiar_grubosc_scianki}x${fields.wymiar_dlugosc}`,
       calcWeight: (fields) => {
         const outerDiam = (fields.wymiar_srednicy_zew || 0) / 1000;
         const wallThickness = (fields.wymiar_grubosc_scianki || 0) / 1000;
@@ -828,10 +828,11 @@
     },
     "Płaskownik": {
       fields: [
-        { id: "dim_dim_a", label: "Wymiar A (mm)", name: "wymiar_a" },
-        { id: "dim_dim_b", label: "Wymiar B (mm)", name: "wymiar_b" },
-        { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc" }
+        { id: "dim_dim_a", label: "Wymiar A (mm)", name: "wymiar_a", short: "" },
+        { id: "dim_dim_b", label: "Wymiar B (mm)", name: "wymiar_b", short: "" },
+        { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc", short: "" }
       ],
+      format: (fields) => `${fields.wymiar_a}x${fields.wymiar_b}x${fields.wymiar_dlugosc}`,
       calcWeight: (fields) => {
         const dimA = (fields.wymiar_a || 0) / 1000;
         const dimB = (fields.wymiar_b || 0) / 1000;
@@ -841,11 +842,12 @@
     },
     "Kątownik": {
       fields: [
-        { id: "dim_dim_a", label: "Wymiar A (mm)", name: "wymiar_a" },
-        { id: "dim_dim_b", label: "Wymiar B (mm)", name: "wymiar_b" },
-        { id: "dim_wall_thickness", label: "# Grubość ścianki (mm)", name: "wymiar_grubosc_scianki" },
-        { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc" }
+        { id: "dim_dim_a", label: "Wymiar A (mm)", name: "wymiar_a", short: "" },
+        { id: "dim_dim_b", label: "Wymiar B (mm)", name: "wymiar_b", short: "" },
+        { id: "dim_wall_thickness", label: "# Grubość ścianki (mm)", name: "wymiar_grubosc_scianki", short: "#" },
+        { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc", short: "" }
       ],
+      format: (fields) => `${fields.wymiar_a}x${fields.wymiar_b}x#${fields.wymiar_grubosc_scianki}x${fields.wymiar_dlugosc}`,
       calcWeight: (fields) => {
         const dimA = (fields.wymiar_a || 0) / 1000;
         const dimB = (fields.wymiar_b || 0) / 1000;
@@ -857,8 +859,9 @@
     },
     "Inne": {
       fields: [
-        { id: "dim_custom", label: "Waga (kg)", name: "waga_kg" }
+        { id: "dim_custom", label: "Waga (kg)", name: "waga_kg", short: "" }
       ],
+      format: (fields) => "Inne",
       calcWeight: (fields) => {
         return fields.waga_kg || 0;
       }
@@ -1173,15 +1176,9 @@
       fieldsData[field.name] = parseFloat(input?.value) || 0;
     });
 
-    // Buduj tekst wymiarów
-    let wymiarText = "";
-    config.fields.forEach(field => {
-      const input = document.getElementById(field.id);
-      if (input && input.value) {
-        wymiarText += `${field.label}: ${input.value} | `;
-      }
-    });
-    fieldsData.wymiar = wymiarText.trim().replace(/\|\s*$/, "") || type;
+    // Formatuj wymiary używając funkcji format
+    const wymiarText = config.format(fieldsData);
+    fieldsData.wymiar = wymiarText;
 
     const volume = config.calcWeight(fieldsData) || 0;
     const density = materialDensity[steel] || 7850;
