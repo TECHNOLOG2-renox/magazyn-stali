@@ -1,14 +1,165 @@
-    "Blacha": {
-      fields: [
-        { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc", short: "" },
-        { id: "dim_width", label: "Szerokość (mm)", name: "wymiar_szerokosc", short: "" },
-        { id: "dim_thickness", label: "# Grubość (mm)", name: "wymiar_grubosc", short: "#" }
-      ],
-      format: (fields) => `${fields.wymiar_dlugosc}x${fields.wymiar_szerokosc}x#${fields.wymiar_grubosc}`,
-      calcWeight: (fields) => {
-        const length = (fields.wymiar_dlugosc || 0) / 1000;
-        const width = (fields.wymiar_szerokosc || 0) / 1000;
-        const thickness = (fields.wymiar_grubosc || 0) / 1000;
-        return length * width * thickness;
-      }
-    },
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magazyn Stali</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-container h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: bold;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 12px;
+            background-color: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn-login:hover {
+            background-color: #764ba2;
+        }
+
+        .error-message {
+            color: red;
+            text-align: center;
+            margin-top: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>Magazyn Stali</h1>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Login:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Hasło:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit" class="btn-login">Zaloguj się</button>
+            <div class="error-message" id="errorMessage">Login lub hasło nieprawidłowe</div>
+        </form>
+    </div>
+
+    <script>
+        // Konfiguracja produktów
+        const productConfig = {
+            "Blacha": {
+                fields: [
+                    { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc", short: "" },
+                    { id: "dim_width", label: "Szerokość (mm)", name: "wymiar_szerokosc", short: "" },
+                    { id: "dim_thickness", label: "# Grubość (mm)", name: "wymiar_grubosc", short: "#" }
+                ],
+                format: (fields) => `${fields.wymiar_dlugosc}x${fields.wymiar_szerokosc}x#${fields.wymiar_grubosc}`,
+                calcWeight: (fields) => {
+                    const length = (fields.wymiar_dlugosc || 0) / 1000;
+                    const width = (fields.wymiar_szerokosc || 0) / 1000;
+                    const thickness = (fields.wymiar_grubosc || 0) / 1000;
+                    return length * width * thickness;
+                }
+            },
+            "Rura": {
+                fields: [
+                    { id: "outer_diameter", label: "Średnica zewnętrzna (mm)", name: "srednica_zewnetrzna", short: "" },
+                    { id: "inner_diameter", label: "Średnica wewnętrzna (mm)", name: "srednica_wewnetrzna", short: "" },
+                    { id: "length", label: "Długość (mm)", name: "dlugosc", short: "" }
+                ],
+                format: (fields) => `${fields.srednica_zewnetrzna}/${fields.srednica_wewnetrzna}x${fields.dlugosc}`,
+                calcWeight: (fields) => {
+                    const outerD = (fields.srednica_zewnetrzna || 0) / 1000;
+                    const innerD = (fields.srednica_wewnetrzna || 0) / 1000;
+                    const len = (fields.dlugosc || 0) / 1000;
+                    return ((outerD * outerD - innerD * innerD) * 3.14159 / 4) * len;
+                }
+            }
+        };
+
+        // Obsługa logowania
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            // Prosta walidacja (w produkcji należy wysłać na serwer)
+            if (username === 'admin' && password === 'admin123') {
+                // Zalogowanie udane - zapisz sesję
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('username', username);
+                alert('Zalogowano pomyślnie!');
+                // Tutaj można dodać redirekcję do głównego widoku aplikacji
+            } else {
+                document.getElementById('errorMessage').style.display = 'block';
+            }
+        });
+
+        // Sprawdzanie czy użytkownik jest zalogowany
+        window.addEventListener('load', function() {
+            if (localStorage.getItem('isLoggedIn') === 'true') {
+                console.log('Użytkownik zalogowany:', localStorage.getItem('username'));
+                // Tutaj można dodać redirekcję do głównego widoku aplikacji
+            }
+        });
+    </script>
+</body>
+</html>
