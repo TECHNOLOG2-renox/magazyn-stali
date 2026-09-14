@@ -765,13 +765,26 @@
       fields: [
         { id: "dim_height", label: "Wysokość (mm)", name: "wymiar_wysokosc" },
         { id: "dim_width", label: "Szerokość (mm)", name: "wymiar_szerokosc" },
-        { id: "dim_thickness", label: "Grubość (mm)", name: "wymiar_grubosc" }
+        { id: "dim_thickness", label: "Grubość ścianki (mm)", name: "wymiar_grubosc" },
+        { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc" }
       ],
       calcWeight: (fields) => {
+        // POPRAWKA: Profil to pusty profil, obliczamy ilość materiału (ścianek)
         const height = (fields.wymiar_wysokosc || 0) / 1000;
         const width = (fields.wymiar_szerokosc || 0) / 1000;
         const thickness = (fields.wymiar_grubosc || 0) / 1000;
-        return height * width * thickness;
+        const length = (fields.wymiar_dlugosc || 0) / 1000;
+        
+        // Pełna objętość
+        const fullVolume = height * width * length;
+        
+        // Wewnętrzna objętość (odejmujemy grubość ścianek)
+        const innerHeight = Math.max(0, height - 2 * thickness);
+        const innerWidth = Math.max(0, width - 2 * thickness);
+        const innerVolume = innerHeight * innerWidth * length;
+        
+        // Ilość materiału = pełna objętość - wewnętrzna objętość
+        return fullVolume - innerVolume;
       }
     },
     "Pręt": {
@@ -1183,7 +1196,6 @@
     const departmentId = document.getElementById("materialDepartment").value;
     const messageDiv = document.getElementById("modalMessage");
 
-    // FIXED: Proper validation that catches all invalid cases
     if (!type || !steel || quantity === null || isNaN(quantity) || quantity < 0 || !location || !departmentId) {
       messageDiv.className = "error";
       messageDiv.innerText = "Wypełnij wszystkie pola prawidłowo";
