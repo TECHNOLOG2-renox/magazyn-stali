@@ -1,501 +1,1779 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Magazyn Stali</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Magazyn Stali RENOX</title>
 
-        body {
-            font-family: Arial, sans-serif;
-            background: #f5f5f5;
-        }
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-        /* STYLE LOGOWANIA */
-        .login-page {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-        .login-container {
-            background: white;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            width: 100%;
-            max-width: 400px;
-        }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f1f3f6;
+      color: #1f2937;
+    }
 
-        .login-container h1 {
-            text-align: center;
-            margin-bottom: 30px;
-            color: #333;
-        }
+    button, input, select {
+      font: inherit;
+    }
 
-        .form-group {
-            margin-bottom: 20px;
-        }
+    .login-container {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            color: #555;
-            font-weight: bold;
-        }
+    .login-box {
+      width: 100%;
+      max-width: 400px;
+      background: white;
+      padding: 35px;
+      border-radius: 14px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    }
 
-        .form-group input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
+    .login-box h1 {
+      text-align: center;
+      margin-top: 0;
+      color: #1f2937;
+    }
 
-        .form-group input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
+    .login-box p {
+      text-align: center;
+      color: #6b7280;
+    }
 
-        .btn-login {
-            width: 100%;
-            padding: 12px;
-            background-color: #667eea;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
+    .form-group {
+      margin-bottom: 15px;
+    }
 
-        .btn-login:hover {
-            background-color: #764ba2;
-        }
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: bold;
+      font-size: 14px;
+    }
 
-        .error-message {
-            color: red;
-            text-align: center;
-            margin-top: 10px;
-            display: none;
-        }
+    input, select {
+      width: 100%;
+      padding: 11px;
+      border: 1px solid #d1d5db;
+      border-radius: 7px;
+      background: white;
+    }
 
-        /* STYLE GŁÓWNEJ APLIKACJI */
-        .main-app {
-            display: none;
-        }
+    button {
+      border: none;
+      border-radius: 7px;
+      padding: 10px 16px;
+      cursor: pointer;
+      font-weight: bold;
+    }
 
-        .header {
-            background-color: #333;
-            color: white;
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+    .btn-primary {
+      background: #2563eb;
+      color: white;
+    }
 
-        .header h1 {
-            font-size: 24px;
-        }
+    .btn-primary:hover {
+      background: #1d4ed8;
+    }
 
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
+    .btn-danger {
+      background: #dc2626;
+      color: white;
+    }
 
-        .btn-logout {
-            background-color: #e74c3c;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-        }
+    .btn-secondary {
+      background: #6b7280;
+      color: white;
+    }
 
-        .btn-logout:hover {
-            background-color: #c0392b;
-        }
+    .hidden {
+      display: none !important;
+    }
 
-        .container {
-            max-width: 1200px;
-            margin: 20px auto;
-            padding: 0 20px;
-        }
+    header {
+      background: #111827;
+      color: white;
+      padding: 15px 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+    }
 
-        .tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #ddd;
-        }
+    header h1 {
+      margin: 0;
+      font-size: 22px;
+    }
 
-        .tab-button {
-            padding: 12px 20px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-            color: #666;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s;
-        }
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+    }
 
-        .tab-button.active {
-            color: #667eea;
-            border-bottom-color: #667eea;
-        }
+    .app {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 25px;
+    }
 
-        .tab-content {
-            display: none;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      gap: 15px;
+    }
 
-        .tab-content.active {
-            display: block;
-        }
+    .top-bar h2 {
+      margin: 0;
+    }
 
-        .form-section {
-            margin-bottom: 20px;
-        }
+    .filters {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
 
-        .form-section label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #333;
-        }
+    .filter-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 12px;
+    }
 
-        .form-section input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            margin-bottom: 15px;
-        }
+    .table-container {
+      background: white;
+      border-radius: 10px;
+      overflow-x: auto;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
 
-        .btn-add {
-            background-color: #27ae60;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-        }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 800px;
+    }
 
-        .btn-add:hover {
-            background-color: #229954;
-        }
+    th {
+      background: #e5e7eb;
+      text-align: left;
+      padding: 13px;
+      font-size: 14px;
+    }
 
-        .inventory-list {
-            margin-top: 20px;
-        }
+    td {
+      padding: 13px;
+      border-top: 1px solid #e5e7eb;
+    }
 
-        .inventory-item {
-            background: #f9f9f9;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            border-left: 4px solid #667eea;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+    tr:hover {
+      background: #f9fafb;
+    }
 
-        .inventory-item-info {
-            flex: 1;
-        }
+    .actions {
+      display: flex;
+      gap: 7px;
+    }
 
-        .inventory-item-actions {
-            display: flex;
-            gap: 10px;
-        }
+    .btn-edit {
+      background: #f59e0b;
+      color: white;
+    }
 
-        .btn-delete {
-            background-color: #e74c3c;
-            color: white;
-            padding: 8px 15px;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: 12px;
-        }
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 1000;
+    }
 
-        .btn-delete:hover {
-            background-color: #c0392b;
-        }
-    </style>
+    .modal-content {
+      background: white;
+      width: 100%;
+      max-width: 500px;
+      padding: 25px;
+      border-radius: 12px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-content h2 {
+      margin-top: 0;
+    }
+
+    .modal-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .error {
+      color: #dc2626;
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    .success {
+      color: #15803d;
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 40px;
+      color: #6b7280;
+    }
+
+    @media (max-width: 800px) {
+      .filter-grid {
+        grid-template-columns: 1fr;
+      }
+
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .top-bar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .app {
+        padding: 15px;
+      }
+    }
+  </style>
 </head>
+
 <body>
-    <!-- STRONA LOGOWANIA -->
-    <div id="loginPage" class="login-page">
-        <div class="login-container">
-            <h1>Magazyn Stali</h1>
-            <form id="loginForm">
-                <div class="form-group">
-                    <label for="username">Login:</label>
-                    <input type="text" id="username" name="username" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">Hasło:</label>
-                    <input type="password" id="password" name="password" required>
-                </div>
-                <button type="submit" class="btn-login">Zaloguj się</button>
-                <div class="error-message" id="errorMessage">Login lub hasło nieprawidłowe</div>
-            </form>
-        </div>
+
+<!-- =========================================================
+     LOGOWANIE
+========================================================= -->
+
+<div id="loginScreen" class="login-container">
+
+  <div class="login-box">
+
+    <h1>🏭 Magazyn Stali</h1>
+
+    <p>Zaloguj się do systemu</p>
+
+    <div class="form-group">
+
+      <label>Adres e-mail</label>
+
+      <input
+        type="email"
+        id="loginEmail"
+        placeholder="email@firma.pl"
+      >
+
     </div>
 
-    <!-- GŁÓWNA APLIKACJA -->
-    <div id="mainApp" class="main-app">
-        <div class="header">
-            <h1>📦 Magazyn Stali</h1>
-            <div class="user-info">
-                <span id="usernameDisplay">Użytkownik</span>
-                <button class="btn-logout" id="logoutBtn">Wyloguj się</button>
-            </div>
-        </div>
+    <div class="form-group">
 
-        <div class="container">
-            <div class="tabs">
-                <button class="tab-button active" data-tab="blacha">Blacha</button>
-                <button class="tab-button" data-tab="rura">Rura</button>
-                <button class="tab-button" data-tab="inventory">Magazyn</button>
-            </div>
+      <label>Hasło</label>
 
-            <!-- TAB: BLACHA -->
-            <div id="blacha" class="tab-content active">
-                <h2>Dodaj Blachę</h2>
-                <div class="form-section">
-                    <label>Długość (mm)</label>
-                    <input type="number" id="blacha_length" placeholder="np. 2000">
-                </div>
-                <div class="form-section">
-                    <label>Szerokość (mm)</label>
-                    <input type="number" id="blacha_width" placeholder="np. 1000">
-                </div>
-                <div class="form-section">
-                    <label>Grubość (mm)</label>
-                    <input type="number" id="blacha_thickness" placeholder="np. 5">
-                </div>
-                <div class="form-section">
-                    <label>Ilość</label>
-                    <input type="number" id="blacha_quantity" placeholder="np. 10" value="1">
-                </div>
-                <button class="btn-add" onclick="addProduct('Blacha')">Dodaj Blachę</button>
-            </div>
+      <input
+        type="password"
+        id="loginPassword"
+        placeholder="Hasło"
+      >
 
-            <!-- TAB: RURA -->
-            <div id="rura" class="tab-content">
-                <h2>Dodaj Rurę</h2>
-                <div class="form-section">
-                    <label>Średnica zewnętrzna (mm)</label>
-                    <input type="number" id="rura_outer" placeholder="np. 50">
-                </div>
-                <div class="form-section">
-                    <label>Średnica wewnętrzna (mm)</label>
-                    <input type="number" id="rura_inner" placeholder="np. 40">
-                </div>
-                <div class="form-section">
-                    <label>Długość (mm)</label>
-                    <input type="number" id="rura_length" placeholder="np. 6000">
-                </div>
-                <div class="form-section">
-                    <label>Ilość</label>
-                    <input type="number" id="rura_quantity" placeholder="np. 5" value="1">
-                </div>
-                <button class="btn-add" onclick="addProduct('Rura')">Dodaj Rurę</button>
-            </div>
-
-            <!-- TAB: MAGAZYN -->
-            <div id="inventory" class="tab-content">
-                <h2>Zawartość Magazynu</h2>
-                <div id="inventoryList" class="inventory-list"></div>
-            </div>
-        </div>
     </div>
 
-    <script>
-        // Konfiguracja produktów
-        const productConfig = {
-            "Blacha": {
-                fields: [
-                    { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc", short: "" },
-                    { id: "dim_width", label: "Szerokość (mm)", name: "wymiar_szerokosc", short: "" },
-                    { id: "dim_thickness", label: "# Grubość (mm)", name: "wymiar_grubosc", short: "#" }
-                ],
-                format: (fields) => `${fields.wymiar_dlugosc}x${fields.wymiar_szerokosc}x#${fields.wymiar_grubosc}`,
-                calcWeight: (fields) => {
-                    const length = (fields.wymiar_dlugosc || 0) / 1000;
-                    const width = (fields.wymiar_szerokosc || 0) / 1000;
-                    const thickness = (fields.wymiar_grubosc || 0) / 1000;
-                    return length * width * thickness * 7850; // gęstość stali
-                }
-            },
-            "Rura": {
-                fields: [
-                    { id: "outer_diameter", label: "Średnica zewnętrzna (mm)", name: "srednica_zewnetrzna", short: "" },
-                    { id: "inner_diameter", label: "Średnica wewnętrzna (mm)", name: "srednica_wewnetrzna", short: "" },
-                    { id: "length", label: "Długość (mm)", name: "dlugosc", short: "" }
-                ],
-                format: (fields) => `${fields.srednica_zewnetrzna}/${fields.srednica_wewnetrzna}x${fields.dlugosc}`,
-                calcWeight: (fields) => {
-                    const outerD = (fields.srednica_zewnetrzna || 0) / 1000;
-                    const innerD = (fields.srednica_wewnetrzna || 0) / 1000;
-                    const len = (fields.dlugosc || 0) / 1000;
-                    return ((outerD * outerD - innerD * innerD) * 3.14159 / 4) * len * 7850;
-                }
-            }
-        };
+    <button
+      class="btn-primary"
+      style="width:100%;"
+      onclick="login()"
+    >
+      ZALOGUJ
+    </button>
 
-        // OBSŁUGA LOGOWANIA
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
+    <div id="loginMessage"></div>
 
-            if (username === 'admin' && password === 'admin123') {
-                localStorage.setItem('isLoggedIn', 'true');
-                localStorage.setItem('username', username);
-                showMainApp(username);
-            } else {
-                document.getElementById('errorMessage').style.display = 'block';
-            }
-        });
+  </div>
 
-        // POKAŻ APLIKACJĘ
-        function showMainApp(username) {
-            document.getElementById('loginPage').style.display = 'none';
-            document.getElementById('mainApp').style.display = 'block';
-            document.getElementById('usernameDisplay').textContent = `Zalogowany: ${username}`;
-            loadInventory();
+</div>
+
+
+<!-- =========================================================
+     APLIKACJA
+========================================================= -->
+
+<div id="appScreen" class="hidden">
+
+  <header>
+
+    <h1>🏭 Magazyn Stali RENOX</h1>
+
+    <div class="user-info">
+
+      <span id="userName"></span>
+
+      <button
+        class="btn-secondary"
+        onclick="logout()"
+      >
+        Wyloguj
+      </button>
+
+    </div>
+
+  </header>
+
+
+  <main class="app">
+
+    <div class="top-bar">
+
+      <h2>Materiały</h2>
+
+      <button
+        class="btn-primary"
+        onclick="openAddModal()"
+      >
+        + DODAJ MATERIAŁ
+      </button>
+
+    </div>
+
+
+    <!-- =====================================================
+         FILTRY
+    ====================================================== -->
+
+    <div class="filters">
+
+      <div class="filter-grid">
+
+        <div>
+
+          <label>🔎 Szukaj</label>
+
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Typ, gatunek, wymiar, lokalizacja..."
+            oninput="renderMaterials()"
+          >
+
+        </div>
+
+
+        <div>
+
+          <label>Typ</label>
+
+          <select
+            id="typeFilter"
+            onchange="renderMaterials()"
+          >
+
+            <option value="">Wszystkie</option>
+            <option value="Blacha">Blacha</option>
+            <option value="Profil">Profil</option>
+            <option value="Pręt">Pręt</option>
+            <option value="Wałek">Wałek</option>
+            <option value="Rura">Rura</option>
+            <option value="Inne">Inne</option>
+
+          </select>
+
+        </div>
+
+
+        <div>
+
+          <label>Gatunek stali</label>
+
+          <select
+            id="steelFilter"
+            onchange="renderMaterials()"
+          >
+
+            <option value="">Wszystkie</option>
+
+          </select>
+
+        </div>
+
+
+        <div>
+
+          <label>Lokalizacja</label>
+
+          <select
+            id="locationFilter"
+            onchange="renderMaterials()"
+          >
+
+            <option value="">Wszystkie</option>
+
+          </select>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         TABELA
+    ====================================================== -->
+
+    <div class="table-container">
+
+      <table>
+
+        <thead>
+
+          <tr>
+
+            <th>Typ</th>
+            <th>Gatunek stali</th>
+            <th>Wymiar</th>
+            <th>Ilość</th>
+            <th>Lokalizacja</th>
+            <th>Akcje</th>
+
+          </tr>
+
+        </thead>
+
+        <tbody id="materialsTable">
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </main>
+
+</div>
+
+
+<!-- =========================================================
+     MODAL DODAWANIA / EDYCJI
+========================================================= -->
+
+<div
+  id="materialModal"
+  class="modal hidden"
+>
+
+  <div class="modal-content">
+
+    <h2 id="modalTitle">
+      Dodaj materiał
+    </h2>
+
+
+    <input
+      type="hidden"
+      id="materialId"
+    >
+
+
+    <!-- TYP -->
+
+    <div class="form-group">
+
+      <label>Typ</label>
+
+      <select
+        id="materialType"
+        onchange="updateThicknessField()"
+      >
+
+        <option value="Blacha">Blacha</option>
+        <option value="Profil">Profil</option>
+        <option value="Pręt">Pręt</option>
+        <option value="Wałek">Wałek</option>
+        <option value="Rura">Rura</option>
+        <option value="Inne">Inne</option>
+
+      </select>
+
+    </div>
+
+
+    <!-- GATUNEK -->
+
+    <div class="form-group">
+
+      <label>Gatunek stali</label>
+
+      <input
+        type="text"
+        id="materialSteel"
+        placeholder="np. S355J2, S235JR, C45"
+      >
+
+    </div>
+
+
+    <!-- WYMIAR -->
+
+    <div class="form-group">
+
+      <label>Wymiar</label>
+
+      <input
+        type="text"
+        id="materialDimension"
+        placeholder="np. 2000x1000"
+      >
+
+    </div>
+
+
+    <!-- GRUBOŚĆ -->
+
+    <div
+      class="form-group"
+      id="thicknessGroup"
+    >
+
+      <label id="thicknessLabel">
+        Grubość
+      </label>
+
+      <input
+        type="number"
+        id="materialThickness"
+        min="0"
+        step="0.1"
+        placeholder="np. 3.0"
+      >
+
+    </div>
+
+
+    <!-- ILOŚĆ -->
+
+    <div class="form-group">
+
+      <label>Ilość</label>
+
+      <input
+        type="number"
+        id="materialQuantity"
+        min="0"
+        step="0.01"
+        placeholder="np. 12"
+      >
+
+    </div>
+
+
+    <!-- LOKALIZACJA -->
+
+    <div class="form-group">
+
+      <label>Lokalizacja</label>
+
+      <input
+        type="text"
+        id="materialLocation"
+        placeholder="np. Hala A / Regał 3"
+      >
+
+    </div>
+
+
+    <!-- DZIAŁ -->
+
+    <div class="form-group">
+
+      <label>Dział</label>
+
+      <select id="materialDepartment">
+      </select>
+
+    </div>
+
+
+    <div id="modalMessage"></div>
+
+
+    <div class="modal-buttons">
+
+      <button
+        class="btn-secondary"
+        onclick="closeModal()"
+      >
+        Anuluj
+      </button>
+
+      <button
+        class="btn-primary"
+        onclick="saveMaterial()"
+      >
+        Zapisz
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<script>
+
+  // =========================================================
+  // KONFIGURACJA SUPABASE
+  // =========================================================
+
+  const SUPABASE_URL =
+    "https://ynmcfagoxshigqbcgvkb.supabase.co";
+
+  const SUPABASE_KEY =
+    "sb_publishable_PCfv8KZPMsfqNwuZkBXj0A_zPxIcPZi";
+
+
+  const supabaseClient =
+    window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+
+  let materials = [];
+
+  let departments = [];
+
+  let currentUser = null;
+
+
+  // =========================================================
+  // START APLIKACJI
+  // =========================================================
+
+  async function startApp() {
+
+    const { data } =
+      await supabaseClient.auth.getSession();
+
+
+    if (data.session) {
+
+      currentUser =
+        data.session.user;
+
+      await showApplication();
+
+    } else {
+
+      showLogin();
+
+    }
+
+  }
+
+
+  // =========================================================
+  // LOGOWANIE
+  // =========================================================
+
+  async function login() {
+
+    const email =
+      document
+        .getElementById("loginEmail")
+        .value
+        .trim();
+
+
+    const password =
+      document
+        .getElementById("loginPassword")
+        .value;
+
+
+    const message =
+      document.getElementById("loginMessage");
+
+
+    message.className = "";
+
+    message.innerText =
+      "Logowanie...";
+
+
+    const { data, error } =
+      await supabaseClient.auth.signInWithPassword({
+
+        email: email,
+
+        password: password
+
+      });
+
+
+    if (error) {
+
+      message.className =
+        "error";
+
+      message.innerText =
+        "Błąd logowania: " +
+        error.message;
+
+      return;
+
+    }
+
+
+    currentUser =
+      data.user;
+
+
+    await showApplication();
+
+  }
+
+
+  // =========================================================
+  // WYLOGOWANIE
+  // =========================================================
+
+  async function logout() {
+
+    await supabaseClient.auth.signOut();
+
+    currentUser = null;
+
+    showLogin();
+
+  }
+
+
+  function showLogin() {
+
+    document
+      .getElementById("loginScreen")
+      .classList
+      .remove("hidden");
+
+
+    document
+      .getElementById("appScreen")
+      .classList
+      .add("hidden");
+
+  }
+
+
+  // =========================================================
+  // POKAZANIE APLIKACJI
+  // =========================================================
+
+  async function showApplication() {
+
+    document
+      .getElementById("loginScreen")
+      .classList
+      .add("hidden");
+
+
+    document
+      .getElementById("appScreen")
+      .classList
+      .remove("hidden");
+
+
+    document.getElementById("userName").innerText =
+      currentUser.email;
+
+
+    await loadDepartments();
+
+    await loadMaterials();
+
+  }
+
+
+  // =========================================================
+  // DZIAŁY
+  // =========================================================
+
+  async function loadDepartments() {
+
+    const { data, error } =
+      await supabaseClient
+        .from("dzialy")
+        .select("*")
+        .order("nazwa");
+
+
+    if (error) {
+
+      alert(
+        "Błąd pobierania działów: " +
+        error.message
+      );
+
+      return;
+
+    }
+
+
+    departments =
+      data || [];
+
+
+    const select =
+      document.getElementById(
+        "materialDepartment"
+      );
+
+
+    select.innerHTML = "";
+
+
+    departments.forEach(
+      department => {
+
+        const option =
+          document.createElement(
+            "option"
+          );
+
+
+        option.value =
+          department.id;
+
+
+        option.textContent =
+          department.nazwa;
+
+
+        select.appendChild(
+          option
+        );
+
+      }
+    );
+
+  }
+
+
+  // =========================================================
+  // MATERIAŁY
+  // =========================================================
+
+  async function loadMaterials() {
+
+    const { data, error } =
+      await supabaseClient
+        .from("materialy")
+        .select(`
+          *,
+          dzialy (
+            nazwa
+          )
+        `)
+        .order(
+          "id",
+          {
+            ascending: false
+          }
+        );
+
+
+    if (error) {
+
+      alert(
+        "Błąd pobierania materiałów: " +
+        error.message
+      );
+
+      return;
+
+    }
+
+
+    materials =
+      data || [];
+
+
+    updateFilters();
+
+    renderMaterials();
+
+  }
+
+
+  // =========================================================
+  // FILTRY
+  // =========================================================
+
+  function updateFilters() {
+
+    const steelSelect =
+      document.getElementById(
+        "steelFilter"
+      );
+
+
+    const locationSelect =
+      document.getElementById(
+        "locationFilter"
+      );
+
+
+    const steels =
+      [
+        ...new Set(
+          materials
+            .map(
+              m => m.gatunek
+            )
+            .filter(Boolean)
+        )
+      ].sort();
+
+
+    const locations =
+      [
+        ...new Set(
+          materials
+            .map(
+              m => m.lokalizacja
+            )
+            .filter(Boolean)
+        )
+      ].sort();
+
+
+    const currentSteel =
+      steelSelect.value;
+
+
+    const currentLocation =
+      locationSelect.value;
+
+
+    steelSelect.innerHTML =
+      '<option value="">Wszystkie</option>';
+
+
+    steels.forEach(
+      steel => {
+
+        const option =
+          document.createElement(
+            "option"
+          );
+
+
+        option.value =
+          steel;
+
+
+        option.textContent =
+          steel;
+
+
+        steelSelect.appendChild(
+          option
+        );
+
+      }
+    );
+
+
+    locationSelect.innerHTML =
+      '<option value="">Wszystkie</option>';
+
+
+    locations.forEach(
+      location => {
+
+        const option =
+          document.createElement(
+            "option"
+          );
+
+
+        option.value =
+          location;
+
+
+        option.textContent =
+          location;
+
+
+        locationSelect.appendChild(
+          option
+        );
+
+      }
+    );
+
+
+    steelSelect.value =
+      currentSteel;
+
+
+    locationSelect.value =
+      currentLocation;
+
+  }
+
+
+  // =========================================================
+  // WYŚWIETLANIE MATERIAŁÓW
+  // =========================================================
+
+  function renderMaterials() {
+
+    const search =
+      document
+        .getElementById("searchInput")
+        .value
+        .toLowerCase()
+        .trim();
+
+
+    const type =
+      document.getElementById(
+        "typeFilter"
+      ).value;
+
+
+    const steel =
+      document.getElementById(
+        "steelFilter"
+      ).value;
+
+
+    const location =
+      document.getElementById(
+        "locationFilter"
+      ).value;
+
+
+    const filtered =
+      materials.filter(
+        material => {
+
+          const searchable =
+            (
+              (material.typ || "") +
+              " " +
+              (material.gatunek || "") +
+              " " +
+              (material.wymiar || "") +
+              " " +
+              (material.lokalizacja || "")
+            )
+            .toLowerCase();
+
+
+          return (
+
+            searchable.includes(
+              search
+            ) &&
+
+            (!type ||
+              material.typ === type) &&
+
+            (!steel ||
+              material.gatunek === steel) &&
+
+            (!location ||
+              material.lokalizacja === location)
+
+          );
+
         }
+      );
 
-        // WYLOGOWANIE
-        document.getElementById('logoutBtn').addEventListener('click', function() {
-            localStorage.removeItem('isLoggedIn');
-            localStorage.removeItem('username');
-            document.getElementById('loginPage').style.display = 'flex';
-            document.getElementById('mainApp').style.display = 'none';
-            document.getElementById('loginForm').reset();
-            document.getElementById('errorMessage').style.display = 'none';
-        });
 
-        // OBSŁUGA ZAKŁADEK
-        document.querySelectorAll('.tab-button').forEach(button => {
-            button.addEventListener('click', function() {
-                const tabName = this.getAttribute('data-tab');
-                document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-                document.getElementById(tabName).classList.add('active');
-                this.classList.add('active');
-            });
-        });
+    const table =
+      document.getElementById(
+        "materialsTable"
+      );
 
-        // DODAJ PRODUKT
-        function addProduct(type) {
-            const inventory = JSON.parse(localStorage.getItem('inventory') || '[]');
-            let fields = {};
 
-            if (type === 'Blacha') {
-                fields = {
-                    wymiar_dlugosc: parseInt(document.getElementById('blacha_length').value) || 0,
-                    wymiar_szerokosc: parseInt(document.getElementById('blacha_width').value) || 0,
-                    wymiar_grubosc: parseInt(document.getElementById('blacha_thickness').value) || 0
-                };
-            } else if (type === 'Rura') {
-                fields = {
-                    srednica_zewnetrzna: parseInt(document.getElementById('rura_outer').value) || 0,
-                    srednica_wewnetrzna: parseInt(document.getElementById('rura_inner').value) || 0,
-                    dlugosc: parseInt(document.getElementById('rura_length').value) || 0
-                };
-            }
+    table.innerHTML = "";
 
-            const quantity = parseInt(document.getElementById(type === 'Blacha' ? 'blacha_quantity' : 'rura_quantity').value) || 1;
-            const weight = productConfig[type].calcWeight(fields);
 
-            const item = {
-                id: Date.now(),
-                type: type,
-                fields: fields,
-                quantity: quantity,
-                weight: weight,
-                format: productConfig[type].format(fields),
-                addedAt: new Date().toLocaleString('pl-PL')
-            };
+    if (filtered.length === 0) {
 
-            inventory.push(item);
-            localStorage.setItem('inventory', JSON.stringify(inventory));
+      table.innerHTML = `
+        <tr>
+          <td colspan="6" class="empty">
+            Brak materiałów spełniających kryteria.
+          </td>
+        </tr>
+      `;
 
-            // Wyczyść formularz
-            if (type === 'Blacha') {
-                document.getElementById('blacha_length').value = '';
-                document.getElementById('blacha_width').value = '';
-                document.getElementById('blacha_thickness').value = '';
-                document.getElementById('blacha_quantity').value = '1';
-            } else {
-                document.getElementById('rura_outer').value = '';
-                document.getElementById('rura_inner').value = '';
-                document.getElementById('rura_length').value = '';
-                document.getElementById('rura_quantity').value = '1';
-            }
+      return;
 
-            loadInventory();
-            alert('Dodano ' + type + ' do magazynu!');
-        }
+    }
 
-        // WCZYTAJ MAGAZYN
-        function loadInventory() {
-            const inventory = JSON.parse(localStorage.getItem('inventory') || '[]');
-            const list = document.getElementById('inventoryList');
-            
-            if (inventory.length === 0) {
-                list.innerHTML = '<p>Magazyn jest pusty</p>';
-                return;
-            }
 
-            list.innerHTML = inventory.map(item => `
-                <div class="inventory-item">
-                    <div class="inventory-item-info">
-                        <strong>${item.type}</strong>: ${item.format}<br>
-                        Ilość: ${item.quantity} | Waga: ${(item.weight * item.quantity).toFixed(2)} kg<br>
-                        <small>Dodano: ${item.addedAt}</small>
-                    </div>
-                    <div class="inventory-item-actions">
-                        <button class="btn-delete" onclick="deleteItem(${item.id})">Usuń</button>
-                    </div>
-                </div>
-            `).join('');
-        }
+    filtered.forEach(
+      material => {
 
-        // USUŃ PRODUKT
-        function deleteItem(id) {
-            let inventory = JSON.parse(localStorage.getItem('inventory') || '[]');
-            inventory = inventory.filter(item => item.id !== id);
-            localStorage.setItem('inventory', JSON.stringify(inventory));
-            loadInventory();
-        }
+        const row =
+          document.createElement(
+            "tr"
+          );
 
-        // SPRAWDŹ LOGOWANIE PRZY WCZYTANIU
-        window.addEventListener('load', function() {
-            if (localStorage.getItem('isLoggedIn') === 'true') {
-                showMainApp(localStorage.getItem('username'));
-            }
-        });
-    </script>
+
+        row.innerHTML = `
+
+          <td>
+            ${escapeHtml(material.typ)}
+          </td>
+
+          <td>
+            ${escapeHtml(material.gatunek)}
+          </td>
+
+          <td>
+            ${escapeHtml(material.wymiar)}
+          </td>
+
+          <td>
+            ${escapeHtml(material.ilosc)}
+          </td>
+
+          <td>
+            ${escapeHtml(material.lokalizacja)}
+          </td>
+
+          <td>
+
+            <div class="actions">
+
+              <button
+                class="btn-edit"
+                onclick="editMaterial(${material.id})"
+              >
+                Edytuj
+              </button>
+
+              <button
+                class="btn-danger"
+                onclick="deleteMaterial(${material.id})"
+              >
+                Usuń
+              </button>
+
+            </div>
+
+          </td>
+
+        `;
+
+
+        table.appendChild(
+          row
+        );
+
+      }
+    );
+
+  }
+
+
+  // =========================================================
+  // OBSŁUGA POLA GRUBOŚCI
+  // =========================================================
+
+  function updateThicknessField() {
+
+    const type =
+      document.getElementById(
+        "materialType"
+      ).value;
+
+
+    const group =
+      document.getElementById(
+        "thicknessGroup"
+      );
+
+
+    const label =
+      document.getElementById(
+        "thicknessLabel"
+      );
+
+
+    const input =
+      document.getElementById(
+        "materialThickness"
+      );
+
+
+    if (type === "Blacha") {
+
+      group.classList.remove(
+        "hidden"
+      );
+
+      label.innerText =
+        "Grubość";
+
+      input.placeholder =
+        "np. 3.0";
+
+
+    } else if (
+      type === "Profil" ||
+      type === "Rura"
+    ) {
+
+      group.classList.remove(
+        "hidden"
+      );
+
+      label.innerText =
+        "Grubość ścianki";
+
+      input.placeholder =
+        "np. 3.0";
+
+
+    } else {
+
+      group.classList.add(
+        "hidden"
+      );
+
+      input.value = "";
+
+    }
+
+  }
+
+
+  // =========================================================
+  // DODAWANIE
+  // =========================================================
+
+  function openAddModal() {
+
+    document.getElementById(
+      "modalTitle"
+    ).innerText =
+      "Dodaj materiał";
+
+
+    document.getElementById(
+      "materialId"
+    ).value = "";
+
+
+    document.getElementById(
+      "materialType"
+    ).value =
+      "Blacha";
+
+
+    document.getElementById(
+      "materialSteel"
+    ).value = "";
+
+
+    document.getElementById(
+      "materialDimension"
+    ).value = "";
+
+
+    document.getElementById(
+      "materialThickness"
+    ).value = "";
+
+
+    document.getElementById(
+      "materialQuantity"
+    ).value = "";
+
+
+    document.getElementById(
+      "materialLocation"
+    ).value = "";
+
+
+    document.getElementById(
+      "modalMessage"
+    ).innerText = "";
+
+
+    updateThicknessField();
+
+
+    document
+      .getElementById(
+        "materialModal"
+      )
+      .classList
+      .remove("hidden");
+
+  }
+
+
+  // =========================================================
+  // EDYCJA
+  // =========================================================
+
+  function editMaterial(id) {
+
+    const material =
+      materials.find(
+        m => m.id === id
+      );
+
+
+    if (!material) return;
+
+
+    document.getElementById(
+      "modalTitle"
+    ).innerText =
+      "Edytuj materiał";
+
+
+    document.getElementById(
+      "materialId"
+    ).value =
+      material.id;
+
+
+    document.getElementById(
+      "materialType"
+    ).value =
+      material.typ;
+
+
+    // -------------------------------------------------------
+    // ODCZYT GRUBOŚCI Z WYMIARU
+    // -------------------------------------------------------
+
+    let savedDimension =
+      material.wymiar || "";
+
+
+    let savedThickness =
+      "";
+
+
+    if (
+      material.typ === "Blacha" ||
+      material.typ === "Profil" ||
+      material.typ === "Rura"
+    ) {
+
+      const match =
+        savedDimension.match(
+          /^#([0-9.,]+)\s+(.*)$/
+        );
+
+
+      if (match) {
+
+        savedThickness =
+          match[1];
+
+
+        savedDimension =
+          match[2];
+
+      }
+
+    }
+
+
+    document.getElementById(
+      "materialSteel"
+    ).value =
+      material.gatunek || "";
+
+
+    document.getElementById(
+      "materialDimension"
+    ).value =
+      savedDimension;
+
+
+    document.getElementById(
+      "materialThickness"
+    ).value =
+      savedThickness;
+
+
+    document.getElementById(
+      "materialQuantity"
+    ).value =
+      material.ilosc;
+
+
+    document.getElementById(
+      "materialLocation"
+    ).value =
+      material.lokalizacja;
+
+
+    document.getElementById(
+      "materialDepartment"
+    ).value =
+      material.dzial_id || "";
+
+
+    document.getElementById(
+      "modalMessage"
+    ).innerText = "";
+
+
+    updateThicknessField();
+
+
+    document
+      .getElementById(
+        "materialModal"
+      )
+      .classList
+      .remove("hidden");
+
+  }
+
+
+  // =========================================================
+  // ZAPIS
+  // =========================================================
+
+  async function saveMaterial() {
+
+    const id =
+      document.getElementById(
+        "materialId"
+      ).value;
+
+
+    const type =
+      document.getElementById(
+        "materialType"
+      ).value;
+
+
+    const dimension =
+      document.getElementById(
+        "materialDimension"
+      ).value.trim();
+
+
+    const thickness =
+      document.getElementById(
+        "materialThickness"
+      ).value.trim();
+
+
+    // -------------------------------------------------------
+    // TWORZENIE KOŃCOWEGO WYMIARU
+    // -------------------------------------------------------
+
+    let finalDimension =
+      dimension;
+
+
+    if (
+      (
+        type === "Blacha" ||
+        type === "Profil" ||
+        type === "Rura"
+      ) &&
+      thickness
+    ) {
+
+      finalDimension =
+        "#" +
+        thickness +
+        " " +
+        dimension;
+
+    }
+
+
+    const material = {
+
+      typ:
+        type,
+
+
+      gatunek:
+        document
+          .getElementById(
+            "materialSteel"
+          )
+          .value
+          .trim(),
+
+
+      wymiar:
+        finalDimension,
+
+
+      ilosc:
+        Number(
+          document
+            .getElementById(
+              "materialQuantity"
+            )
+            .value
+        ),
+
+
+      lokalizacja:
+        document
+          .getElementById(
+            "materialLocation"
+          )
+          .value
+          .trim(),
+
+
+      dzial_id:
+        Number(
+          document
+            .getElementById(
+              "materialDepartment"
+            )
+            .value
+        )
+
+    };
+
+
+    // -------------------------------------------------------
+    // WALIDACJA
+    // -------------------------------------------------------
+
+    if (
+      !material.gatunek ||
+      !material.wymiar ||
+      !material.lokalizacja ||
+      isNaN(material.ilosc)
+    ) {
+
+      document.getElementById(
+        "modalMessage"
+      ).className =
+        "error";
+
+
+      document.getElementById(
+        "modalMessage"
+      ).innerText =
+        "Uzupełnij wszystkie pola.";
+
+
+      return;
+
+    }
+
+
+    let result;
+
+
+    // -------------------------------------------------------
+    // EDYCJA
+    // -------------------------------------------------------
+
+    if (id) {
+
+      result =
+        await supabaseClient
+          .from("materialy")
+          .update(material)
+          .eq("id", id);
+
+
+    // -------------------------------------------------------
+    // DODAWANIE
+    // -------------------------------------------------------
+
+    } else {
+
+      result =
+        await supabaseClient
+          .from("materialy")
+          .insert(material);
+
+    }
+
+
+    // -------------------------------------------------------
+    // BŁĄD
+    // -------------------------------------------------------
+
+    if (result.error) {
+
+      document.getElementById(
+        "modalMessage"
+      ).className =
+        "error";
+
+
+      document.getElementById(
+        "modalMessage"
+      ).innerText =
+        "Błąd: " +
+        result.error.message;
+
+
+      return;
+
+    }
+
+
+    closeModal();
+
+    await loadMaterials();
+
+  }
+
+
+  // =========================================================
+  // USUWANIE
+  // =========================================================
+
+  async function deleteMaterial(id) {
+
+    const confirmed =
+      confirm(
+        "Czy na pewno chcesz usunąć ten materiał?"
+      );
+
+
+    if (!confirmed) return;
+
+
+    const { error } =
+      await supabaseClient
+        .from("materialy")
+        .delete()
+        .eq("id", id);
+
+
+    if (error) {
+
+      alert(
+        "Nie udało się usunąć materiału: " +
+        error.message
+      );
+
+
+      return;
+
+    }
+
+
+    await loadMaterials();
+
+  }
+
+
+  // =========================================================
+  // ZAMKNIĘCIE MODALA
+  // =========================================================
+
+  function closeModal() {
+
+    document
+      .getElementById(
+        "materialModal"
+      )
+      .classList
+      .add("hidden");
+
+  }
+
+
+  // =========================================================
+  // BEZPIECZNE WYŚWIETLANIE TEKSTU
+  // =========================================================
+
+  function escapeHtml(value) {
+
+    if (
+      value === null ||
+      value === undefined
+    ) {
+
+      return "";
+
+    }
+
+
+    return String(value)
+
+      .replace(
+        /&/g,
+        "&amp;"
+      )
+
+      .replace(
+        /</g,
+        "&lt;"
+      )
+
+      .replace(
+        />/g,
+        "&gt;"
+      )
+
+      .replace(
+        /"/g,
+        "&quot;"
+      )
+
+      .replace(
+        /'/g,
+        "&#039;"
+      );
+
+  }
+
+
+  // =========================================================
+  // URUCHOMIENIE
+  // =========================================================
+
+  startApp();
+
+</script>
+
 </body>
 </html>
