@@ -1441,7 +1441,7 @@ function setFieldValue(fieldId, value) {
 
   if (field) {
 
-    field.value = value || "";
+    field.value = value ?? "";
 
   }
 
@@ -1807,7 +1807,7 @@ switch(type) {
     break;
 
   default:
-    finalDimension = dimension;
+    finalDimension = dimension.trim();
 }
 
     const material = {
