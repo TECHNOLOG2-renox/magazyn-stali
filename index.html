@@ -332,7 +332,7 @@
 
     <div class="form-group">
 
-      <label>Adres e-mail</label>
+      <label for="loginEmail">Adres e-mail</label>
 
       <input
         type="email"
@@ -344,7 +344,7 @@
 
     <div class="form-group">
 
-      <label>Hasło</label>
+      <label for="loginPassword">Hasło</label>
 
       <input
         type="password"
@@ -432,7 +432,7 @@
 
         <div>
 
-          <label>🔎 Szukaj</label>
+          <label for="searchInput">🔎 Szukaj</label>
 
           <input
             type="text"
@@ -446,7 +446,7 @@
 
         <div>
 
-          <label>Typ</label>
+          <label for="typeFilter">Typ</label>
 
           <select
             id="typeFilter"
@@ -468,7 +468,7 @@
 
         <div>
 
-          <label>Gatunek stali</label>
+          <label for="steelFilter">Gatunek stali</label>
 
           <select
             id="steelFilter"
@@ -484,7 +484,7 @@
 
         <div>
 
-          <label>Lokalizacja</label>
+          <label for="locationFilter">Lokalizacja</label>
 
           <select
             id="locationFilter"
@@ -564,7 +564,7 @@
 
     <div class="form-group">
 
-      <label>Typ</label>
+      <label for="materialType">Typ</label>
 
       <select
         id="materialType"
@@ -578,6 +578,7 @@
         <option value="Rura">Rura</option>
         <option value="Płaskownik">Płaskownik</option>
         <option value="Kątownik">Kątownik</option>
+        <option value="Inne">Inne</option>
 
       </select>
 
@@ -588,7 +589,7 @@
 
     <div class="form-group">
 
-      <label>Gatunek materiału</label>
+      <label for="materialSteel">Gatunek materiału</label>
 
       <select id="materialSteel" onchange="updateWeightDisplay()">
         <option value="">-- Wybierz gatunek --</option>
@@ -617,7 +618,7 @@
 
     <div class="form-group">
 
-      <label>Ilość (szt.)</label>
+      <label for="materialQuantity">Ilość (szt.)</label>
 
       <input
         type="number"
@@ -635,7 +636,7 @@
 
     <div class="form-group">
 
-      <label>Lokalizacja</label>
+      <label for="materialLocation">Lokalizacja</label>
 
       <input
         type="text"
@@ -650,7 +651,7 @@
 
     <div class="form-group">
 
-      <label>Dział</label>
+      <label for="materialDepartment">Dział</label>
 
       <select id="materialDepartment">
       </select>
@@ -1224,7 +1225,7 @@
     const steel = document.getElementById("materialSteel").value;
     const quantity = parseNumericInput(document.getElementById("materialQuantity").value);
 
-    if (!type || !steel) {
+    if (!type || (type !== "Inne" && !steel)) {
       document.getElementById("weightDisplay").classList.add("hidden");
       return;
     }
@@ -1257,7 +1258,7 @@
     const departmentId = document.getElementById("materialDepartment").value;
     const message = document.getElementById("modalMessage");
 
-    if (!type || !steel || !location || !departmentId) {
+    if (!type || !location || !departmentId || (type !== "Inne" && !steel)) {
       message.className = "error";
       message.textContent = "Wypełnij wszystkie pola!";
       return;
@@ -1362,6 +1363,7 @@
       input.step = "0.01";
       input.min = "0";
       input.value = "0";
+      label.htmlFor = input.id;
 
       wrapper.appendChild(label);
       wrapper.appendChild(input);
