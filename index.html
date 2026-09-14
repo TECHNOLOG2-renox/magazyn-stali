@@ -1208,18 +1208,27 @@
       return;
     }
 
-    container.innerHTML = config.fields.map(field => `
-      <div class="form-group">
-        <label for="${field.id}">${field.label}</label>
-        <input
-          type="number"
-          id="${field.id}"
-          step="0.01"
-          oninput="updateWeightDisplay()"
-          onchange="updateWeightDisplay()"
-        >
-      </div>
-    `).join("");
+    container.innerHTML = "";
+
+    config.fields.forEach(field => {
+      const wrapper = document.createElement("div");
+      wrapper.className = "form-group";
+
+      const label = document.createElement("label");
+      label.htmlFor = field.id;
+      label.textContent = field.label;
+
+      const input = document.createElement("input");
+      input.type = "number";
+      input.id = field.id;
+      input.step = "0.01";
+      input.oninput = updateWeightDisplay;
+      input.onchange = updateWeightDisplay;
+
+      wrapper.appendChild(label);
+      wrapper.appendChild(input);
+      container.appendChild(wrapper);
+    });
 
     updateWeightDisplay();
   }
@@ -1328,9 +1337,9 @@
 
       message.className = "success";
       message.textContent = id ? "Materiał zaktualizowany!" : "Materiał dodany!";
-      setTimeout(() => {
+      setTimeout(async () => {
         closeModal();
-        loadMaterials();
+        await loadMaterials();
       }, 1500);
     } catch (error) {
       message.className = "error";
