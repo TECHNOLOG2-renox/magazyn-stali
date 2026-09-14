@@ -1173,11 +1173,20 @@
       fieldsData[field.name] = parseFloat(input?.value) || 0;
     });
 
+    // Buduj tekst wymiarów
+    let wymiarText = "";
+    config.fields.forEach(field => {
+      const input = document.getElementById(field.id);
+      if (input && input.value) {
+        wymiarText += `${field.label}: ${input.value} | `;
+      }
+    });
+    fieldsData.wymiar = wymiarText.trim().replace(/\|\s*$/, "") || type;
+
     const volume = config.calcWeight(fieldsData) || 0;
     const density = materialDensity[steel] || 7850;
     const weight = volume * density;
 
-    fieldsData.wymiar = `${type}`;
     fieldsData.waga = weight;
 
     try {
