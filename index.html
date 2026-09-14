@@ -11,8 +11,8 @@
         { id: "dim_width", label: "Szerokość (mm)", name: "wymiar_szerokosc", short: "" },
         { id: "dim_thickness", label: "# Grubość (mm)", name: "wymiar_grubosc", short: "#" }
       ],
-      format: (fields) =&gt; `${fields.wymiar_dlugosc}x${fields.wymiar_szerokosc}x#${fields.wymiar_grubosc}`,
-      calcWeight: (fields) =&gt; {
+      format: (fields) => `${fields.wymiar_dlugosc}x${fields.wymiar_szerokosc}x#${fields.wymiar_grubosc}`,
+      calcWeight: (fields) => {
         const length = (fields.wymiar_dlugosc || 0) / 1000;
         const width = (fields.wymiar_szerokosc || 0) / 1000;
         const thickness = (fields.wymiar_grubosc || 0) / 1000;
