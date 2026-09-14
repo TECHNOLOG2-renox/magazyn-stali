@@ -1597,80 +1597,63 @@
 
 
     // -------------------------------------------------------
-    // TWORZENIE KOŃCOWEGO WYMIARU
-    // -------------------------------------------------------
+// TWORZENIE KOŃCOWEGO WYMIARU
+// -------------------------------------------------------
 
-    let finalDimension =
-      dimension;
+const length =
+  document.getElementById("materialLength")?.value || "";
 
+const width =
+  document.getElementById("materialWidth")?.value || "";
 
-    if (
-      (
-        type === "Blacha" ||
-        type === "Profil" ||
-        type === "Rura"
-      ) &&
-      thickness
-    ) {
+const height =
+  document.getElementById("materialHeight")?.value || "";
 
-      finalDimension =
-        "#" +
-        thickness +
-        " " +
-        dimension;
+const diameter =
+  document.getElementById("materialDiameter")?.value || "";
 
-    }
+let finalDimension = "";
 
+switch(type) {
 
-    const material = {
+  case "Blacha":
+    finalDimension =
+      `${thickness}x${width}x${length}`;
+    break;
 
-      typ:
-        type,
+  case "Wałek":
+    finalDimension =
+      `fi${diameter}x${length}`;
+    break;
 
+  case "Pręt":
+    finalDimension =
+      `fi${diameter}x${length}`;
+    break;
 
-      gatunek:
-        document
-          .getElementById(
-            "materialSteel"
-          )
-          .value
-          .trim(),
+  case "Rura":
+    finalDimension =
+      `fi${diameter}x${thickness}x${length}`;
+    break;
 
+  case "Profil":
+    finalDimension =
+      `${height}x${width}x${thickness}x${length}`;
+    break;
 
-      wymiar:
-        finalDimension,
+  case "Płaskownik":
+    finalDimension =
+      `${width}x${thickness}x${length}`;
+    break;
 
+  case "Kątownik":
+    finalDimension =
+      `${width}x${height}x${thickness}x${length}`;
+    break;
 
-      ilosc:
-        Number(
-          document
-            .getElementById(
-              "materialQuantity"
-            )
-            .value
-        ),
-
-
-      lokalizacja:
-        document
-          .getElementById(
-            "materialLocation"
-          )
-          .value
-          .trim(),
-
-
-      dzial_id:
-        Number(
-          document
-            .getElementById(
-              "materialDepartment"
-            )
-            .value
-        )
-
-    };
-
+  default:
+    finalDimension = "";
+}
 
     // -------------------------------------------------------
     // WALIDACJA
