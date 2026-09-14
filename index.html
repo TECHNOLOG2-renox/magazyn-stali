@@ -398,6 +398,8 @@
             <option value="Pręt">Pręt</option>
             <option value="Wałek">Wałek</option>
             <option value="Rura">Rura</option>
+            <option value="Płaskownik">Płaskownik</option>
+            <option value="Kątownik">Kątownik</option>
             <option value="Inne">Inne</option>
 
           </select>
@@ -497,7 +499,6 @@
       id="materialId"
     >
 
-
     <!-- TYP -->
 
     <div class="form-group">
@@ -516,6 +517,7 @@
         <option value="Rura">Rura</option>
         <option value="Płaskownik">Płaskownik</option>
         <option value="Kątownik">Kątownik</option>
+        <option value="Inne">Inne</option>
 
       </select>
 
@@ -542,10 +544,17 @@
 
    <!-- POLA WYMIAROWE -->
 
-<input
-  type="hidden"
-  id="materialDimension"
+<div
+  class="form-group hidden"
+  id="dimensionGroup"
 >
+    <label>Wymiar</label>
+    <input
+      type="text"
+      id="materialDimension"
+      placeholder="np. 40x40x2000"
+    >
+</div>
 
 <div id="dynamicFields">
 
@@ -674,6 +683,8 @@
 
   let currentUser = null;
 
+  let currentDepartmentId = null;
+
 
   // =========================================================
   // START APLIKACJI
@@ -681,14 +692,26 @@
 
   async function startApp() {
 
-    const { data } =
+    const { data, error } =
       await supabaseClient.auth.getSession();
 
 
-    if (data.session) {
+    if (error) {
 
-      currentUser =
-        data.session.user;
+      console.error("Błąd pobierania sesji:", error);
+
+      showLogin();
+
+      return;
+
+    }
+
+
+    currentUser =
+      data.session?.user || null;
+
+
+    if (currentUser) {
 
       await showApplication();
 
@@ -755,7 +778,22 @@
 
 
     currentUser =
-      data.user;
+      data.session?.user ||
+      data.user ||
+      null;
+
+
+    if (!currentUser) {
+
+      message.className =
+        "error";
+
+      message.innerText =
+        "Nie udało się pobrać danych użytkownika.";
+
+      return;
+
+    }
 
 
     await showApplication();
@@ -813,7 +851,8 @@
 
 
     document.getElementById("userName").innerText =
-      currentUser.email;
+      currentUser?.email ||
+      "Zalogowany użytkownik";
 
 
     await loadDepartments();
@@ -1212,6 +1251,315 @@
   }
 
 
+  function parseDimension(type, dimension) {
+
+    const values = {
+      dimension: dimension || "",
+      thickness: "",
+      width: "",
+      height: "",
+      length: "",
+      diameter: ""
+    };
+
+
+    const parts =
+      String(dimension || "")
+        .trim()
+        .replace(/^fi/i, "fi")
+        .split("x")
+        .map(
+          part => part.trim()
+        )
+        .filter(Boolean);
+
+
+    switch (type) {
+
+      case "Blacha":
+        [
+          values.thickness,
+          values.width,
+          values.length
+        ] = parts;
+        break;
+
+      case "Wałek":
+      case "Pręt":
+        if (parts.length >= 2) {
+          values.diameter =
+            parts[0].replace(/^fi/i, "");
+          values.length =
+            parts[1];
+        }
+        break;
+
+      case "Rura":
+        if (parts.length >= 3) {
+          values.diameter =
+            parts[0].replace(/^fi/i, "");
+          values.thickness =
+            parts[1];
+          values.length =
+            parts[2];
+        }
+        break;
+
+      case "Profil":
+        [
+          values.height,
+          values.width,
+          values.thickness,
+          values.length
+        ] = parts;
+        break;
+
+      case "Płaskownik":
+        [
+          values.width,
+          values.thickness,
+          values.length
+        ] = parts;
+        break;
+
+      case "Kątownik":
+        [
+          values.width,
+          values.height,
+          values.thickness,
+          values.length
+        ] = parts;
+        break;
+
+    }
+
+
+    return values;
+
+  }
+
+
+  function setFieldValue(id, value) {
+
+    const field =
+      document.getElementById(id);
+
+
+    if (field) {
+      field.value = value || "";
+    }
+
+  }
+
+
+  function ensureDepartmentOption(material) {
+
+    const select =
+      document.getElementById(
+        "materialDepartment"
+      );
+
+
+    if (
+      !material.dzial_id ||
+      Array.from(select.options).some(
+        option =>
+          String(option.value) ===
+          String(material.dzial_id)
+      )
+    ) {
+      return;
+    }
+
+
+    const option =
+      document.createElement(
+        "option"
+      );
+
+
+    option.value =
+      material.dzial_id;
+
+    option.textContent =
+      material.dzialy?.nazwa ||
+      "Obecny dział";
+
+
+    select.appendChild(option);
+
+  }
+
+
+  function getFieldValue(id) {
+
+    return String(
+      document.getElementById(id)?.value ?? ""
+    ).trim();
+
+  }
+
+
+  function buildDimension(type) {
+
+    const dimension =
+      getFieldValue(
+        "materialDimension"
+      );
+
+
+    const thickness =
+      getFieldValue(
+        "materialThickness"
+      );
+
+
+    const length =
+      getFieldValue(
+        "materialLength"
+      );
+
+
+    const width =
+      getFieldValue(
+        "materialWidth"
+      );
+
+
+    const height =
+      getFieldValue(
+        "materialHeight"
+      );
+
+
+    const diameter =
+      getFieldValue(
+        "materialDiameter"
+      );
+
+
+    switch (type) {
+
+      case "Blacha":
+        return (
+          thickness &&
+          width &&
+          length
+        ) ?
+          `${thickness}x${width}x${length}` :
+          "";
+
+      case "Wałek":
+      case "Pręt":
+        return (
+          diameter &&
+          length
+        ) ?
+          `fi${diameter}x${length}` :
+          "";
+
+      case "Rura":
+        return (
+          diameter &&
+          thickness &&
+          length
+        ) ?
+          `fi${diameter}x${thickness}x${length}` :
+          "";
+
+      case "Profil":
+        return (
+          height &&
+          width &&
+          thickness &&
+          length
+        ) ?
+          `${height}x${width}x${thickness}x${length}` :
+          "";
+
+      case "Płaskownik":
+        return (
+          width &&
+          thickness &&
+          length
+        ) ?
+          `${width}x${thickness}x${length}` :
+          "";
+
+      case "Kątownik":
+        return (
+          width &&
+          height &&
+          thickness &&
+          length
+        ) ?
+          `${width}x${height}x${thickness}x${length}` :
+          "";
+
+      default:
+        return dimension;
+
+    }
+
+  }
+
+
+  function hasStructuredDimensionFields(type) {
+
+    switch (type) {
+
+      case "Blacha":
+        return Boolean(
+          getFieldValue("materialThickness") &&
+          getFieldValue("materialWidth") &&
+          getFieldValue("materialLength")
+        );
+
+      case "Wałek":
+      case "Pręt":
+        return Boolean(
+          getFieldValue("materialDiameter") &&
+          getFieldValue("materialLength")
+        );
+
+      case "Rura":
+        return Boolean(
+          getFieldValue("materialDiameter") &&
+          getFieldValue("materialThickness") &&
+          getFieldValue("materialLength")
+        );
+
+      case "Profil":
+        return Boolean(
+          getFieldValue("materialHeight") &&
+          getFieldValue("materialWidth") &&
+          getFieldValue("materialThickness") &&
+          getFieldValue("materialLength")
+        );
+
+      case "Płaskownik":
+        return Boolean(
+          getFieldValue("materialWidth") &&
+          getFieldValue("materialThickness") &&
+          getFieldValue("materialLength")
+        );
+
+      case "Kątownik":
+        return Boolean(
+          getFieldValue("materialWidth") &&
+          getFieldValue("materialHeight") &&
+          getFieldValue("materialThickness") &&
+          getFieldValue("materialLength")
+        );
+
+      default:
+        return false;
+
+    }
+
+  }
+
+
   function updateThicknessField() {
 
     const type =
@@ -1225,6 +1573,9 @@
 
     const label =
         document.getElementById("thicknessLabel");
+
+    const dimensionGroup =
+        document.getElementById("dimensionGroup");
 
     let html = "";
 
@@ -1245,6 +1596,7 @@
             `;
 
             group.classList.remove("hidden");
+            dimensionGroup.classList.add("hidden");
             label.innerText = "Grubość (mm)";
 
             break;
@@ -1265,6 +1617,7 @@
             `;
 
             group.classList.add("hidden");
+            dimensionGroup.classList.add("hidden");
 
             break;
 
@@ -1284,6 +1637,7 @@
             `;
 
             group.classList.add("hidden");
+            dimensionGroup.classList.add("hidden");
 
             break;
 
@@ -1303,6 +1657,7 @@
             `;
 
             group.classList.remove("hidden");
+            dimensionGroup.classList.add("hidden");
             label.innerText = "Grubość ścianki (mm)";
 
             break;
@@ -1328,6 +1683,7 @@
             `;
 
             group.classList.remove("hidden");
+            dimensionGroup.classList.add("hidden");
             label.innerText = "Grubość ścianki (mm)";
 
             break;
@@ -1348,6 +1704,7 @@
             `;
 
             group.classList.remove("hidden");
+            dimensionGroup.classList.add("hidden");
             label.innerText = "Grubość (mm)";
 
             break;
@@ -1373,8 +1730,16 @@
             `;
 
             group.classList.remove("hidden");
+            dimensionGroup.classList.add("hidden");
             label.innerText = "Grubość (mm)";
 
+            break;
+
+
+        default:
+
+            group.classList.add("hidden");
+            dimensionGroup.classList.remove("hidden");
             break;
     }
 
@@ -1397,6 +1762,7 @@
       "materialId"
     ).value = "";
 
+    currentDepartmentId = null;
 
     document.getElementById(
       "materialType"
@@ -1412,6 +1778,10 @@
       "materialThickness"
     ).value = "";
 
+    document.getElementById(
+      "materialDimension"
+    ).value = "";
+
 
     document.getElementById(
       "materialQuantity"
@@ -1421,6 +1791,11 @@
     document.getElementById(
       "materialLocation"
     ).value = "";
+
+    document.getElementById(
+      "materialDepartment"
+    ).value =
+      departments[0]?.id || "";
 
 
     document.getElementById(
@@ -1474,42 +1849,14 @@
       material.typ;
 
 
-    // -------------------------------------------------------
-    // ODCZYT GRUBOŚCI Z WYMIARU
-    // -------------------------------------------------------
+    const parsedDimension =
+      parseDimension(
+        material.typ,
+        material.wymiar
+      );
 
-    let savedDimension =
-      material.wymiar || "";
-
-
-    let savedThickness =
-      "";
-
-
-    if (
-      material.typ === "Blacha" ||
-      material.typ === "Profil" ||
-      material.typ === "Rura"
-    ) {
-
-      const match =
-        savedDimension.match(
-          /^#([0-9.,]+)\s+(.*)$/
-        );
-
-
-      if (match) {
-
-        savedThickness =
-          match[1];
-
-
-        savedDimension =
-          match[2];
-
-      }
-
-    }
+    currentDepartmentId =
+      material.dzial_id ?? null;
 
 
     document.getElementById(
@@ -1521,13 +1868,13 @@
     document.getElementById(
       "materialDimension"
     ).value =
-      savedDimension;
+      parsedDimension.dimension;
 
 
     document.getElementById(
       "materialThickness"
     ).value =
-      savedThickness;
+      parsedDimension.thickness;
 
 
     document.getElementById(
@@ -1542,6 +1889,8 @@
       material.lokalizacja;
 
 
+    ensureDepartmentOption(material);
+
     document.getElementById(
       "materialDepartment"
     ).value =
@@ -1554,6 +1903,27 @@
 
 
     updateThicknessField();
+
+    setFieldValue(
+      "materialWidth",
+      parsedDimension.width
+    );
+    setFieldValue(
+      "materialHeight",
+      parsedDimension.height
+    );
+    setFieldValue(
+      "materialLength",
+      parsedDimension.length
+    );
+    setFieldValue(
+      "materialDiameter",
+      parsedDimension.diameter
+    );
+    setFieldValue(
+      "materialThickness",
+      parsedDimension.thickness
+    );
 
 
     document
@@ -1583,87 +1953,88 @@
         "materialType"
       ).value;
 
+    const isFreeTextType =
+      ![
+        "Blacha",
+        "Wałek",
+        "Pręt",
+        "Rura",
+        "Profil",
+        "Płaskownik",
+        "Kątownik"
+      ].includes(type);
 
-    const dimension =
-      document.getElementById(
-        "materialDimension"
-      ).value.trim();
+    const hasDimensionFields =
+      isFreeTextType ?
+        Boolean(
+          getFieldValue("materialDimension")
+        ) :
+        hasStructuredDimensionFields(type);
 
+    const finalDimension =
+      isFreeTextType ?
+        getFieldValue("materialDimension") :
+        hasDimensionFields ?
+        buildDimension(type) :
+        "";
 
-    const thickness =
-      document.getElementById(
-        "materialThickness"
-      ).value.trim();
+    const steel =
+      getFieldValue(
+        "materialSteel"
+      );
 
+    const quantityValue =
+      getFieldValue(
+        "materialQuantity"
+      );
 
-    // -------------------------------------------------------
-// TWORZENIE KOŃCOWEGO WYMIARU
-// -------------------------------------------------------
+    const location =
+      getFieldValue(
+        "materialLocation"
+      );
 
-const length =
-  document.getElementById("materialLength")?.value || "";
+    const departmentValue =
+      getFieldValue(
+        "materialDepartment"
+      );
 
-const width =
-  document.getElementById("materialWidth")?.value || "";
+    const matchedDepartment =
+      departments.find(
+        department =>
+          String(department.id) ===
+          departmentValue
+      );
 
-const height =
-  document.getElementById("materialHeight")?.value || "";
+    const departmentId =
+      departmentValue === "" ?
+        null :
+        matchedDepartment ?
+          matchedDepartment.id :
+          String(currentDepartmentId) ===
+            departmentValue ?
+            currentDepartmentId :
+            null;
 
-const diameter =
-  document.getElementById("materialDiameter")?.value || "";
-
-let finalDimension = "";
-
-switch(type) {
-
-  case "Blacha":
-    finalDimension =
-      `${thickness}x${width}x${length}`;
-    break;
-
-  case "Wałek":
-    finalDimension =
-      `fi${diameter}x${length}`;
-    break;
-
-  case "Pręt":
-    finalDimension =
-      `fi${diameter}x${length}`;
-    break;
-
-  case "Rura":
-    finalDimension =
-      `fi${diameter}x${thickness}x${length}`;
-    break;
-
-  case "Profil":
-    finalDimension =
-      `${height}x${width}x${thickness}x${length}`;
-    break;
-
-  case "Płaskownik":
-    finalDimension =
-      `${width}x${thickness}x${length}`;
-    break;
-
-  case "Kątownik":
-    finalDimension =
-      `${width}x${height}x${thickness}x${length}`;
-    break;
-
-  default:
-    finalDimension = "";
-}
+    const material = {
+      typ: type,
+      gatunek: steel,
+      wymiar: finalDimension,
+      ilosc: Number(quantityValue),
+      lokalizacja: location,
+      dzial_id: departmentId
+    };
 
     // -------------------------------------------------------
     // WALIDACJA
     // -------------------------------------------------------
 
     if (
-      !material.gatunek ||
-      !material.wymiar ||
-      !material.lokalizacja ||
-      isNaN(material.ilosc)
+      !steel ||
+      !hasDimensionFields ||
+      !finalDimension ||
+      !location ||
+      quantityValue === "" ||
+      Number.isNaN(material.ilosc)
     ) {
 
       document.getElementById(
@@ -1849,13 +2220,6 @@ switch(type) {
   // =========================================================
   // URUCHOMIENIE
   // =========================================================
-
-  startApp();
-
-</script>
-
-</body>
-</html>
 
   startApp();
 
