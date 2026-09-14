@@ -1,14 +1,23 @@
-    "Blacha": {
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>magazyn-stali</title>
+</head>
+<body>
+  <pre>    "Blacha": {
       fields: [
         { id: "dim_length", label: "Długość (mm)", name: "wymiar_dlugosc", short: "" },
         { id: "dim_width", label: "Szerokość (mm)", name: "wymiar_szerokosc", short: "" },
         { id: "dim_thickness", label: "# Grubość (mm)", name: "wymiar_grubosc", short: "#" }
       ],
-      format: (fields) => `${fields.wymiar_dlugosc}x${fields.wymiar_szerokosc}x#${fields.wymiar_grubosc}`,
-      calcWeight: (fields) => {
+      format: (fields) =&gt; `${fields.wymiar_dlugosc}x${fields.wymiar_szerokosc}x#${fields.wymiar_grubosc}`,
+      calcWeight: (fields) =&gt; {
         const length = (fields.wymiar_dlugosc || 0) / 1000;
         const width = (fields.wymiar_szerokosc || 0) / 1000;
         const thickness = (fields.wymiar_grubosc || 0) / 1000;
         return length * width * thickness;
       }
-    },
+    },</pre>
+</body>
+</html>
