@@ -1469,6 +1469,64 @@
   }
 
 
+  function hasRequiredDimensionFields(type) {
+
+    switch (type) {
+
+      case "Blacha":
+        return Boolean(
+          getFieldValue("materialThickness") &&
+          getFieldValue("materialWidth") &&
+          getFieldValue("materialLength")
+        );
+
+      case "Wałek":
+      case "Pręt":
+        return Boolean(
+          getFieldValue("materialDiameter") &&
+          getFieldValue("materialLength")
+        );
+
+      case "Rura":
+        return Boolean(
+          getFieldValue("materialDiameter") &&
+          getFieldValue("materialThickness") &&
+          getFieldValue("materialLength")
+        );
+
+      case "Profil":
+        return Boolean(
+          getFieldValue("materialHeight") &&
+          getFieldValue("materialWidth") &&
+          getFieldValue("materialThickness") &&
+          getFieldValue("materialLength")
+        );
+
+      case "Płaskownik":
+        return Boolean(
+          getFieldValue("materialWidth") &&
+          getFieldValue("materialThickness") &&
+          getFieldValue("materialLength")
+        );
+
+      case "Kątownik":
+        return Boolean(
+          getFieldValue("materialWidth") &&
+          getFieldValue("materialHeight") &&
+          getFieldValue("materialThickness") &&
+          getFieldValue("materialLength")
+        );
+
+      default:
+        return Boolean(
+          getFieldValue("materialDimension")
+        );
+
+    }
+
+  }
+
+
   function updateThicknessField() {
 
     const type =
@@ -1865,9 +1923,13 @@
         "materialType"
       ).value;
 
+    const hasDimensionFields =
+      hasRequiredDimensionFields(type);
 
     const finalDimension =
-      buildDimension(type);
+      hasDimensionFields ?
+        buildDimension(type) :
+        "";
 
     const steel =
       getFieldValue(
@@ -1908,6 +1970,7 @@
 
     if (
       !steel ||
+      !hasDimensionFields ||
       !finalDimension ||
       !location ||
       quantityValue === "" ||
