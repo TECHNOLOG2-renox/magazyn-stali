@@ -499,6 +499,11 @@
       id="materialId"
     >
 
+    <input
+      type="hidden"
+      id="materialDepartmentOriginal"
+    >
+
 
     <!-- TYP -->
 
@@ -1351,42 +1356,51 @@
   }
 
 
+  function getFieldValue(id) {
+
+    return String(
+      document.getElementById(id)?.value ?? ""
+    ).trim();
+
+  }
+
+
   function buildDimension(type) {
 
     const dimension =
-      document.getElementById(
+      getFieldValue(
         "materialDimension"
-      ).value.trim();
+      );
 
 
     const thickness =
-      document.getElementById(
+      getFieldValue(
         "materialThickness"
-      ).value.trim();
+      );
 
 
     const length =
-      document.getElementById(
+      getFieldValue(
         "materialLength"
-      )?.value.trim() || "";
+      );
 
 
     const width =
-      document.getElementById(
+      getFieldValue(
         "materialWidth"
-      )?.value.trim() || "";
+      );
 
 
     const height =
-      document.getElementById(
+      getFieldValue(
         "materialHeight"
-      )?.value.trim() || "";
+      );
 
 
     const diameter =
-      document.getElementById(
+      getFieldValue(
         "materialDiameter"
-      )?.value.trim() || "";
+      );
 
 
     switch (type) {
@@ -1657,6 +1671,10 @@
       "materialId"
     ).value = "";
 
+    document.getElementById(
+      "materialDepartmentOriginal"
+    ).value = "";
+
 
     document.getElementById(
       "materialType"
@@ -1785,6 +1803,11 @@
     ).value =
       material.dzial_id || "";
 
+    document.getElementById(
+      "materialDepartmentOriginal"
+    ).value =
+      material.dzial_id || "";
+
 
     document.getElementById(
       "modalMessage"
@@ -1847,24 +1870,28 @@
       buildDimension(type);
 
     const steel =
-      document.getElementById(
+      getFieldValue(
         "materialSteel"
-      ).value.trim();
+      );
 
     const quantityValue =
-      document.getElementById(
+      getFieldValue(
         "materialQuantity"
-      ).value.trim();
+      );
 
     const location =
-      document.getElementById(
+      getFieldValue(
         "materialLocation"
-      ).value.trim();
+      );
 
     const departmentId =
-      document.getElementById(
+      getFieldValue(
         "materialDepartment"
-      ).value || null;
+      ) ||
+      getFieldValue(
+        "materialDepartmentOriginal"
+      ) ||
+      null;
 
     const material = {
       typ: type,
