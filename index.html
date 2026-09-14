@@ -924,12 +924,28 @@
     return null;
   }
 
+  function getMissingMaterialColumnName(error) {
+    if (!error) return null;
+    const details = (error.details || "").toString();
+    const message = (error.message || "").toString();
+    const source = `${details} ${message}`;
+    const match = source.match(/'([^']+)' column of 'materialy'/i);
+    return match ? match[1] : null;
+  }
+
   function shouldRetryWithAliasColumns(error) {
     if (!error) return false;
     const code = (error.code || "").toString();
-    const details = (error.details || "").toString().toLowerCase();
-    const message = (error.message || "").toString().toLowerCase();
-    return code === "PGRST204" || details.includes("schema cache") || message.includes("schema cache");
+    if (code && code !== "PGRST204") {
+      return false;
+    }
+
+    const missingColumn = getMissingMaterialColumnName(error);
+    if (!missingColumn) {
+      return false;
+    }
+
+    return !!materialColumnAliases[missingColumn];
   }
 
 
