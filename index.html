@@ -318,21 +318,6 @@ function updateMaterialFields() {
     }
 }
 
-function calcMassPerPieceKg(m) {
-    const manual = Number(m.masa_szt_kg || m.mass_per_piece_kg || 0);
-    if (manual > 0) return manual;
-
-    const density = Number(DENSITY_BY_GRADE[m.gatunek] || 7850);
-    const type = (m.typ || "").toLowerCase();
-
-    const L = mmToM(m.dlugosc_mm || m.length_mm);
-    const W = mmToM(m.szerokosc_mm || m.width_mm);
-    const H = mmToM(m.wysokosc_mm || m.height_mm);
-    const T = mmToM(m.grubosc_mm || m.wall_mm);
-
-    let volumeM3 = 0;
-  
-
   function calcMassPerPieceKg(m) {
     const manual = Number(m.masa_szt_kg || m.mass_per_piece_kg || 0);
     if (manual > 0) return manual;
