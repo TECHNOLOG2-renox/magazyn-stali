@@ -505,9 +505,11 @@ function updateMaterialFields() {
     document.getElementById("materialQuantity").value = "";
     document.getElementById("materialLocation").value = "";
     document.getElementById("modalMessage").innerHTML = "";
-    document.getElementById("materialModal").classList.remove("hidden");
-  }
 
+    updateMaterialFields();
+
+    document.getElementById("materialModal").classList.remove("hidden");
+}
   function openEditModal(id) {
     const m = materials.find(x => x.id === id);
     if (!m) return;
