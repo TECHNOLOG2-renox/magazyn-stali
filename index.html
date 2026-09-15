@@ -154,7 +154,7 @@
 
     <div class="form-group">
       <label>Typ</label>
-      <select id="materialType"></select>
+      <select id="materialType" onchange="updateDynamicFields()"></select>
     </div>
 
     <div class="form-group">
@@ -162,30 +162,7 @@
       <select id="materialSteel"></select>
     </div>
 
-    <div class="form-group">
-      <label>Wymiar (opis)</label>
-      <input type="text" id="materialDimension" placeholder="np. 2000x1000x3">
-    </div>
-
-    <div class="form-group">
-      <label>Długość [mm]</label>
-      <input type="number" id="materialLengthMm" min="0" step="0.1" placeholder="np. 6000">
-    </div>
-
-    <div class="form-group">
-      <label>Szerokość / Ø [mm]</label>
-      <input type="number" id="materialWidthMm" min="0" step="0.1" placeholder="np. 1000 lub 80">
-    </div>
-
-    <div class="form-group">
-      <label>Wysokość [mm]</label>
-      <input type="number" id="materialHeightMm" min="0" step="0.1" placeholder="np. 50">
-    </div>
-
-    <div class="form-group">
-      <label>Grubość [mm]</label>
-      <input type="number" id="materialWallMm" min="0" step="0.1" placeholder="np. 3">
-    </div>
+    <div id="dynamicFieldsContainer"></div>
 
     <div class="form-group">
       <label>Masa 1 szt. [kg] (opcjonalnie)</label>
@@ -232,6 +209,92 @@
     "Stal nierdzewna 316": 8000
   };
 
+  const MATERIAL_FIELD_DEFINITIONS = {
+    "Blacha": {
+      fields: [
+        { id: "length", label: "Długość [mm]" },
+        { id: "width", label: "Szerokość [mm]" },
+        { id: "thickness", label: "Grubość [mm]" }
+      ],
+      calcMass: ({ length, width, thickness }, density) => mmToM(length) * mmToM(width) * mmToM(thickness) * density
+    },
+    "Rura": {
+      fields: [
+        { id: "length", label: "Długość [mm]" },
+        { id: "outer_diameter", label: "Średnica zewnętrzna [mm]" },
+        { id: "wall_thickness", label: "Grubość ścianki [mm]" }
+      ],
+      calcMass: ({ length, outer_diameter, wall_thickness }, density) => {
+        const L = mmToM(length);
+        const D = mmToM(outer_diameter);
+        const T = mmToM(wall_thickness);
+        const d = Math.max(D - (2 * T), 0);
+        return (Math.PI / 4) * (D * D - d * d) * L * density;
+      }
+    },
+    "Pręt": {
+      fields: [
+        { id: "length", label: "Długość [mm]" },
+        { id: "diameter", label: "Średnica [mm]" }
+      ],
+      calcMass: ({ length, diameter }, density) => {
+        const L = mmToM(length);
+        const r = mmToM(diameter) / 2;
+        return Math.PI * r * r * L * density;
+      }
+    },
+    "Wałek": {
+      fields: [
+        { id: "length", label: "Długość [mm]" },
+        { id: "diameter", label: "Średnica [mm]" }
+      ],
+      calcMass: ({ length, diameter }, density) => {
+        const L = mmToM(length);
+        const r = mmToM(diameter) / 2;
+        return Math.PI * r * r * L * density;
+      }
+    },
+    "Kątownik": {
+      fields: [
+        { id: "length", label: "Długość [mm]" },
+        { id: "leg_width", label: "Szerokość nóżki [mm]" },
+        { id: "thickness", label: "Grubość [mm]" }
+      ],
+      calcMass: ({ length, leg_width, thickness }, density) => {
+        const L = mmToM(length);
+        const W = mmToM(leg_width);
+        const T = mmToM(thickness);
+        const area = Math.max((2 * W * T) - (T * T), 0);
+        return area * L * density;
+      }
+    },
+    "Płaskownik": {
+      fields: [
+        { id: "length", label: "Długość [mm]" },
+        { id: "width", label: "Szerokość [mm]" },
+        { id: "thickness", label: "Grubość [mm]" }
+      ],
+      calcMass: ({ length, width, thickness }, density) => mmToM(length) * mmToM(width) * mmToM(thickness) * density
+    },
+    "Profil": {
+      fields: [
+        { id: "length", label: "Długość [mm]" },
+        { id: "width", label: "Szerokość [mm]" },
+        { id: "height", label: "Wysokość [mm]" },
+        { id: "thickness", label: "Grubość ścianki [mm]" }
+      ],
+      calcMass: ({ length, width, height, thickness }, density) => {
+        const L = mmToM(length);
+        const W = mmToM(width);
+        const H = mmToM(height);
+        const T = mmToM(thickness);
+        const innerW = Math.max(W - (2 * T), 0);
+        const innerH = Math.max(H - (2 * T), 0);
+        return ((W * H) - (innerW * innerH)) * L * density;
+      }
+    }
+  };
+
   let materials = [];
   let departments = [];
   let currentUser = null;
@@ -259,35 +322,126 @@
 
   function mmToM(v) { return (Number(v) || 0) / 1000; }
 
-  function calcMassPerPieceKg(m) {
-    const manual = Number(m.masa_szt_kg || m.mass_per_piece_kg || 0);
-    if (manual > 0) return manual;
+  function toNumber(v) {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : 0;
+  }
 
-    const density = Number(DENSITY_BY_GRADE[m.gatunek] || 7850);
-    const type = (m.typ || "").toLowerCase();
+  function updateDynamicFields() {
+    const type = document.getElementById("materialType").value;
+    const container = document.getElementById("dynamicFieldsContainer");
+    const definition = MATERIAL_FIELD_DEFINITIONS[type];
 
-    const L = mmToM(m.dlugosc_mm || m.length_mm);
-    const W = mmToM(m.szerokosc_mm || m.width_mm);
-    const H = mmToM(m.wysokosc_mm || m.height_mm);
-    const T = mmToM(m.grubosc_mm || m.wall_mm);
-
-    let volumeM3 = 0;
-
-    if (type === "blacha") {
-      volumeM3 = L * W * T;
-    } else if (type === "pręt" || type === "pret" || type === "wałek" || type === "walek") {
-      const D = W;
-      const r = D / 2;
-      volumeM3 = Math.PI * r * r * L;
-    } else if (type === "rura") {
-      const D = W;
-      const d = Math.max(D - (2 * T), 0);
-      volumeM3 = (Math.PI / 4) * (D * D - d * d) * L;
-    } else if (["profil", "kątownik", "katownik", "płaskownik", "plaskownik"].includes(type)) {
-      volumeM3 = L * W * H;
+    if (!definition) {
+      container.innerHTML = "";
+      return;
     }
 
-    return volumeM3 * density;
+    let html = `
+      <div class="form-group">
+        <label>Wymiar (opis)</label>
+        <input type="text" id="materialDimension" placeholder="np. 2000x1000x3">
+      </div>
+    `;
+
+    definition.fields.forEach(field => {
+      html += `
+        <div class="form-group">
+          <label>${field.label}</label>
+          <input type="number" id="materialField_${field.id}" min="0" step="0.1" placeholder="0">
+        </div>
+      `;
+    });
+
+    container.innerHTML = html;
+  }
+
+  function getFieldDataFromForm(type) {
+    const definition = MATERIAL_FIELD_DEFINITIONS[type];
+    if (!definition) return {};
+
+    const fieldData = {};
+    definition.fields.forEach(field => {
+      fieldData[field.id] = toNumber(document.getElementById(`materialField_${field.id}`)?.value);
+    });
+    return fieldData;
+  }
+
+  function getLegacyFieldData(type, m) {
+    const L = toNumber(m.dlugosc_mm ?? m.length_mm);
+    const W = toNumber(m.szerokosc_mm ?? m.width_mm);
+    const H = toNumber(m.wysokosc_mm ?? m.height_mm);
+    const T = toNumber(m.grubosc_mm ?? m.wall_mm);
+
+    if (type === "Blacha") return { length: L, width: W, thickness: T };
+    if (type === "Rura") return { length: L, outer_diameter: W, wall_thickness: T };
+    if (type === "Pręt" || type === "Wałek") return { length: L, diameter: W };
+    if (type === "Kątownik") return { length: L, leg_width: W, thickness: T };
+    if (type === "Płaskownik") return { length: L, width: W, thickness: T };
+    if (type === "Profil") return { length: L, width: W, height: H, thickness: T };
+    return {};
+  }
+
+  function calcMassPerPieceKg(m) {
+    const manual = toNumber(m.masa_szt_kg || m.mass_per_piece_kg || 0);
+    if (manual > 0) return manual;
+
+    const density = toNumber(DENSITY_BY_GRADE[m.gatunek] || 7850);
+    const type = m.typ || "";
+    const definition = MATERIAL_FIELD_DEFINITIONS[type];
+    if (!definition) return 0;
+
+    const legacyData = getLegacyFieldData(type, m);
+    const fieldData = {};
+    definition.fields.forEach(field => {
+      const direct = m[`field_${field.id}`];
+      fieldData[field.id] = direct === null || direct === undefined || direct === ""
+        ? toNumber(legacyData[field.id])
+        : toNumber(direct);
+    });
+
+    return definition.calcMass(fieldData, density);
+  }
+
+  function setLegacyFieldsFromDynamic(type, fieldData, payload) {
+    payload.dlugosc_mm = 0;
+    payload.szerokosc_mm = 0;
+    payload.wysokosc_mm = 0;
+    payload.grubosc_mm = 0;
+
+    if (type === "Blacha" || type === "Płaskownik") {
+      payload.dlugosc_mm = toNumber(fieldData.length);
+      payload.szerokosc_mm = toNumber(fieldData.width);
+      payload.grubosc_mm = toNumber(fieldData.thickness);
+      return;
+    }
+
+    if (type === "Rura") {
+      payload.dlugosc_mm = toNumber(fieldData.length);
+      payload.szerokosc_mm = toNumber(fieldData.outer_diameter);
+      payload.grubosc_mm = toNumber(fieldData.wall_thickness);
+      return;
+    }
+
+    if (type === "Pręt" || type === "Wałek") {
+      payload.dlugosc_mm = toNumber(fieldData.length);
+      payload.szerokosc_mm = toNumber(fieldData.diameter);
+      return;
+    }
+
+    if (type === "Kątownik") {
+      payload.dlugosc_mm = toNumber(fieldData.length);
+      payload.szerokosc_mm = toNumber(fieldData.leg_width);
+      payload.grubosc_mm = toNumber(fieldData.thickness);
+      return;
+    }
+
+    if (type === "Profil") {
+      payload.dlugosc_mm = toNumber(fieldData.length);
+      payload.szerokosc_mm = toNumber(fieldData.width);
+      payload.wysokosc_mm = toNumber(fieldData.height);
+      payload.grubosc_mm = toNumber(fieldData.thickness);
+    }
   }
 
   async function startApp() {
@@ -437,11 +591,8 @@
     document.getElementById("materialId").value = "";
     document.getElementById("materialType").value = "Blacha";
     document.getElementById("materialSteel").value = "S355";
+    updateDynamicFields();
     document.getElementById("materialDimension").value = "";
-    document.getElementById("materialLengthMm").value = "";
-    document.getElementById("materialWidthMm").value = "";
-    document.getElementById("materialHeightMm").value = "";
-    document.getElementById("materialWallMm").value = "";
     document.getElementById("materialMassPerPiece").value = "";
     document.getElementById("materialQuantity").value = "";
     document.getElementById("materialLocation").value = "";
@@ -457,11 +608,21 @@
     document.getElementById("materialId").value = m.id;
     document.getElementById("materialType").value = m.typ || "Blacha";
     document.getElementById("materialSteel").value = m.gatunek || "S355";
+    updateDynamicFields();
     document.getElementById("materialDimension").value = m.wymiar || "";
-    document.getElementById("materialLengthMm").value = m.dlugosc_mm ?? m.length_mm ?? "";
-    document.getElementById("materialWidthMm").value = m.szerokosc_mm ?? m.width_mm ?? "";
-    document.getElementById("materialHeightMm").value = m.wysokosc_mm ?? m.height_mm ?? "";
-    document.getElementById("materialWallMm").value = m.grubosc_mm ?? m.wall_mm ?? "";
+    const type = m.typ || "Blacha";
+    const definition = MATERIAL_FIELD_DEFINITIONS[type];
+    const legacyData = getLegacyFieldData(type, m);
+    if (definition) {
+      definition.fields.forEach(field => {
+        const input = document.getElementById(`materialField_${field.id}`);
+        if (!input) return;
+        const direct = m[`field_${field.id}`];
+        input.value = direct === null || direct === undefined || direct === ""
+          ? (legacyData[field.id] || "")
+          : direct;
+      });
+    }
     document.getElementById("materialMassPerPiece").value = m.masa_szt_kg ?? m.mass_per_piece_kg ?? "";
     document.getElementById("materialQuantity").value = m.ilosc ?? "";
     document.getElementById("materialLocation").value = m.lokalizacja || "";
@@ -475,20 +636,28 @@
   }
 
   async function saveMaterial() {
+    const type = document.getElementById("materialType").value;
+    const definition = MATERIAL_FIELD_DEFINITIONS[type];
+    if (!definition) {
+      alert("Nieznany typ materiału.");
+      return;
+    }
+
     const id = document.getElementById("materialId").value;
+    const fieldData = getFieldDataFromForm(type);
     const payload = {
-      typ: document.getElementById("materialType").value,
+      typ: type,
       gatunek: document.getElementById("materialSteel").value,
       wymiar: document.getElementById("materialDimension").value.trim(),
-      dlugosc_mm: Number(document.getElementById("materialLengthMm").value || 0),
-      szerokosc_mm: Number(document.getElementById("materialWidthMm").value || 0),
-      wysokosc_mm: Number(document.getElementById("materialHeightMm").value || 0),
-      grubosc_mm: Number(document.getElementById("materialWallMm").value || 0),
-      masa_szt_kg: Number(document.getElementById("materialMassPerPiece").value || 0),
-      ilosc: Number(document.getElementById("materialQuantity").value || 0),
+      masa_szt_kg: toNumber(document.getElementById("materialMassPerPiece").value || 0),
+      ilosc: toNumber(document.getElementById("materialQuantity").value || 0),
       lokalizacja: document.getElementById("materialLocation").value.trim(),
-      dzial_id: Number(document.getElementById("materialDepartment").value || 0)
+      dzial_id: toNumber(document.getElementById("materialDepartment").value || 0)
     };
+    definition.fields.forEach(field => {
+      payload[`field_${field.id}`] = toNumber(fieldData[field.id]);
+    });
+    setLegacyFieldsFromDynamic(type, fieldData, payload);
 
     const message = document.getElementById("modalMessage");
     message.className = "";
