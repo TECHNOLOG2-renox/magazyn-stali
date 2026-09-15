@@ -257,7 +257,81 @@
     });
   }
 
-  function mmToM(v) { return (Number(v) || 0) / 1000; }
+ function mmToM(v) {
+    return (Number(v) || 0) / 1000;
+}
+
+function updateMaterialFields() {
+
+    const type = document.getElementById("materialType").value;
+
+    const groupWidth = document.getElementById("groupWidth");
+    const groupHeight = document.getElementById("groupHeight");
+    const groupWall = document.getElementById("groupWall");
+
+    const labelWidth = document.getElementById("labelWidth");
+    const labelHeight = document.getElementById("labelHeight");
+    const labelWall = document.getElementById("labelWall");
+
+    groupWidth.style.display = "block";
+    groupHeight.style.display = "block";
+    groupWall.style.display = "block";
+
+    switch(type){
+
+        case "Blacha":
+            labelWidth.textContent = "Szerokość [mm]";
+            labelWall.textContent = "Grubość [mm]";
+            groupHeight.style.display = "none";
+            break;
+
+        case "Rura":
+            labelWidth.textContent = "Średnica zewnętrzna [mm]";
+            labelWall.textContent = "Grubość ścianki [mm]";
+            groupHeight.style.display = "none";
+            break;
+
+        case "Wałek":
+        case "Pręt":
+            labelWidth.textContent = "Średnica [mm]";
+            groupHeight.style.display = "none";
+            groupWall.style.display = "none";
+            break;
+
+        case "Płaskownik":
+            labelWidth.textContent = "Szerokość [mm]";
+            labelWall.textContent = "Grubość [mm]";
+            groupHeight.style.display = "none";
+            break;
+
+        case "Kątownik":
+            labelWidth.textContent = "Ramię A [mm]";
+            labelHeight.textContent = "Ramię B [mm]";
+            labelWall.textContent = "Grubość [mm]";
+            break;
+
+        case "Profil":
+            labelWidth.textContent = "Szerokość [mm]";
+            labelHeight.textContent = "Wysokość [mm]";
+            labelWall.textContent = "Grubość ścianki [mm]";
+            break;
+    }
+}
+
+function calcMassPerPieceKg(m) {
+    const manual = Number(m.masa_szt_kg || m.mass_per_piece_kg || 0);
+    if (manual > 0) return manual;
+
+    const density = Number(DENSITY_BY_GRADE[m.gatunek] || 7850);
+    const type = (m.typ || "").toLowerCase();
+
+    const L = mmToM(m.dlugosc_mm || m.length_mm);
+    const W = mmToM(m.szerokosc_mm || m.width_mm);
+    const H = mmToM(m.wysokosc_mm || m.height_mm);
+    const T = mmToM(m.grubosc_mm || m.wall_mm);
+
+    let volumeM3 = 0;
+  
 
   function calcMassPerPieceKg(m) {
     const manual = Number(m.masa_szt_kg || m.mass_per_piece_kg || 0);
