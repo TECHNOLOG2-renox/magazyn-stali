@@ -266,12 +266,12 @@
     const f = formatNum;
     let parts = [];
 
-    if (type === "Blacha") parts = [f(W), f(L), f(T)];
-    else if (type === "Rura") parts = [f(W) ? "Ø" + f(W) : "", "#" + f(T), f(L)];
+    if (type === "Blacha") parts = [f(W), f(L), `#${f(T)}`];
+    else if (type === "Rura") parts = [f(W) ? "Ø" + f(W) : "", f(T), f(L)];
     else if (type === "Wałek" || type === "Pręt") parts = [f(W) ? "Ø" + f(W) : "", f(L)];
-    else if (type === "Płaskownik") parts = [f(W), "#" + f(T), f(L)];
-    else if (type === "Kątownik") parts = [f(W), f(H), "#" + f(T), f(L)];
-    else if (type === "Profil") parts = [f(W), f(H), "#" + f(T), f(L)];
+    else if (type === "Płaskownik") parts = [f(W), f(T), f(L)];
+    else if (type === "Kątownik") parts = [f(W), f(H), f(T), f(L)];
+    else if (type === "Profil") parts = [f(W), f(H), f(T), f(L)];
 
     return parts.filter(Boolean).join("x");
   }
@@ -375,9 +375,6 @@
   }
 
   function calcMassPerPieceKg(m) {
-    const manual = Number(m.masa_szt_kg || m.mass_per_piece_kg || 0);
-    if (manual > 0) return manual;
-
     const density = Number(DENSITY_BY_GRADE[m.gatunek] || 7850);
     const type = (m.typ || "").toLowerCase();
 
@@ -632,8 +629,7 @@
       dlugosc_mm,
       szerokosc_mm,
       wysokosc_mm,
-      grubosc_mm,
-      masa_szt_kg: 0
+      grubosc_mm
     });
 
     const payload = {
