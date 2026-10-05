@@ -184,11 +184,6 @@
     </div>
 
     <div class="form-group">
-      <label>Masa 1 szt. [kg] (opcjonalnie)</label>
-      <input type="number" id="materialMassPerPiece" min="0" step="0.001" placeholder="jeśli podasz, będzie użyta zamiast obliczeń" oninput="recalcWeightPreview();">
-    </div>
-
-    <div class="form-group">
       <label>Ilość</label>
       <input type="number" id="materialQuantity" min="0" step="0.01" placeholder="np. 12" oninput="recalcWeightPreview();">
     </div>
@@ -267,22 +262,20 @@
     return Number.isFinite(n) && n > 0 ? String(n).replace(".", ",") : "";
   }
 
-  // Buduje tekst wymiaru, np. Blacha -> "1500x3000x3" (szerokość x długość x grubość)
   function buildDimensionText(type, L, W, H, T) {
     const f = formatNum;
     let parts = [];
 
     if (type === "Blacha") parts = [f(W), f(L), f(T)];
-    else if (type === "Rura") parts = [f(W) ? "Ø" + f(W) : "", f(T), f(L)];
+    else if (type === "Rura") parts = [f(W) ? "Ø" + f(W) : "", "#" + f(T), f(L)];
     else if (type === "Wałek" || type === "Pręt") parts = [f(W) ? "Ø" + f(W) : "", f(L)];
-    else if (type === "Płaskownik") parts = [f(W), f(T), f(L)];
-    else if (type === "Kątownik") parts = [f(W), f(H), f(T), f(L)];
-    else if (type === "Profil") parts = [f(W), f(H), f(T), f(L)];
+    else if (type === "Płaskownik") parts = [f(W), "#" + f(T), f(L)];
+    else if (type === "Kątownik") parts = [f(W), f(H), "#" + f(T), f(L)];
+    else if (type === "Profil") parts = [f(W), f(H), "#" + f(T), f(L)];
 
     return parts.filter(Boolean).join("x");
   }
 
-  // Wymiar zapisanego materiału - liczony z kolumn liczbowych (działa także dla starszych wpisów)
   function getMaterialDimensionText(m) {
     const fromNumbers = buildDimensionText(
       m.typ,
@@ -419,8 +412,7 @@
       dlugosc_mm: Number(document.getElementById("materialLengthMm").value || 0),
       szerokosc_mm: Number(document.getElementById("materialWidthMm").value || 0),
       wysokosc_mm: Number(document.getElementById("materialHeightMm").value || 0),
-      grubosc_mm: Number(document.getElementById("materialWallMm").value || 0),
-      masa_szt_kg: Number(document.getElementById("materialMassPerPiece").value || 0)
+      grubosc_mm: Number(document.getElementById("materialWallMm").value || 0)
     };
 
     const qty = Number(document.getElementById("materialQuantity").value || 0);
@@ -582,7 +574,6 @@
     document.getElementById("materialWidthMm").value = "";
     document.getElementById("materialHeightMm").value = "";
     document.getElementById("materialWallMm").value = "";
-    document.getElementById("materialMassPerPiece").value = "";
     document.getElementById("materialQuantity").value = "";
     document.getElementById("materialLocation").value = "";
     document.getElementById("materialTotalWeight").value = "";
@@ -608,7 +599,6 @@
     document.getElementById("materialWidthMm").value = m.szerokosc_mm ?? m.width_mm ?? "";
     document.getElementById("materialHeightMm").value = m.wysokosc_mm ?? m.height_mm ?? "";
     document.getElementById("materialWallMm").value = m.grubosc_mm ?? m.wall_mm ?? "";
-    document.getElementById("materialMassPerPiece").value = m.masa_szt_kg ?? m.mass_per_piece_kg ?? "";
     document.getElementById("materialQuantity").value = m.ilosc ?? "";
     document.getElementById("materialLocation").value = m.lokalizacja || "";
     document.getElementById("materialDepartment").value = m.dzial_id ?? "";
@@ -633,7 +623,6 @@
     const szerokosc_mm = Number(document.getElementById("materialWidthMm").value || 0);
     const wysokosc_mm = Number(document.getElementById("materialHeightMm").value || 0);
     const grubosc_mm = Number(document.getElementById("materialWallMm").value || 0);
-    const manualMass = Number(document.getElementById("materialMassPerPiece").value || 0);
     const ilosc = Number(document.getElementById("materialQuantity").value || 0);
 
     const dimensionDescription = buildDimensionText(type, dlugosc_mm, szerokosc_mm, wysokosc_mm, grubosc_mm);
@@ -644,7 +633,7 @@
       szerokosc_mm,
       wysokosc_mm,
       grubosc_mm,
-      masa_szt_kg: manualMass
+      masa_szt_kg: 0
     });
 
     const payload = {
@@ -655,7 +644,7 @@
       szerokosc_mm,
       wysokosc_mm,
       grubosc_mm,
-      masa_szt_kg: manualMass > 0 ? manualMass : calculatedMass,
+      masa_szt_kg: calculatedMass,
       ilosc,
       lokalizacja: document.getElementById("materialLocation").value.trim(),
       dzial_id: Number(document.getElementById("materialDepartment").value || 0)
