@@ -195,7 +195,7 @@
 
     <div class="form-group">
       <label>Lokalizacja</label>
-      <input type="text" id="materialLocation" placeholder="np. Hala A / Regał 3">
+      <select id="materialLocation"></select>
     </div>
 
     <div class="form-group">
@@ -228,6 +228,8 @@
     "Stal nierdzewna 316": 8000
   };
 
+  const LOCATION_OPTIONS = ["Hala", "Plac zewnętrzny", "Regały zewnętrzne"];
+
   let materials = [];
   let departments = [];
   let currentUser = null;
@@ -237,6 +239,8 @@
     const materialType = document.getElementById("materialType");
     const steelFilter = document.getElementById("steelFilter");
     const materialSteel = document.getElementById("materialSteel");
+    const locationFilter = document.getElementById("locationFilter");
+    const materialLocation = document.getElementById("materialLocation");
 
     typeFilter.innerHTML = '<option value="">Wszystkie</option>';
     materialType.innerHTML = '';
@@ -250,6 +254,13 @@
     MATERIAL_GRADES.forEach(g => {
       steelFilter.innerHTML += `<option value="${g}">${g}</option>`;
       materialSteel.innerHTML += `<option value="${g}">${g}</option>`;
+    });
+
+    locationFilter.innerHTML = '<option value="">Wszystkie</option>';
+    materialLocation.innerHTML = '<option value="">Wybierz...</option>';
+    LOCATION_OPTIONS.forEach(loc => {
+      locationFilter.innerHTML += `<option value="${loc}">${loc}</option>`;
+      materialLocation.innerHTML += `<option value="${loc}">${loc}</option>`;
     });
   }
 
