@@ -152,49 +152,51 @@
     <h2 id="modalTitle">Dodaj materiał</h2>
     <input type="hidden" id="materialId">
 
-   <div class="form-group">
-    <label>Typ</label>
-    <select id="materialType" onchange="updateMaterialFields(); updateDimensionDescription();"></select>
-</div>
-
     <div class="form-group">
-      <label>Gatunek</label>
-      <select id="materialSteel"></select>
+      <label>Typ</label>
+      <select id="materialType" onchange="updateMaterialFields(); onDimensionInput();"></select>
     </div>
 
     <div class="form-group">
-  <label>Wymiar (opis)</label>
-  <input type="text" id="materialDimension" readonly>
-</div>
+      <label>Gatunek</label>
+      <select id="materialSteel" onchange="onDimensionInput()"></select>
+    </div>
+
+    <input type="hidden" id="materialDimension">
+
+    <div class="form-group" id="groupLength">
+      <label id="labelLength"></label>
+      <input type="number" id="materialLengthMm" min="0" step="0.1" oninput="onDimensionInput()">
+    </div>
+
+    <div class="form-group" id="groupWidth">
+      <label id="labelWidth"></label>
+      <input type="number" id="materialWidthMm" min="0" step="0.1" oninput="onDimensionInput()">
+    </div>
+
+    <div class="form-group" id="groupHeight">
+      <label id="labelHeight"></label>
+      <input type="number" id="materialHeightMm" min="0" step="0.1" oninput="onDimensionInput()">
+    </div>
+
+    <div class="form-group" id="groupWall">
+      <label id="labelWall"></label>
+      <input type="number" id="materialWallMm" min="0" step="0.1" oninput="onDimensionInput()">
+    </div>
 
     <div class="form-group">
-    <label>Długość [mm]</label>
-    <input type="number" id="materialLengthMm" min="0" step="0.1">
-</div>
-
-<div class="form-group" id="groupWidth">
-    <label id="labelWidth">Szerokość [mm]</label>
-    <input type="number" id="materialWidthMm" min="0" step="0.1">
-</div>
-
-<div class="form-group" id="groupHeight">
-    <label id="labelHeight">Wysokość [mm]</label>
-    <input type="number" id="materialHeightMm" min="0" step="0.1">
-</div>
-
-<div class="form-group" id="groupWall">
-    <label id="labelWall">Grubość [mm]</label>
-    <input type="number" id="materialWallMm" min="0" step="0.1">
-</div>
-
-    <div class="form-group">
-      <label>Masa 1 szt. [kg] (opcjonalnie)</label>
-      <input type="number" id="materialMassPerPiece" min="0" step="0.001" placeholder="jeśli podasz, będzie użyta zamiast obliczeń">
+      <label>Masa 1 szt. [kg] (obliczana automatycznie)</label>
+      <input type="text" id="materialMassPerPiece" readonly>
     </div>
 
     <div class="form-group">
       <label>Ilość</label>
-      <input type="number" id="materialQuantity" min="0" step="0.01" placeholder="np. 12">
+      <input type="number" id="materialQuantity" min="0" step="0.01" placeholder="np. 12" oninput="onDimensionInput()">
+    </div>
+
+    <div class="form-group">
+      <label>Waga całkowita [kg]</label>
+      <input type="text" id="materialTotalWeight" readonly>
     </div>
 
     <div class="form-group">
@@ -261,62 +263,37 @@
     return (Number(v) || 0) / 1000;
 }
 
-function updateMaterialFields() {
+const TYPE_FIELDS = {
+    "Blacha": { width: "Szerokość [mm]", wall: "Grubość [mm]" },
+    "Rura": { width: "Średnica zewnętrzna [mm]", wall: "Grubość ścianki [mm]" },
+    "Wałek": { width: "Średnica [mm]" },
+    "Pręt": { width: "Średnica [mm]" },
+    "Płaskownik": { width: "Szerokość [mm]", wall: "Grubość [mm]" },
+    "Kątownik": { width: "Ramię A [mm]", height: "Ramię B [mm]", wall: "Grubość [mm]" },
+    "Profil": { width: "Szerokość [mm]", height: "Wysokość [mm]", wall: "Grubość ścianki [mm]" }
+  };
 
+  function updateMaterialFields() {
     const type = document.getElementById("materialType").value;
-
-    const groupWidth = document.getElementById("groupWidth");
-    const groupHeight = document.getElementById("groupHeight");
-    const groupWall = document.getElementById("groupWall");
-
-    const labelWidth = document.getElementById("labelWidth");
-    const labelHeight = document.getElementById("labelHeight");
-    const labelWall = document.getElementById("labelWall");
-
-    groupWidth.style.display = "block";
-    groupHeight.style.display = "block";
-    groupWall.style.display = "block";
-
-    switch(type){
-
-        case "Blacha":
-            labelWidth.textContent = "Szerokość [mm]";
-            labelWall.textContent = "Grubość [mm]";
-            groupHeight.style.display = "none";
-            break;
-
-        case "Rura":
-            labelWidth.textContent = "Średnica zewnętrzna [mm]";
-            labelWall.textContent = "Grubość ścianki [mm]";
-            groupHeight.style.display = "none";
-            break;
-
-        case "Wałek":
-        case "Pręt":
-            labelWidth.textContent = "Średnica [mm]";
-            groupHeight.style.display = "none";
-            groupWall.style.display = "none";
-            break;
-
-        case "Płaskownik":
-            labelWidth.textContent = "Szerokość [mm]";
-            labelWall.textContent = "Grubość [mm]";
-            groupHeight.style.display = "none";
-            break;
-
-        case "Kątownik":
-            labelWidth.textContent = "Ramię A [mm]";
-            labelHeight.textContent = "Ramię B [mm]";
-            labelWall.textContent = "Grubość [mm]";
-            break;
-
-        case "Profil":
-            labelWidth.textContent = "Szerokość [mm]";
-            labelHeight.textContent = "Wysokość [mm]";
-            labelWall.textContent = "Grubość ścianki [mm]";
-            break;
-    }
-}
+    const cfg = TYPE_FIELDS[type] || {};
+    const fields = {
+      Length: "Długość [mm]",
+      Width: cfg.width,
+      Height: cfg.height,
+      Wall: cfg.wall
+    };
+    Object.keys(fields).forEach(k => {
+      const group = document.getElementById("group" + k);
+      const input = document.getElementById("material" + k + "Mm");
+      if (fields[k]) {
+        document.getElementById("label" + k).textContent = fields[k];
+        group.style.display = "block";
+      } else {
+        group.style.display = "none";
+        input.value = "";
+      }
+    });
+  }
 
   function calcMassPerPieceKg(m) {
     const manual = Number(m.masa_szt_kg || m.mass_per_piece_kg || 0);
@@ -330,23 +307,62 @@ function updateMaterialFields() {
     const H = mmToM(m.wysokosc_mm || m.height_mm);
     const T = mmToM(m.grubosc_mm || m.wall_mm);
 
-    let volumeM3 = 0;
+    let areaM2 = 0;
 
-    if (type === "blacha") {
-      volumeM3 = L * W * T;
+    if (type === "blacha" || type === "płaskownik" || type === "plaskownik") {
+      areaM2 = W * T;
     } else if (type === "pręt" || type === "pret" || type === "wałek" || type === "walek") {
-      const D = W;
-      const r = D / 2;
-      volumeM3 = Math.PI * r * r * L;
+      areaM2 = Math.PI * (W / 2) * (W / 2);
     } else if (type === "rura") {
-      const D = W;
-      const d = Math.max(D - (2 * T), 0);
-      volumeM3 = (Math.PI / 4) * (D * D - d * d) * L;
-    } else if (["profil", "kątownik", "katownik", "płaskownik", "plaskownik"].includes(type)) {
-      volumeM3 = L * W * H;
+      const d = Math.max(W - (2 * T), 0);
+      areaM2 = (Math.PI / 4) * (W * W - d * d);
+    } else if (type === "kątownik" || type === "katownik") {
+      areaM2 = Math.max(T * (W + H - T), 0);
+    } else if (type === "profil") {
+      areaM2 = Math.max(W * H - Math.max(W - 2 * T, 0) * Math.max(H - 2 * T, 0), 0);
     }
 
-    return volumeM3 * density;
+    return areaM2 * L * density;
+  }
+
+  function formatNum(v) {
+    const n = Number(v);
+    return Number.isFinite(n) && n > 0 ? String(n).replace(".", ",") : "";
+  }
+
+  function buildDimensionDescription() {
+    const type = document.getElementById("materialType").value;
+    const L = formatNum(document.getElementById("materialLengthMm").value);
+    const W = formatNum(document.getElementById("materialWidthMm").value);
+    const H = formatNum(document.getElementById("materialHeightMm").value);
+    const T = formatNum(document.getElementById("materialWallMm").value);
+
+    let parts;
+    if (type === "Blacha" || type === "Płaskownik") parts = [W, T, L];
+    else if (type === "Rura") parts = [W ? "Ø" + W : "", T, L];
+    else if (type === "Wałek" || type === "Pręt") parts = [W ? "Ø" + W : "", L];
+    else parts = [W, H, T, L];
+    parts = parts.filter(Boolean);
+    return parts.length ? parts.join(" x ") + " mm" : "";
+  }
+
+  function getFormMaterial() {
+    return {
+      typ: document.getElementById("materialType").value,
+      gatunek: document.getElementById("materialSteel").value,
+      dlugosc_mm: Number(document.getElementById("materialLengthMm").value || 0),
+      szerokosc_mm: Number(document.getElementById("materialWidthMm").value || 0),
+      wysokosc_mm: Number(document.getElementById("materialHeightMm").value || 0),
+      grubosc_mm: Number(document.getElementById("materialWallMm").value || 0)
+    };
+  }
+
+  function onDimensionInput() {
+    document.getElementById("materialDimension").value = buildDimensionDescription();
+    const mass = calcMassPerPieceKg(getFormMaterial());
+    const qty = Number(document.getElementById("materialQuantity").value || 0);
+    document.getElementById("materialMassPerPiece").value = mass > 0 ? mass.toFixed(3) : "";
+    document.getElementById("materialTotalWeight").value = mass * qty > 0 ? (mass * qty).toFixed(3) : "";
   }
 
   async function startApp() {
@@ -507,6 +523,7 @@ function updateMaterialFields() {
     document.getElementById("modalMessage").innerHTML = "";
 
     updateMaterialFields();
+    onDimensionInput();
 
     document.getElementById("materialModal").classList.remove("hidden");
 }
@@ -528,6 +545,8 @@ function updateMaterialFields() {
     document.getElementById("materialLocation").value = m.lokalizacja || "";
     document.getElementById("materialDepartment").value = m.dzial_id ?? "";
     document.getElementById("modalMessage").innerHTML = "";
+    updateMaterialFields();
+    onDimensionInput();
     document.getElementById("materialModal").classList.remove("hidden");
   }
 
@@ -537,6 +556,7 @@ function updateMaterialFields() {
 
   async function saveMaterial() {
     const id = document.getElementById("materialId").value;
+    onDimensionInput();
     const payload = {
       typ: document.getElementById("materialType").value,
       gatunek: document.getElementById("materialSteel").value,
