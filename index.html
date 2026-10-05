@@ -154,48 +154,53 @@
 
    <div class="form-group">
     <label>Typ</label>
-    <select id="materialType" onchange="updateMaterialFields(); updateDimensionDescription();"></select>
-</div>
+    <select id="materialType" onchange="onMaterialInputChange(true)"></select>
+  </div>
 
-    <div class="form-group">
-      <label>Gatunek</label>
-      <select id="materialSteel"></select>
-    </div>
+  <div class="form-group">
+    <label>Gatunek</label>
+    <select id="materialSteel" onchange="onMaterialInputChange()"></select>
+  </div>
 
-    <div class="form-group">
-  <label>Wymiar (opis)</label>
-  <input type="text" id="materialDimension" readonly>
-</div>
+  <div class="form-group" id="groupLength">
+    <label id="labelLength">Długość [mm]</label>
+    <input type="number" id="materialLengthMm" min="0" step="0.1" oninput="onMaterialInputChange()">
+  </div>
 
-    <div class="form-group">
-    <label>Długość [mm]</label>
-    <input type="number" id="materialLengthMm" min="0" step="0.1">
-</div>
-
-<div class="form-group" id="groupWidth">
+  <div class="form-group" id="groupWidth">
     <label id="labelWidth">Szerokość [mm]</label>
-    <input type="number" id="materialWidthMm" min="0" step="0.1">
-</div>
+    <input type="number" id="materialWidthMm" min="0" step="0.1" oninput="onMaterialInputChange()">
+  </div>
 
-<div class="form-group" id="groupHeight">
+  <div class="form-group" id="groupHeight">
     <label id="labelHeight">Wysokość [mm]</label>
-    <input type="number" id="materialHeightMm" min="0" step="0.1">
-</div>
+    <input type="number" id="materialHeightMm" min="0" step="0.1" oninput="onMaterialInputChange()">
+  </div>
 
-<div class="form-group" id="groupWall">
+  <div class="form-group" id="groupWall">
     <label id="labelWall">Grubość [mm]</label>
-    <input type="number" id="materialWallMm" min="0" step="0.1">
-</div>
+    <input type="number" id="materialWallMm" min="0" step="0.1" oninput="onMaterialInputChange()">
+  </div>
 
-    <div class="form-group">
-      <label>Masa 1 szt. [kg] (opcjonalnie)</label>
-      <input type="number" id="materialMassPerPiece" min="0" step="0.001" placeholder="jeśli podasz, będzie użyta zamiast obliczeń">
-    </div>
+  <div class="form-group">
+    <label>Wymiar (opis)</label>
+    <input type="text" id="materialDimension" readonly>
+  </div>
 
-    <div class="form-group">
-      <label>Ilość</label>
-      <input type="number" id="materialQuantity" min="0" step="0.01" placeholder="np. 12">
-    </div>
+  <div class="form-group">
+    <label>Masa 1 szt. [kg] (opcjonalnie)</label>
+    <input type="number" id="materialMassPerPiece" min="0" step="0.001" placeholder="jeśli podasz, będzie użyta zamiast obliczeń" oninput="onMaterialInputChange()">
+  </div>
+
+  <div class="form-group">
+    <label>Ilość</label>
+    <input type="number" id="materialQuantity" min="0" step="0.01" placeholder="np. 12" oninput="onMaterialInputChange()">
+  </div>
+
+  <div class="form-group">
+    <label>Waga całkowita [kg]</label>
+    <input type="text" id="materialTotalWeight" readonly>
+  </div>
 
     <div class="form-group">
       <label>Lokalizacja</label>
@@ -261,62 +266,96 @@
     return (Number(v) || 0) / 1000;
 }
 
-function updateMaterialFields() {
+const FIELD_CONFIG = {
+    "Blacha":     { length: "Długość [mm]", width: "Szerokość [mm]", wall: "Grubość [mm]" },
+    "Rura":       { length: "Długość [mm]", width: "Średnica zewnętrzna [mm]", wall: "Grubość ścianki [mm]" },
+    "Wałek":      { length: "Długość [mm]", width: "Średnica [mm]" },
+    "Pręt":       { length: "Długość [mm]", width: "Średnica [mm]" },
+    "Płaskownik": { length: "Długość [mm]", width: "Szerokość [mm]", wall: "Grubość [mm]" },
+    "Kątownik":   { length: "Długość [mm]", width: "Ramię A [mm]", height: "Ramię B [mm]", wall: "Grubość [mm]" },
+    "Profil":     { length: "Długość [mm]", width: "Szerokość [mm]", height: "Wysokość [mm]", wall: "Grubość ścianki [mm]" }
+  };
 
+  const FIELD_KEYS = [
+    ["length", "Length", "dlugosc_mm"],
+    ["width", "Width", "szerokosc_mm"],
+    ["height", "Height", "wysokosc_mm"],
+    ["wall", "Wall", "grubosc_mm"]
+  ];
+
+  function updateMaterialFields(clearHidden) {
     const type = document.getElementById("materialType").value;
+    const cfg = FIELD_CONFIG[type] || {};
+    FIELD_KEYS.forEach(([key, suffix]) => {
+      const group = document.getElementById("group" + suffix);
+      const visible = Object.prototype.hasOwnProperty.call(cfg, key);
+      group.style.display = visible ? "block" : "none";
+      if (visible) {
+        document.getElementById("label" + suffix).textContent = cfg[key];
+      } else if (clearHidden) {
+        document.getElementById("material" + suffix + "Mm").value = "";
+      }
+    });
+  }
 
-    const groupWidth = document.getElementById("groupWidth");
-    const groupHeight = document.getElementById("groupHeight");
-    const groupWall = document.getElementById("groupWall");
+  function readDimensions() {
+    const type = document.getElementById("materialType").value;
+    const cfg = FIELD_CONFIG[type] || {};
+    const dims = {};
+    FIELD_KEYS.forEach(([key, suffix, col]) => {
+      dims[col] = Object.prototype.hasOwnProperty.call(cfg, key)
+        ? Number(document.getElementById("material" + suffix + "Mm").value || 0)
+        : 0;
+    });
+    return dims;
+  }
 
-    const labelWidth = document.getElementById("labelWidth");
-    const labelHeight = document.getElementById("labelHeight");
-    const labelWall = document.getElementById("labelWall");
+  function formatNum(v) {
+    const n = Number(v);
+    return Number.isFinite(n) && n > 0 ? String(n).replace(".", ",") : "";
+  }
 
-    groupWidth.style.display = "block";
-    groupHeight.style.display = "block";
-    groupWall.style.display = "block";
-
-    switch(type){
-
-        case "Blacha":
-            labelWidth.textContent = "Szerokość [mm]";
-            labelWall.textContent = "Grubość [mm]";
-            groupHeight.style.display = "none";
-            break;
-
-        case "Rura":
-            labelWidth.textContent = "Średnica zewnętrzna [mm]";
-            labelWall.textContent = "Grubość ścianki [mm]";
-            groupHeight.style.display = "none";
-            break;
-
-        case "Wałek":
-        case "Pręt":
-            labelWidth.textContent = "Średnica [mm]";
-            groupHeight.style.display = "none";
-            groupWall.style.display = "none";
-            break;
-
-        case "Płaskownik":
-            labelWidth.textContent = "Szerokość [mm]";
-            labelWall.textContent = "Grubość [mm]";
-            groupHeight.style.display = "none";
-            break;
-
-        case "Kątownik":
-            labelWidth.textContent = "Ramię A [mm]";
-            labelHeight.textContent = "Ramię B [mm]";
-            labelWall.textContent = "Grubość [mm]";
-            break;
-
-        case "Profil":
-            labelWidth.textContent = "Szerokość [mm]";
-            labelHeight.textContent = "Wysokość [mm]";
-            labelWall.textContent = "Grubość ścianki [mm]";
-            break;
+  function buildDimensionDescription(type, d) {
+    const L = formatNum(d.dlugosc_mm), W = formatNum(d.szerokosc_mm);
+    const H = formatNum(d.wysokosc_mm), T = formatNum(d.grubosc_mm);
+    const join = parts => {
+      const filled = parts.filter(Boolean);
+      return filled.length ? filled.join(" x ") + " mm" : "";
+    };
+    switch (type) {
+      case "Blacha": return join([L, W, T]);
+      case "Rura": return join([W && "Ø" + W, T, L]);
+      case "Wałek":
+      case "Pręt": return join([W && "Ø" + W, L]);
+      case "Płaskownik": return join([W, T, L]);
+      case "Kątownik":
+      case "Profil": return join([W, H, T, L]);
+      default: return "";
     }
-}
+  }
+
+  function updateDimensionDescription() {
+    const type = document.getElementById("materialType").value;
+    document.getElementById("materialDimension").value = buildDimensionDescription(type, readDimensions());
+  }
+
+  function recalcWeightPreview() {
+    const mass = calcMassPerPieceKg({
+      typ: document.getElementById("materialType").value,
+      gatunek: document.getElementById("materialSteel").value,
+      ...readDimensions(),
+      masa_szt_kg: Number(document.getElementById("materialMassPerPiece").value || 0)
+    });
+    const qty = Number(document.getElementById("materialQuantity").value || 0);
+    const total = mass * qty;
+    document.getElementById("materialTotalWeight").value = Number.isFinite(total) && total > 0 ? total.toFixed(3) : "";
+  }
+
+  function onMaterialInputChange(typeChanged) {
+    if (typeChanged) updateMaterialFields(true);
+    updateDimensionDescription();
+    recalcWeightPreview();
+  }
 
   function calcMassPerPieceKg(m) {
     const manual = Number(m.masa_szt_kg || m.mass_per_piece_kg || 0);
@@ -330,23 +369,24 @@ function updateMaterialFields() {
     const H = mmToM(m.wysokosc_mm || m.height_mm);
     const T = mmToM(m.grubosc_mm || m.wall_mm);
 
-    let volumeM3 = 0;
+    let areaM2 = 0;
 
-    if (type === "blacha") {
-      volumeM3 = L * W * T;
+    if (type === "blacha" || type === "płaskownik" || type === "plaskownik") {
+      areaM2 = W * T;
+      if (type === "blacha") return L * W * T * density;
     } else if (type === "pręt" || type === "pret" || type === "wałek" || type === "walek") {
-      const D = W;
-      const r = D / 2;
-      volumeM3 = Math.PI * r * r * L;
+      areaM2 = Math.PI * (W / 2) * (W / 2);
     } else if (type === "rura") {
-      const D = W;
-      const d = Math.max(D - (2 * T), 0);
-      volumeM3 = (Math.PI / 4) * (D * D - d * d) * L;
-    } else if (["profil", "kątownik", "katownik", "płaskownik", "plaskownik"].includes(type)) {
-      volumeM3 = L * W * H;
+      const d = Math.max(W - (2 * T), 0);
+      areaM2 = (Math.PI / 4) * (W * W - d * d);
+    } else if (type === "kątownik" || type === "katownik") {
+      areaM2 = Math.max((W + H - T) * T, 0);
+    } else if (type === "profil") {
+      const inner = Math.max(W - 2 * T, 0) * Math.max(H - 2 * T, 0);
+      areaM2 = Math.max(W * H - inner, 0);
     }
 
-    return volumeM3 * density;
+    return areaM2 * L * density;
   }
 
   async function startApp() {
@@ -506,7 +546,9 @@ function updateMaterialFields() {
     document.getElementById("materialLocation").value = "";
     document.getElementById("modalMessage").innerHTML = "";
 
-    updateMaterialFields();
+    updateMaterialFields(true);
+    updateDimensionDescription();
+    recalcWeightPreview();
 
     document.getElementById("materialModal").classList.remove("hidden");
 }
@@ -528,6 +570,9 @@ function updateMaterialFields() {
     document.getElementById("materialLocation").value = m.lokalizacja || "";
     document.getElementById("materialDepartment").value = m.dzial_id ?? "";
     document.getElementById("modalMessage").innerHTML = "";
+    updateMaterialFields(false);
+    updateDimensionDescription();
+    recalcWeightPreview();
     document.getElementById("materialModal").classList.remove("hidden");
   }
 
@@ -537,14 +582,12 @@ function updateMaterialFields() {
 
   async function saveMaterial() {
     const id = document.getElementById("materialId").value;
+    updateDimensionDescription();
     const payload = {
       typ: document.getElementById("materialType").value,
       gatunek: document.getElementById("materialSteel").value,
       wymiar: document.getElementById("materialDimension").value.trim(),
-      dlugosc_mm: Number(document.getElementById("materialLengthMm").value || 0),
-      szerokosc_mm: Number(document.getElementById("materialWidthMm").value || 0),
-      wysokosc_mm: Number(document.getElementById("materialHeightMm").value || 0),
-      grubosc_mm: Number(document.getElementById("materialWallMm").value || 0),
+      ...readDimensions(),
       masa_szt_kg: Number(document.getElementById("materialMassPerPiece").value || 0),
       ilosc: Number(document.getElementById("materialQuantity").value || 0),
       lokalizacja: document.getElementById("materialLocation").value.trim(),
