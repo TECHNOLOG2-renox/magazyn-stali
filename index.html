@@ -139,6 +139,7 @@
             <th>Waga [kg]</th>
             <th>Lokalizacja</th>
             <th>Akcje</th>
+            <th>Dodatkowe informacje</th>
           </tr>
         </thead>
         <tbody id="materialsTable"></tbody>
@@ -201,6 +202,11 @@
     <div class="form-group">
       <label>Dział</label>
       <select id="materialDepartment"></select>
+    </div>
+
+    <div class="form-group">
+      <label>Dodatkowe informacje</label>
+      <input type="text" id="materialExtraInfo" placeholder="Wpisz dowolny tekst...">
     </div>
 
     <div id="modalMessage"></div>
@@ -538,7 +544,7 @@
     const tbody = document.getElementById("materialsTable");
 
     const filtered = materials.filter(m => {
-      const hitSearch = !search || [m.typ, m.gatunek, getMaterialDimensionText(m), m.lokalizacja].join(" ").toLowerCase().includes(search);
+      const hitSearch = !search || [m.typ, m.gatunek, getMaterialDimensionText(m), m.lokalizacja, m.dodatkowe_informacje].join(" ").toLowerCase().includes(search);
       const hitType = !type || m.typ === type;
       const hitSteel = !steel || m.gatunek === steel;
       const hitLocation = !location || m.lokalizacja === location;
@@ -546,7 +552,7 @@
     });
 
     if (!filtered.length) {
-      tbody.innerHTML = `<tr><td colspan="7" class="empty">Brak materiałów</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="8" class="empty">Brak materiałów</td></tr>`;
       return;
     }
 
@@ -567,6 +573,7 @@
               <button class="btn-danger" onclick="deleteMaterial(${m.id})">Usuń</button>
             </div>
           </td>
+          <td>${m.dodatkowe_informacje || ''}</td>
         </tr>
       `;
     }).join('');
@@ -585,6 +592,7 @@
     document.getElementById("materialQuantity").value = "";
     document.getElementById("materialLocation").value = "";
     document.getElementById("materialTotalWeight").value = "";
+    document.getElementById("materialExtraInfo").value = "";
     document.getElementById("modalMessage").innerHTML = "";
 
     updateMaterialFields();
@@ -611,6 +619,7 @@
     document.getElementById("materialLocation").value = m.lokalizacja || "";
     document.getElementById("materialDepartment").value = m.dzial_id ?? "";
     document.getElementById("materialTotalWeight").value = "";
+    document.getElementById("materialExtraInfo").value = m.dodatkowe_informacje || "";
     document.getElementById("modalMessage").innerHTML = "";
 
     updateMaterialFields();
@@ -654,7 +663,8 @@
       masa_szt_kg: calculatedMass,
       ilosc,
       lokalizacja: document.getElementById("materialLocation").value.trim(),
-      dzial_id: Number(document.getElementById("materialDepartment").value || 0)
+      dzial_id: Number(document.getElementById("materialDepartment").value || 0),
+      dodatkowe_informacje: document.getElementById("materialExtraInfo").value.trim()
     };
 
     const message = document.getElementById("modalMessage");
@@ -728,7 +738,8 @@
         "Cena [zł/kg]": pricePerKg,
         "Wartość [zł]": Number(value.toFixed(2)),
         Lokalizacja: m.lokalizacja || "",
-        Dział: m.dzialy?.nazwa || ""
+        Dział: m.dzialy?.nazwa || "",
+        "Dodatkowe informacje": m.dodatkowe_informacje || ""
       };
     });
 
