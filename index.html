@@ -224,19 +224,19 @@
   const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   const MATERIAL_TYPES = ["Blacha", "Profil", "Kątownik", "Płaskownik", "Rura", "Pręt", "Wałek"];
-const MATERIAL_GRADES = ["Aluminium", "S355", "S235", "Corten", "Stal nierdzewna 304", "Stal nierdzewna 316", "S700", "S650", "50HF", "DD11"];
-const DENSITY_BY_GRADE = {
-  "Aluminium": 2700,
-  "S355": 7850,
-  "S235": 7850,
-  "S700": 7850,
-  "S650": 7850,
-  "DD11": 7850,
-  "50HF": 7850,
-  "Corten": 7850,
-  "Stal nierdzewna 304": 8000,
-  "Stal nierdzewna 316": 8000
-};
+  const MATERIAL_GRADES = ["Aluminium", "S355", "S235", "S700", "S650", "DD11", "50HF", "Corten", "Stal nierdzewna 304", "Stal nierdzewna 316"];
+  const DENSITY_BY_GRADE = {
+    "Aluminium": 2700,
+    "S355": 7850,
+    "S235": 7850,
+    "S700": 7850,
+    "S650": 7850,
+    "DD11": 7850,
+    "50HF": 7850,
+    "Corten": 7850,
+    "Stal nierdzewna 304": 8000,
+    "Stal nierdzewna 316": 8000
+  };
 
   const LOCATION_OPTIONS = ["Hala", "Plac zewnętrzny", "Regały zewnętrzne"];
 
